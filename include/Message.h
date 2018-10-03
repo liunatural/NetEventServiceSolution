@@ -1,0 +1,33 @@
+#pragma once
+
+#pragma pack(push, 1)
+struct MessagePackage
+{
+public:
+	struct Header
+	{
+		int						length;
+		unsigned short	id1;
+		unsigned short	id2;
+	};
+
+public:
+	enum { header_length = sizeof(Header) };
+	enum { max_body_length = 32 * 1024 };
+
+	Header* header()  { return (Header*)data_; }
+	char* body() { return data_ + header_length; }
+	char* data() { return data_; }
+	int GetLinkID() const { return m_linkid; }
+	void SetLinkID(int linkID) { m_linkid = linkID; }
+	int	 GetPackageLength() const { return header_length + GetBodyLength(); }
+	
+	int	 GetBodyLength() const { return ((Header*)data_)->length; }
+	void SetBodyLength(int len) { header()->length = len; }
+
+private:
+	int		m_linkid;
+	char	data_[header_length + max_body_length];
+
+};
+#pragma pack(pop)
