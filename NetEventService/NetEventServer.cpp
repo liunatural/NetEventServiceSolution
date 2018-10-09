@@ -30,7 +30,6 @@ NetEventServer::~NetEventServer()
 
 bool NetEventServer::Start(int port, int maxConnects)
 {
-	
 	bool bRet = Init(0, maxConnects);
 	if (!bRet) 
 	{
@@ -65,22 +64,19 @@ bool NetEventServer::Start(int port, int maxConnects)
 		port = ntohs(sin.sin_port);
 	}
 
-	printf("服务器启动.\n");
 
-
-	event_base_dispatch(m_base);
-	if (WSAENOTSOCK == WSAGetLastError())
+	m_dispatchThread.reset(new std::thread([this]
 	{
-		printf("无效套接字！\n");
-	}
+		event_base_dispatch(m_base);
 
+		if (WSAENOTSOCK == WSAGetLastError())
+		{
+			printf("无效套接字！\n");
+			exit(0);
+		}
+	}));
 
-	event_base_free(m_base);
-	m_base = NULL;
-
-	evconnlistener_free(m_listener);
-
-	printf("服务器关闭.\n");
+	printf("服务器成功启动! 端口号:[%d]\n", port);
 
 	return true;
 }
@@ -88,11 +84,9 @@ bool NetEventServer::Start(int port, int maxConnects)
 
 bool NetEventServer::Stop()
 {
-	if (m_base != NULL)
-	{
-		event_base_free(m_base);
-		m_base = NULL;
-	}
+	//结束消息派发线程
+	event_base_loopbreak(m_base);
+	m_dispatchThread->join();
 
 	if (m_listener != NULL)
 	{
@@ -100,6 +94,13 @@ bool NetEventServer::Stop()
 		m_listener = NULL;
 	}
 
+	if (m_base != NULL)
+	{
+		event_base_free(m_base);
+		m_base = NULL;
+	}
+
+	//销毁消息队列
 	if (m_pMsgQueueAB)
 	{
 		delete m_pMsgQueueAB;
@@ -113,13 +114,15 @@ bool NetEventServer::Stop()
 		m_channelID_set = nullptr;
 	}
 
-	//销毁工作线程
+	//结束工作线程
 	for (int i = 0; i < m_libevent_threads.size(); ++i)
 	{
 		if (m_libevent_threads[i] != NULL)
 		{
+			event_base_loopbreak(m_libevent_threads[i]->thread_base);
 			event_base_free(m_libevent_threads[i]->thread_base);
 			m_libevent_threads[i]->thread_base = NULL;
+			m_libevent_threads[i]->spThread->join();
 		}
 	}
 	m_libevent_threads.clear();
@@ -134,6 +137,7 @@ bool NetEventServer::Stop()
 	}
 	m_Channels.clear();
 
+	printf("服务器关闭.\n");
 
 	return true;
 }

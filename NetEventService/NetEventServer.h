@@ -91,5 +91,8 @@ private:
 
 	MessagePackage						m_msgPack;
 
+	std::shared_ptr<std::thread> m_dispatchThread;// 消息派发线程
+
+
 };
 

@@ -21,13 +21,17 @@ int main()
 		return -1;
 	}
 
-	std::thread work_thread(&Message_handle, pNetEventServer);
-	work_thread.detach();
-
-	if (!pNetEventServer->Start(5555, 5))
+	if (!pNetEventServer->Start(5555))
 	{
 		return -1;
 	}
+
+
+	Message_handle(pNetEventServer);
+
+	delete pNetEventServer;
+
+	getchar();
 
     return 0;
 }
@@ -63,7 +67,9 @@ void Message_handle(void *args)
 			case  link_stat::link_disconnected:
 			{
 				int cid = pack->GetLinkID();
-				printf("%04d 用户下线！\n", cid);
+				char ip[16] = { 0 };
+				memcpy(ip, pack->body(), pack->GetBodyLength());
+				printf("[%s]下线！\n", ip);
 
 				for (std::vector<int>::iterator it = users.begin(); it != users.end(); it++)
 				{
@@ -78,8 +84,8 @@ void Message_handle(void *args)
 			}
 			default:
 			{
-				int* j = (int*)pack->body();
-				printf("recv : cnt = %d, tid = %d, msg = %d\n", count++, pack->header()->id1, *j);
+				//int* j = (int*)pack->body();
+				//printf("recv : cnt = %d, tid = %d, msg = %d\n", count++, pack->header()->id1, *j);
 
 				std::vector<int>::iterator it = users.begin();
 				while (it != users.end())
@@ -97,8 +103,6 @@ void Message_handle(void *args)
 
 					++it;
 				}
-
-
 				break;
 			}
 

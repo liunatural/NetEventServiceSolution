@@ -19,7 +19,6 @@ void Send_testPack(void *args);
 
 int main()
 {
-
 	NetEvtClient* pNetEvClient = CreateNetEvtClient();
 
 	if (!pNetEvClient)
@@ -27,24 +26,20 @@ int main()
 		return -1;
 	}
 
-	if (pNetEvClient->Connect("127.0.0.1", "5555") != 0)
+	//if (pNetEvClient->Connect("127.0.0.1", "5555") != 0)
+	if (pNetEvClient->Connect("192.168.2.48", "5555") != 0)
 	{
 		printf("连接服务器失败！\n");
 		return -1;
 	}
-
-	std::thread work_thread(&Message_handle, pNetEvClient);
-	work_thread.detach();
 
 	std::thread send_thread(&Send_testPack, pNetEvClient);
 	send_thread.detach();
 
 	pNetEvClient->Start();
 
-	return 0;
+	Message_handle(pNetEvClient);
 }
-
-
 
 void Message_handle(void *args)
 {
@@ -72,8 +67,16 @@ void Message_handle(void *args)
 			}
 			case ID_User_Notify:
 			{
-				int* j = (int*)pack->body();
-				printf("recv from server : cnt = %d, msg = %d\n", count++, *j);
+				int cmd_id = pack->header()->id2;
+				if (0 == cmd_id)
+				{
+					int* j = (int*)pack->body();
+					printf("recv from server : cnt = %d, msg = %d\n", count++, *j);
+				}
+				else if (1 == cmd_id)
+				{
+					printf("recv from server : cnt = %d, msg = %s\n", count++, pack->body());
+				}
 
 				break;
 			}
@@ -90,9 +93,6 @@ void Message_handle(void *args)
 
 	}//while
 }
-
-
-
 
 void Send_testPack(void *args)
 {
@@ -114,9 +114,24 @@ void Send_testPack(void *args)
 
 		pNetEventClient->Send(msgPackage);
 
-		Sleep(30);
+		Sleep(10);
 	}
 
+	for (int n = 0; n < 10000; n++)
+	{
+
+		int id = random(30) + 1;
+
+		MessagePackage msgPackage;
+		msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
+		msgPackage.header()->id2 = 1;
+		memcpy(msgPackage.body(), "sdfsdfdsfd", sizeof("sdfsdfdsfd"));
+		msgPackage.SetBodyLength(sizeof("sdfsdfdsfd"));
+
+		pNetEventClient->Send(msgPackage);
+
+		Sleep(10);
+	}
 
 
 }

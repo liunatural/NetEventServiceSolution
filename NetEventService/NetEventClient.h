@@ -3,7 +3,7 @@
 #include "event2/bufferevent.h"
 #include "NetEventService.h"
 #include "DataStream.h"
-
+#include <thread>
 
 class MessageQueueAB;
 class NetEventClient : public NetEvtClient
@@ -25,8 +25,9 @@ public:
 private:
 	static void readcb(struct bufferevent* bev, void* arg);
 	static void eventcb(struct bufferevent *bev, short event, void *arg);
-	static void Handle_read(NetEventClient* pc);
 	void read_pack();
+
+	static void signal_cb(evutil_socket_t sig, short events, void *arg);
 
 
 private:
@@ -37,10 +38,11 @@ private:
 	DataStream	m_readStream;
 
 
-	//char* m_pszMsg;
-	//struct event *m_evtimeout;
+	std::shared_ptr<std::thread> m_thread;
 
 	struct timeval m_timeout;
+	struct event* m_pEvstop;
+
 
 };
 

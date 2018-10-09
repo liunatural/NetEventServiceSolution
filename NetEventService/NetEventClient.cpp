@@ -1,6 +1,9 @@
 #include "NetEventClient.h"
 #include "MessageQueue.h"
 #include "protocol.h"
+#include <signal.h>
+
+
 
 NetEventClient::NetEventClient() 
 {
@@ -10,6 +13,7 @@ NetEventClient::NetEventClient()
 
 NetEventClient::~NetEventClient()
 {
+	m_thread->join();
 }
 
 int NetEventClient::Connect(const char* ip, const char* port)
@@ -30,6 +34,10 @@ int NetEventClient::Connect(const char* ip, const char* port)
 		printf("Couldn't open event base!\n");
 		return -1;
 	}
+
+
+	m_pEvstop = evsignal_new(m_pBase, SIGINT, signal_cb, m_pBase);
+	evsignal_add(m_pEvstop, NULL);
 
 
 	struct sockaddr_in server_addr;
@@ -64,11 +72,17 @@ int NetEventClient::Connect(const char* ip, const char* port)
 
 void NetEventClient::Start()
 {
-	event_base_dispatch(m_pBase);
+	m_thread.reset(new std::thread([this]
+	{
+		event_base_dispatch(m_pBase);
+
+	}));
 }
 
 void NetEventClient::Disconnect()
 {
+	event_base_loopexit(m_pBase, NULL);
+	//event_base_loopbreak(m_pBase);
 
 	if (NULL != m_bev)
 	{
@@ -164,6 +178,16 @@ void NetEventClient::read_pack()
 
 		m_readStream.Pop(len + 8);
 	}
+
+}
+
+void NetEventClient::signal_cb(evutil_socket_t sig, short events, void * arg)
+{
+
+	struct event_base *base = (event_base *)arg;
+	printf("exception: interrupt, stop now!\n");
+
+	event_base_loopexit(base, NULL);
 
 }
 

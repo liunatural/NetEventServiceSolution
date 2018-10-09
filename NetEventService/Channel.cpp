@@ -53,7 +53,6 @@ void Channel::handle_read()
 
 }
 
-
 void Channel::read_pack()
 {
 
@@ -80,7 +79,6 @@ void Channel::read_pack()
 
 }
 
-
 void Channel::close()
 {
 	std::lock_guard<std::mutex> lock(channel_mtx);
@@ -106,41 +104,14 @@ void Channel::close()
 		msgPack.header()->id2 = 0;
 
 		msgPack.SetLinkID(m_channelID);
-		msgPack.SetBodyLength(0);
+		int dataLen = strlen(m_ip.c_str());
+		memcpy(msgPack.body(), m_ip.c_str(), dataLen);
+
+		msgPack.SetBodyLength(dataLen);
 
 		m_pMsgQAB->Push(msgPack);
 	}
 }
-
-
-//
-//send_stat Channel::send_data(unsigned short id1, unsigned short id2, const void* data, int len)
-//{
-//	std::lock_guard<std::mutex> lock(channel_mtx);
-//
-//	int datalength = len;
-//	MessagePackage msgPack;
-//
-//	msgPack.header()->id1 = id1;
-//	msgPack.header()->id2 = id2;
-//
-//	if (data == NULL)
-//	{
-//		datalength = 0;
-//	}
-//	
-//	if (datalength > 0)
-//	{
-//		memcpy(msgPack.body(), data, datalength);
-//	}
-//	
-//	msgPack.SetBodyLength(datalength);
-//
-//	int ret = send(m_fd, msgPack.data(), datalength, 0);
-//
-//	return send_stat::send_succeed;
-//}
-
 
 
 send_stat Channel::send_data(void* data, int len)
@@ -164,35 +135,3 @@ send_stat Channel::send_data(void* data, int len)
 	return send_stat::send_succeed;
 }
 
-
-//
-//bool Channel::SetupConnection(evutil_socket_t fd)
-//{
-//	//m_fd = fd;
-//	//evutil_make_socket_nonblocking(fd);
-//	//bufferevent_setcb(m_bev, DoRead, NULL, DoError, this);
-//	//bufferevent_setfd(m_bev, fd);
-//	//if (bufferevent_enable(m_bev, EV_READ | EV_WRITE) != -1)
-//	//{
-//	//	m_bUsed = true;
-//	//}
-//	return m_bUsed;
-//}
-//
-//
-//
-//void Channel::CloseConnection()
-//{
-//	//因为CloseConnection是在libevent线程的Event回掉中调用的，直接
-//	//bufferevent_setfd就会自动把之前的event给delete掉
-//	//bufferevent_disable(m_be, EV_READ | EV_WRITE);
-//	bufferevent_setfd(m_bev, -1);
-//	evutil_closesocket(m_fd);
-//	m_fd = -1;
-//	//当bufferevent_setfd设置fd是-1的时候，并不会将write和read的event
-//	//加入到event_base,如果event_base中监听的event数量为0时候，
-//	//event_base_loop会退出，导致libevent线程结束，所以这里重新手动
-//	//开启write,read事件
-//	bufferevent_enable(m_bev, EV_READ | EV_WRITE);
-//	m_bUsed = false;
-//}
