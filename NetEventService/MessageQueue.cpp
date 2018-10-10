@@ -1,3 +1,16 @@
+//**************************************************************************
+//
+//  File......... : MessageQueue.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : implementaion file of the class MessageQueue used to 
+//
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//**************************************************************************
+
+
 #include "MessageQueue.h"
 
 

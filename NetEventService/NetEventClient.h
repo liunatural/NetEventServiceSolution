@@ -1,3 +1,17 @@
+//**************************************************************************
+//
+//  File......... : NetEventClient.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : head file of the class NetEventClient used to implementation 
+//							common functions encapsulation for network communication based on
+//							libevent  open source.
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//***************************************************************************
+
+
 #pragma once
 #include "event2/event.h"
 #include "event2/bufferevent.h"
@@ -42,7 +56,5 @@ private:
 
 	struct timeval m_timeout;
 	struct event* m_pEvstop;
-
-
 };
 

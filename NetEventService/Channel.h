@@ -1,6 +1,18 @@
 #pragma once
 #include <event2/bufferevent.h>
 #include "DataStream.h"
+//**************************************************************************
+//
+//  File......... : Channel.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : head file of the class Channel used to user message procedure
+//						and save user connection  data.
+//
+//  History...... : first created Han Liu Zhi 2018-09
+//**************************************************************************
+
 #include <mutex>
 #include <chrono>
 

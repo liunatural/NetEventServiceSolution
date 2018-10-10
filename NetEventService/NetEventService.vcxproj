@@ -160,6 +160,7 @@
     <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="NetEventClient.h" />
     <ClInclude Include="NetEventServer.h" />
+    <ClInclude Include="SLog.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Channel.cpp" />
@@ -168,6 +169,7 @@
     <ClCompile Include="NetEventServer.cpp" />
     <ClCompile Include="MessageQueue.cpp" />
     <ClCompile Include="NetEventService.cpp" />
+    <ClCompile Include="SLog.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,3 +1,16 @@
+//**************************************************************************
+//
+//  File......... : MessagePackage.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : head file of the  MessagePackage struct.
+//
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//***************************************************************************
+
+
 #pragma once
 
 #pragma pack(push, 1)

@@ -1,9 +1,20 @@
+//**************************************************************************
+//
+//  File......... : NetEventClient.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : implementaion file of the class NetEventClient used to implementation 
+//							common functions encapsulation for network communication based on
+//							libevent  open source.
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//**************************************************************************
+
 #include "NetEventClient.h"
 #include "MessageQueue.h"
 #include "protocol.h"
 #include <signal.h>
-
-
 
 NetEventClient::NetEventClient() 
 {
@@ -18,12 +29,11 @@ NetEventClient::~NetEventClient()
 
 int NetEventClient::Connect(const char* ip, const char* port)
 {
-
 	WSADATA wsaData;
 	DWORD Ret;
 	if ((Ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
 	{
-		printf("WSAStartup failed with error %d\n", Ret);
+		LOG(error, "WSAStartup错误： %d\n", Ret);
 		return -1;
 	}
 
@@ -31,7 +41,7 @@ int NetEventClient::Connect(const char* ip, const char* port)
 	m_pBase = event_base_new();
 	if (!m_pBase)
 	{
-		printf("Couldn't open event base!\n");
+		LOG(error, "Couldn't open event base!");
 		return -1;
 	}
 
@@ -51,7 +61,7 @@ int NetEventClient::Connect(const char* ip, const char* port)
 	m_bev = bufferevent_socket_new(m_pBase, -1, BEV_OPT_CLOSE_ON_FREE);
 	if (!m_bev)
 	{
-		printf("Error constructing bufferevent!");
+		LOG(error, "Error constructing bufferevent!");
 		return -1;
 	}
 
@@ -61,7 +71,7 @@ int NetEventClient::Connect(const char* ip, const char* port)
 
 	if (bufferevent_socket_connect(m_bev, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
-		printf("Error starting connection!\n");
+		LOG(error, "Error starting connection!");
 		bufferevent_free(m_bev);
 		return -1;
 	}
@@ -185,7 +195,7 @@ void NetEventClient::signal_cb(evutil_socket_t sig, short events, void * arg)
 {
 
 	struct event_base *base = (event_base *)arg;
-	printf("exception: interrupt, stop now!\n");
+	LOG(error, "exception: interrupt, stop now!\n");
 
 	event_base_loopexit(base, NULL);
 
@@ -196,15 +206,15 @@ void NetEventClient::eventcb(struct bufferevent *bev, short event, void *arg)
 
 	if (event & BEV_EVENT_EOF)
 	{
-		printf("服务器端断开连接！\n");
+		LOG(info, "服务器端断开连接！");
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		printf("服务器端发生错误！！！\n");
+		LOG(error, "服务器端发生错误！");
 	}
 	else if (event & BEV_EVENT_CONNECTED)
 	{
-		printf("成功连接服务器！\n");
+		LOG(info, "成功连接服务器！");
 		evutil_socket_t fd = bufferevent_getfd(bev);
 		evutil_make_socket_nonblocking(fd);
 	}

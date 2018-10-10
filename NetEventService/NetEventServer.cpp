@@ -1,3 +1,16 @@
+//**************************************************************************
+//
+//  File......... : NetEventServer.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : implementation file of the class NetEventServer used to implementation 
+//							common functions encapsulation for network communication based on
+//							libevent  open source.
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//***************************************************************************
+
 #include "NetEventServer.h"
 #include "ChannelIDGenerator.h"
 #include "event2/thread.h"
@@ -12,6 +25,7 @@
 
 #define MUL_LIBEVENT_THREAD
 #define THREAD_NUMB 4
+
 
 NetEventServer::NetEventServer()
 {
@@ -30,6 +44,7 @@ NetEventServer::~NetEventServer()
 
 bool NetEventServer::Start(int port, int maxConnects)
 {
+	
 	bool bRet = Init(0, maxConnects);
 	if (!bRet) 
 	{
@@ -55,7 +70,7 @@ bool NetEventServer::Start(int port, int maxConnects)
 
 	if (!m_listener)
 	{
-		printf( "不能建立监听！\n");
+		LOG(error, "不能建立监听！");
 		return false;
 	}
 
@@ -71,12 +86,12 @@ bool NetEventServer::Start(int port, int maxConnects)
 
 		if (WSAENOTSOCK == WSAGetLastError())
 		{
-			printf("无效套接字！\n");
+			LOG(error, "无效套接字！");
 			exit(0);
 		}
 	}));
 
-	printf("服务器成功启动! 端口号:[%d]\n", port);
+	LOG(info, "服务器成功启动! 端口号:[%d]", port);
 
 	return true;
 }
@@ -137,7 +152,7 @@ bool NetEventServer::Stop()
 	}
 	m_Channels.clear();
 
-	printf("服务器关闭.\n");
+	LOG(info, "服务器关闭.");
 
 	return true;
 }
@@ -206,7 +221,7 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 
 	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
 	{
-		printf("diaoyongWSAStartup failed with error %d\n", ret);
+		LOG(error, "WSAStartup failed with error %d", ret);
 		exit(1);
 	}
 
@@ -224,7 +239,7 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 	m_base = event_base_new();
 	if (NULL == m_base)
 	{
-		printf("初始化Libevent失败！\n");
+		LOG(error, "初始化Libevent失败！");
 		return false;
 	}
 #ifdef MUL_LIBEVENT_THREAD
@@ -248,7 +263,7 @@ bool NetEventServer::InitWorkerThreads(int thread_numb)
 		evutil_socket_t fds[2];
 		if (evutil_socketpair(AF_INET, SOCK_STREAM, 0, fds) < 0)
 		{
-			printf( "创建socketpair失败！\n");
+			printf( "创建socketpair失败！");
 			return false;
 		}
 		//设置成无阻赛的socket
@@ -322,7 +337,7 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 #else
 			Sleep(1);
 #endif
-			printf("通知队列空！\n");
+			LOG(info, "通知队列空！");
 		}
 #else 
 		std::lock_guard<std::mutex>  lck(plt->conn_mtx);
@@ -336,14 +351,14 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	auto bev = bufferevent_socket_new(plt->thread_base, item.fd, BEV_OPT_THREADSAFE | BEV_OPT_CLOSE_ON_FREE);
 	if (!bev) 
 	{
-		printf ("创建socket出错！\n");
+		LOG(error, "创建socket出错！");
 		return;
 	}
 
 	Channel* c = pLibeventThread->that->CreateChannel(bev, item.tid);
 	if (NULL == c)
 	{
-		printf("超过服务器最大连接数！请稍后重新连接！\n");
+		LOG(info, "超过服务器最大连接数！请稍后重新连接！");
 		evutil_closesocket(item.fd);
 
 		return;
@@ -352,7 +367,7 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	c->SetIPAddr(item.ip); //保存IP
 
 	/************************************************/
-	printf("[%s]连接服务器成功！\n", item.ip.c_str());
+	LOG(info, "[%s]连接服务器成功！", item.ip.c_str());
 		
 	MessagePackage msgPack;
 	msgPack.header()->id1 = link_stat::link_connected;
@@ -400,7 +415,7 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 #else
 			Sleep(1);
 #endif
-			printf("连接队列超过1000连接数！");
+			LOG(error, "连接队列超过1000连接数！");
 		}
 #else
 		std::lock_guard<std::mutex> lock(plt->conn_mtx);
@@ -437,7 +452,7 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, int tid)
 
 	if (cid == -1)
 	{
-		printf("最大用户数已满！");
+		LOG(info, "最大用户数已满！");
 		return NULL;
 	}
 
@@ -485,15 +500,15 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 
 	if (what & BEV_EVENT_TIMEOUT)
 	{
-		printf("连接超时！\n");  //if bufferevent_set_timeouts() called.
+		LOG(info,"连接超时！");  //if bufferevent_set_timeouts() called.
 	}
 	else if (what & BEV_EVENT_EOF)
 	{
-		printf("客户端连接关闭！剩余消息数： %d\n", remain);
+		LOG(info, "客户端连接关闭！剩余消息数： %d", remain);
 	}
 	else if (what & BEV_EVENT_ERROR)
 	{
-		printf("客户端发生不明原因错误！ 剩余消息数： %d\n", remain);
+		LOG(info, "客户端发生不明原因错误！ 剩余消息数： %d", remain);
 	}
 
 	Channel* c = (Channel*)arg;
@@ -502,5 +517,3 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 		c->close();
 	}
 }
-
-

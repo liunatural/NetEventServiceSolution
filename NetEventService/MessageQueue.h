@@ -1,3 +1,16 @@
+//**************************************************************************
+//
+//  File......... : MessageQueue.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : head file of the  MessageQueue.
+//
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//***************************************************************************
+
+
 #pragma once
 #include <mutex>
 #include <deque>

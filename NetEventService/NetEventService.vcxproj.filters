@@ -19,6 +19,9 @@
     <ClCompile Include="NetEventClient.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="SLog.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Channel.h">
@@ -49,6 +52,9 @@
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="NetEventClient.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="SLog.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>

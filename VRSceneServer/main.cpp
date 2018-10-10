@@ -16,6 +16,8 @@ int main()
 {
 	NetEvtServer* pNetEventServer = CreateNetEvtServer();
 
+	InitLogger("Log/SceneServer");
+
 	if (!pNetEventServer)
 	{
 		return -1;
@@ -57,7 +59,6 @@ void Message_handle(void *args)
 			case link_stat::link_connected:
 			{
 				int cid = pack->GetLinkID();
-				printf("%04d 用户上线！\n", cid);
 				users.push_back(cid);
 
 				pNetEventServer->Send(cid, *pack);
@@ -69,7 +70,7 @@ void Message_handle(void *args)
 				int cid = pack->GetLinkID();
 				char ip[16] = { 0 };
 				memcpy(ip, pack->body(), pack->GetBodyLength());
-				printf("[%s]下线！\n", ip);
+				LOG(info, "[%s]下线！", ip);
 
 				for (std::vector<int>::iterator it = users.begin(); it != users.end(); it++)
 				{

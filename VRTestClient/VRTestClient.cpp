@@ -16,20 +16,21 @@ void Message_handle(void *args);
 
 void Send_testPack(void *args);
 
-
 int main()
 {
 	NetEvtClient* pNetEvClient = CreateNetEvtClient();
+
 
 	if (!pNetEvClient)
 	{
 		return -1;
 	}
 
-	//if (pNetEvClient->Connect("127.0.0.1", "5555") != 0)
-	if (pNetEvClient->Connect("192.168.2.48", "5555") != 0)
+	InitLogger("Log/Client");
+
+	if (pNetEvClient->Connect("127.0.0.1", "5555") != 0)
+	//if (pNetEvClient->Connect("192.168.2.48", "5555") != 0)
 	{
-		printf("连接服务器失败！\n");
 		return -1;
 	}
 
@@ -62,7 +63,7 @@ void Message_handle(void *args)
 			{
 			case link_stat::link_connected:
 			{
-				printf("连接OK！\n");
+				LOG(info, "连接OK！");
 				break;
 			}
 			case ID_User_Notify:

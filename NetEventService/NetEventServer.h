@@ -1,3 +1,17 @@
+//**************************************************************************
+//
+//  File......... : NetEventServer.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : head file of the class NetEventServer used to implementation 
+//							common functions encapsulation for network communication based on
+//							libevent  open source.
+//  History...... : first created Han Liu Zhi 2018-09
+//
+//***************************************************************************
+
+
 #pragma once
 #include "NetEventService.h"
 #include "MessageQueue.h"
@@ -92,7 +106,6 @@ private:
 	MessagePackage						m_msgPack;
 
 	std::shared_ptr<std::thread> m_dispatchThread;// 消息派发线程
-
 
 };
 
