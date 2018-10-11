@@ -1,3 +1,14 @@
+//****************************************************************************************
+//  File......... : SLog.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : Head file of the class SLog used as Logger service.
+//
+//  History...... : First created by Liu Zhi 2018-10
+//
+//****************************************************************************************
+
 #pragma once  
 
 #include <string>  

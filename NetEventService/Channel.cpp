@@ -1,13 +1,12 @@
 //**************************************************************************
-//
 //  File......... : Channel.cpp
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : implementaion file of the class Channel used to user message procedure
-//						and save user connection  data.
+//  Description.. : implementaion file of the class Channel used as user messages processing 
+//						and user connection  data managements.
 //
-//  History...... : first created Han Liu Zhi 2018-09
+//  History...... : first created by Liu Zhi 2018-09
 //**************************************************************************
 
 #include "Channel.h"

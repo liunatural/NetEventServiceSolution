@@ -1,13 +1,11 @@
 //**************************************************************************
-//
 //  File......... : NetEventClient.h
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : head file of the class NetEventClient used to implementation 
-//							common functions encapsulation for network communication based on
-//							libevent  open source.
-//  History...... : first created Han Liu Zhi 2018-09
+//  Description.. : head file of the class NetEventClient used as encapsulation to common 
+//							functions in libevent open source library for network communication.
+//  History...... : first created by Liu Zhi 2018-09
 //
 //***************************************************************************
 

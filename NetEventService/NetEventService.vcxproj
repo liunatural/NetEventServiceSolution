@@ -159,7 +159,7 @@
     <ClInclude Include="..\include\protocol.h" />
     <ClInclude Include="Channel.h" />
     <ClInclude Include="ChannelIDGenerator.h" />
-    <ClInclude Include="CommonDef.h" />
+    <ClInclude Include="ConfigReader.h" />
     <ClInclude Include="DataStream.h" />
     <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="NetEventClient.h" />
@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="Channel.cpp" />
     <ClCompile Include="ChannelIDGenerator.cpp" />
+    <ClCompile Include="ConfigReader.cpp" />
     <ClCompile Include="NetEventClient.cpp" />
     <ClCompile Include="NetEventServer.cpp" />
     <ClCompile Include="MessageQueue.cpp" />

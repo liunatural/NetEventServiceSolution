@@ -25,7 +25,16 @@ namespace expr = boost::log::expressions;
 boost::log::sources::severity_logger<boost::log::trivial::severity_level > SLog::s_slg;
 
 
-
+//****************************************************************************************
+//  File......... : SLog.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-09 
+//  Description.. : Implementation file of the class SLog used as Logger service.
+//
+//  History...... : First created by Liu Zhi 2018-10
+//
+//****************************************************************************************
 SLog::SLog()
 {
 }
