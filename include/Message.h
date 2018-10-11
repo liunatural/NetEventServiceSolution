@@ -1,17 +1,18 @@
 //**************************************************************************
-//
 //  File......... : MessagePackage.h
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : head file of the  MessagePackage struct.
+//  Description.. : head file of the MessagePackage struct.
 //
-//  History...... : first created Han Liu Zhi 2018-09
+//  History...... : first created by Liu Zhi 2018-09
 //
 //***************************************************************************
 
 
 #pragma once
+
+typedef int LinkID;
 
 #pragma pack(push, 1)
 struct MessagePackage
@@ -39,7 +40,7 @@ public:
 	void SetBodyLength(int len) { header()->length = len; }
 
 private:
-	int		m_linkid;
+	LinkID	m_linkid;
 	char	data_[header_length + max_body_length];
 
 };

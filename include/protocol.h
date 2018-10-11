@@ -34,11 +34,6 @@ enum send_stat
 #define MAX_DATA_BUFFER_LEN 1024 * 1024
 
 
-
-
-
-
-
 //消息ID
 enum
 {
