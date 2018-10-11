@@ -155,12 +155,19 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="PlayerManager.cpp" />
+    <ClCompile Include="SceneServerMain.cpp" />
+    <ClCompile Include="SvcTimer.cpp" />
+    <ClCompile Include="VRSceneServer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClInclude Include="..\include\CommonDef.h" />
+    <ClInclude Include="..\include\NetEventService.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="PlayerManager.h" />
+    <ClInclude Include="SvcTimer.h" />
+    <ClInclude Include="VRSceneServer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
