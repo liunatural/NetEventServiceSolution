@@ -80,9 +80,9 @@ void Message_handle(void *args)
 			case link_connected:
 			{
 				LOG(info, "Á¬½ÓOK£¡");
-				//std::thread send_thread(&Send_TransformPack, pNetEventClient);
+				std::thread send_thread(&Send_TransformPack, pNetEventClient);
 				//std::thread send_thread(&Send_testPack, pNetEventClient);
-				//send_thread.detach();
+				send_thread.detach();
 
 				break;
 			}

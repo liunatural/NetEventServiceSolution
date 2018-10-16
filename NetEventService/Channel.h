@@ -39,6 +39,7 @@ public:
 	std::mutex& GetChannelMutex() { return m_channel_mtx; };
 
 	void SetNetEventServer(NetEventServer* evtServer) { m_pNetEvtSvr = evtServer; };
+	NetEventServer* GetNetEventServer();
 	void SetBufferEvent(bufferevent* bev) { m_bev = bev; };
 
 	bool IsUsed() { return m_bUsedFlag; };

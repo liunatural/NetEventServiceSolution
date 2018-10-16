@@ -3,9 +3,9 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : implementation file of the class NetEventClient used as encapsulation to common 
+//  Description.. : Implementation file of the class NetEventClient used as encapsulation to common 
 //							functions in libevent open source library for network communication.
-//  History...... : first created by Liu Zhi 2018-09
+//  History...... : First created by Liu Zhi 2018-09
 //
 //***************************************************************************
 #include "NetEventServer.h"
@@ -19,8 +19,6 @@
 #include "MessageQueue.h"
 #include "protocol.h"
 
-#define MUL_LIBEVENT_THREAD
-#define THREAD_NUMB 4
 
 
 NetEventServer::NetEventServer()
@@ -28,7 +26,10 @@ NetEventServer::NetEventServer()
 	m_pMsgQueueAB = new MessageQueueAB();
 	m_base = NULL;
 	m_listener = NULL;
-	m_channelID_set = NULL;
+	m_channelMgr = NULL;
+
+	m_thread_num = 1;
+
 }
 
 
@@ -87,7 +88,7 @@ bool NetEventServer::Start(int port, int maxConnects)
 		}
 	}));
 
-	LOG(info, "服务器成功启动! 端口号:[%d]", port);
+	LOG(info, "服务器成功启动! 端口号:[%d]; 线程数:[%d]; 最大连接数[%d]", port, m_thread_num, maxConnects);
 
 	return true;
 }
@@ -119,10 +120,10 @@ bool NetEventServer::Stop()
 	}
 
 	//
-	if (m_channelID_set)
+	if (m_channelMgr)
 	{
-		delete m_channelID_set;
-		m_channelID_set = nullptr;
+		delete m_channelMgr;
+		m_channelMgr = nullptr;
 	}
 
 	//结束工作线程
@@ -190,6 +191,13 @@ void NetEventServer::Close(int connectid)
 }
 
 
+int NetEventServer::GetOnlineAmount()
+{
+
+	return m_channelMgr->TotalIDs() - m_channelMgr->TotalFreeIDs();
+
+}
+
 MessageQueue& NetEventServer::GetMsgQueue()
 {
 	return m_pMsgQueueAB->Swap();
@@ -207,16 +215,13 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 		exit(1);
 	}
 
-	m_channelID_set = new ChannelManager();
-	m_channelID_set->Init(id_begin, id_counts);
+	m_channelMgr = new ChannelManager();
+	m_channelMgr->Init(id_begin, id_counts);
 
-	m_Channels.resize(m_channelID_set->TotalIDs());
+	m_Channels.resize(m_channelMgr->TotalIDs());
 
 	//event支持windows下线程的函数
 	int hr = evthread_use_windows_threads();
-
-
-	//event_enable_debug_mode();
 
 	m_base = event_base_new();
 	if (NULL == m_base)
@@ -224,11 +229,13 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 		LOG(error, "初始化Libevent失败！");
 		return false;
 	}
-#ifdef MUL_LIBEVENT_THREAD
-	m_last_thread = -1; //注意初始化为-1
+
+	m_last_thread = -1; 
+	m_thread_num = std::thread::hardware_concurrency();
+	
 	//初始化线程
-	InitWorkerThreads(THREAD_NUMB);
-#endif
+	InitWorkerThreads(m_thread_num);
+
 	return true;
 }
 
@@ -310,24 +317,10 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	conn_queue_item  item;
 
 	//从自己的连接队列中取出一个连接
-	{
-#ifdef BOOST_LOCKFREE
-		while (!plt->conn_queue.pop(item))//pop一个出来
-		{
-#ifndef _DEBUG
-			boost::this_thread::interruptible_wait(1);
-#else
-			Sleep(1);
-#endif
-			LOG(info, "通知队列空！");
-		}
-#else 
-		std::lock_guard<std::mutex>  lck(plt->conn_mtx);
-		item = plt->conn_queue.front();
-		plt->conn_queue.pop();
-		
-#endif
-	}
+	std::lock_guard<std::mutex>  lck(plt->conn_mtx);
+	item = plt->conn_queue.front();
+	plt->conn_queue.pop();
+
 
 	//创建每个连接socket的bufferevent
 	auto bev = bufferevent_socket_new(plt->thread_base, item.fd, BEV_OPT_THREADSAFE | BEV_OPT_CLOSE_ON_FREE);
@@ -340,7 +333,7 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	Channel* c = pLibeventThread->that->CreateChannel(bev, item.tid);
 	if (NULL == c)
 	{
-		LOG(info, "超过服务器最大连接数！");
+		LOG(info, "[%s]尝试连接服务器失败！超过服务器最大连接数！", item.ip.c_str());
 		MessagePackage msgPack;
 		msgPack.WriteHeader(link_error_exceed_max_connects, 0);
 
@@ -355,7 +348,7 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	c->SetIPAddr(item.ip); //保存IP
 
 	/************************************************/
-	LOG(info, "[%s]连接服务器成功！", item.ip.c_str());
+	LOG(info, "[%s]连接服务器成功！当前在线人数: [%d]", item.ip.c_str(), plt->that->GetOnlineAmount());
 	
 	MessagePackage msgPack;
 	msgPack.WriteHeader(link_connected, 0);
@@ -376,9 +369,8 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 
 	NetEventServer * pEventServer = (NetEventServer *)user_data;
 
-#ifdef MUL_LIBEVENT_THREAD
 	// 轮循,选择工作线程
-	int cur_thread = (pEventServer->m_last_thread + 1) % THREAD_NUMB; 
+	int cur_thread = (pEventServer->m_last_thread + 1) % pEventServer->m_thread_num;
 	pEventServer->m_last_thread = cur_thread;
 
 
@@ -394,48 +386,18 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 	auto  plt = pEventServer->m_libevent_threads[cur_thread];
 	{
 		//向线程的队列中放入一个连接的socketfd
-#ifdef BOOST_LOCKFREE
-		while (!plt->conn_queue.push(item))
-		{
-#ifndef _DEBUG
-			boost::this_thread::interruptible_wait(1);
-#else
-			Sleep(1);
-#endif
-			LOG(error, "连接队列超过1000连接数！");
-		}
-#else
 		std::lock_guard<std::mutex> lock(plt->conn_mtx);
 		plt->conn_queue.push(item);
-#endif
 	}
 
 	//激活所选线程的通知事件回调函数notify_cb
 	send(plt->notfiy_send_fd, "c", 1, 0);
-
-#else
-	auto base = evconnlistener_get_base(listener);
-
-	auto bev = bufferevent_socket_new(base, fd, BEV_OPT_THREADSAFE);//|BEV_OPT_CLOSE_ON_FREE);
-	if (!bev)
-	{
-		printf( "Error constructing bufferevent!");
-		event_base_loopbreak(base);
-		return;
-	}
-
-	auto c2 = CreateChannel(bev);
-
-	bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c2);
-	bufferevent_enable(bev, EV_READ | EV_WRITE);
-
-#endif
 }
 
 
 Channel* NetEventServer::CreateChannel(bufferevent *bev, int tid)
 {
-	int cid = m_channelID_set->GetFreeID();
+	int cid = m_channelMgr->GetFreeID();
 
 	if (cid == -1)
 	{
@@ -500,4 +462,7 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 	{
 		c->CloseChannel();
 	}
+	
+	LOG(info, "剩余在线人数: [%d]", c->GetNetEventServer()->GetOnlineAmount());
+
 }

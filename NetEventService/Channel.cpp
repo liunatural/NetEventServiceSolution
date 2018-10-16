@@ -46,6 +46,11 @@ void   Channel::SeMsgQueueAB(MessageQueueAB* pMsgQAB)
 }
 
 
+NetEventServer* Channel::GetNetEventServer()
+{
+	return m_pNetEvtSvr;
+}
+
 void Channel::DoRead()
 {
 	char data[1024 * 4] = {0};
@@ -109,7 +114,7 @@ void Channel::CloseChannel()
 
 
 		int  cid = GetChannelID();
-		m_pNetEvtSvr->GetChannelIDSet()->ReleaseID(cid); //¹é»¹ChannelID
+		m_pNetEvtSvr->GetChannelManager()->ReleaseID(cid); //¹é»¹ChannelID
 
 		int dataLen = strlen(m_ip.c_str());
 

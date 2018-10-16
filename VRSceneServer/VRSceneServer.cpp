@@ -125,6 +125,7 @@ void VRSceneServer::HandleNetEvent()
 			case  link_disconnected:
 			{
 				playerMgr->SendPlayerLeaveMsg(cid);
+
 				break;
 			}
 			case ID_User_Transform:		//玩家位置变换消息

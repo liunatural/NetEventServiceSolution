@@ -46,12 +46,8 @@ typedef struct
 	struct event   notify_event;
 	evutil_socket_t  notfiy_recv_fd;						// socketpair 接收端fd（工作线程接收通知）
 	evutil_socket_t  notfiy_send_fd;						// socketpair 发送端fd（监听线程发送通知）
-#ifdef BOOST_LOCKFREE
-	boost::lockfree::spsc_queue<conn_queue_item, boost::lockfree::capacity<1000> > conn_queue;
-#else
 	std::mutex conn_mtx;									 //维护连接队列的锁
-	std::queue<conn_queue_item>  conn_queue;  //conn_queue 是一个管理conn_queue_item的队列
-#endif
+	std::queue<conn_queue_item>  conn_queue;  //管理conn_queue_item的队列
 
 	bool m_bStop;
 }WorkerThread;
@@ -73,9 +69,13 @@ public:
 	void Close(int connectid);
 
 	//-----------------------------------------------------------------------------------------//
-	MessageQueueAB* GetMessageQueueAB() { return m_pMsgQueueAB; };
-	std::vector<Channel*>* GetChannels() { return &m_Channels; };
-	ChannelManager* GetChannelIDSet() { return m_channelID_set; };
+	MessageQueueAB* GetMessageQueueAB() { return m_pMsgQueueAB; }
+	std::vector<Channel*>* GetChannels() { return &m_Channels; }
+	ChannelManager* GetChannelManager() { return m_channelMgr; }
+
+	int GetOnlineAmount();
+
+
 
 private:
 	static void notify_cb(evutil_socket_t fd, short which, void *args);
@@ -94,7 +94,7 @@ public:
 private:
 	struct event_base					*m_base;
 	struct evconnlistener				*m_listener;
-	ChannelManager				*m_channelID_set;		//用户连接ID列表
+	ChannelManager						*m_channelMgr;		//用户连接ID管理器
 	MessageQueueAB					*m_pMsgQueueAB;
 
 	vector<Channel*>					m_Channels;
@@ -102,6 +102,7 @@ private:
 	int m_last_thread;
 
 	MessagePackage						m_msgPack;
+	int											m_thread_num;
 
 	std::shared_ptr<std::thread> m_dispatchThread;// 消息派发线程
 
