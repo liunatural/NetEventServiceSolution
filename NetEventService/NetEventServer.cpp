@@ -8,19 +8,16 @@
 //  History...... : first created by Liu Zhi 2018-09
 //
 //***************************************************************************
-
 #include "NetEventServer.h"
-#include "ChannelIDGenerator.h"
 #include "event2/thread.h"
 #include "event2/event.h"
 #include "event2/event_compat.h"
 #include "event2/listener.h"
 #include "event2/buffer.h"
 #include "Channel.h"
+#include "ChannelManager.h"
 #include "MessageQueue.h"
 #include "protocol.h"
-
-
 
 #define MUL_LIBEVENT_THREAD
 #define THREAD_NUMB 4
@@ -179,7 +176,7 @@ int NetEventServer::Send(int connectid, MessagePackage& msg)
 		return send_target_not_exist;
 	}
 
-	return c->send_data(msg.data(), msg.GetPackageLength());
+	return c->SendData(msg.data(), msg.GetPackageLength());
 }
 
 void NetEventServer::Close(int connectid)
@@ -188,7 +185,7 @@ void NetEventServer::Close(int connectid)
 	Channel* c = m_Channels[connectid];
 	if (c != NULL)
 	{
-		c->close();
+		c->CloseChannel();
 	}
 }
 
@@ -210,10 +207,10 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 		exit(1);
 	}
 
-	m_channelID_set = new ChannelIDGenerator();
-	m_channelID_set->init(id_begin, id_counts);
+	m_channelID_set = new ChannelManager();
+	m_channelID_set->Init(id_begin, id_counts);
 
-	m_Channels.resize(m_channelID_set->getSize());
+	m_Channels.resize(m_channelID_set->TotalIDs());
 
 	//event支持windows下线程的函数
 	int hr = evthread_use_windows_threads();
@@ -343,7 +340,13 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	Channel* c = pLibeventThread->that->CreateChannel(bev, item.tid);
 	if (NULL == c)
 	{
-		LOG(info, "超过服务器最大连接数！请稍后重新连接！");
+		LOG(info, "超过服务器最大连接数！");
+		MessagePackage msgPack;
+		msgPack.WriteHeader(link_error_exceed_max_connects, 0);
+
+		send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);
+		Sleep(10);
+
 		evutil_closesocket(item.fd);
 
 		return;
@@ -353,13 +356,13 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 
 	/************************************************/
 	LOG(info, "[%s]连接服务器成功！", item.ip.c_str());
-		
-	//返回消息包给应用层，进行用户管理
+	
 	MessagePackage msgPack;
 	msgPack.WriteHeader(link_connected, 0);
 	msgPack.SetLinkID(c->GetChannelID());
 
-	plt->that->GetMessageQueueAB()->Push(msgPack);
+	plt->that->GetMessageQueueAB()->Push(msgPack);						//返回消息包给应用层，进行用户管理
+	send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);		//同时向用户发送连接成功的消息
 	/************************************************/
 
 	bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c);
@@ -432,11 +435,10 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 
 Channel* NetEventServer::CreateChannel(bufferevent *bev, int tid)
 {
-	int cid = m_channelID_set->getId();
+	int cid = m_channelID_set->GetFreeID();
 
 	if (cid == -1)
 	{
-		LOG(info, "最大用户数已满！");
 		return NULL;
 	}
 
@@ -472,7 +474,7 @@ void NetEventServer::conn_readcb(struct bufferevent *bev, void *arg)
 	Channel* c = (Channel*)arg;
 	c->SetBufferEvent(bev);
 
-	c->handle_read();						//数据流到channel中
+	c->DoRead();						//数据流到channel中
 }
 
 void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg)
@@ -496,6 +498,6 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 	Channel* c = (Channel*)arg;
 	if (NULL != c)
 	{
-		c->close();
+		c->CloseChannel();
 	}
 }

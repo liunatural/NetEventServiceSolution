@@ -3,7 +3,7 @@
 //  File......... : ConfigReader.h
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
-//  Date......... : 2018-09 
+//  Date......... : 2018-10 
 //  Description.. : head file of the class ConfigReader used as XML configuration file reader API
 //
 //  History...... : first created by Liu Zhi 2018-10

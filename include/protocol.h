@@ -22,6 +22,7 @@ enum
 	link_connected,
 	link_error_del_channel,
 	link_error_channel_is_exist,							//channel已经存在
+	link_error_exceed_max_connects,					//超过最大连接数	
 
 	send_succeed								= 20,
 	send_buffer_full ,

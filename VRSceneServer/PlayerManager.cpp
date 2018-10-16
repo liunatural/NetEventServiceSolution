@@ -264,6 +264,11 @@ void PlayerManager::BroadcastUserState(int plyId, int msgID, UserState userState
 		if (NULL != ply1 )
 		{
 			linkID = ply1->GetLinkID();
+			if (linkID == plyId)
+			{
+				continue;
+			}
+
 			SendCmd(linkID, msgID, s2c_upd_user_state, &usrStatInfo, sizeof(UserStateInfo));
 		}
 	}

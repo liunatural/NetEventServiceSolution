@@ -14,7 +14,7 @@
 #include "event2/event.h"
 #include "MessageQueue.h"
 #include "NetEventServer.h"
-#include "ChannelIDGenerator.h"
+#include "ChannelManager.h"
 #include "protocol.h"
 
 
@@ -46,7 +46,7 @@ void   Channel::SeMsgQueueAB(MessageQueueAB* pMsgQAB)
 }
 
 
-void Channel::handle_read()
+void Channel::DoRead()
 {
 	char data[1024 * 4] = {0};
 	int nbytes = 0;
@@ -58,23 +58,23 @@ void Channel::handle_read()
 	}
 
 	int len = (int)bufferevent_read(m_bev, data, sizeof(data));
-	m_readStream.Push(data, len);
+	m_readBuffer.Push(data, len);
 
-	read_pack();
+	ReadPackage();
 
 }
 
-void Channel::read_pack()
+void Channel::ReadPackage()
 {
 
-	while (m_readStream.Size() >= 8)
+	while (m_readBuffer.Size() >= 8)
 	{
 
-		int len = *(int*)m_readStream.Peek();
-		if (m_readStream.Size() < len + 8 )
+		int len = *(int*)m_readBuffer.Peek();
+		if (m_readBuffer.Size() < len + 8 )
 			break;
 
-		char* data = m_readStream.Peek();
+		char* data = m_readBuffer.Peek();
 		
 		//short tid = (short)GetTID();
 		//memcpy(data + 4, &tid, 2);  //加上线程号
@@ -86,14 +86,14 @@ void Channel::read_pack()
 
 		m_pMsgQAB->Push(msgPack);
 
-		m_readStream.Pop(len + 8);
+		m_readBuffer.Pop(len + 8);
 	}
 
 }
 
-void Channel::close()
+void Channel::CloseChannel()
 {
-	std::lock_guard<std::mutex> lock(channel_mtx);
+	std::lock_guard<std::mutex> lock(m_channel_mtx);
 
 	if (m_fd != -1)
 	{
@@ -109,7 +109,7 @@ void Channel::close()
 
 
 		int  cid = GetChannelID();
-		m_pNetEvtSvr->GetChannelIDSet()->freeId(cid); //归还ChannelID
+		m_pNetEvtSvr->GetChannelIDSet()->ReleaseID(cid); //归还ChannelID
 
 		int dataLen = strlen(m_ip.c_str());
 
@@ -124,9 +124,9 @@ void Channel::close()
 }
 
 
-int Channel::send_data(void* data, int len)
+int Channel::SendData(void* data, int len)
 {
-	std::lock_guard<std::mutex> lock(channel_mtx);
+	std::lock_guard<std::mutex> lock(m_channel_mtx);
 
 	if (m_fd == -1)
 	{

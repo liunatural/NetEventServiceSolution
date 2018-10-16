@@ -180,9 +180,9 @@ copy $(ProjectDir)..\include\consts.h ..\..\..\Projects\NetEventServiceSolution\
     <ClInclude Include="..\include\NetEventService.h" />
     <ClInclude Include="..\include\protocol.h" />
     <ClInclude Include="Channel.h" />
-    <ClInclude Include="ChannelIDGenerator.h" />
+    <ClInclude Include="ChannelManager.h" />
     <ClInclude Include="ConfigReader.h" />
-    <ClInclude Include="DataStream.h" />
+    <ClInclude Include="DynamicBuffer.h" />
     <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="NetEventClient.h" />
     <ClInclude Include="NetEventServer.h" />
@@ -190,7 +190,7 @@ copy $(ProjectDir)..\include\consts.h ..\..\..\Projects\NetEventServiceSolution\
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Channel.cpp" />
-    <ClCompile Include="ChannelIDGenerator.cpp" />
+    <ClCompile Include="ChannelManager.cpp" />
     <ClCompile Include="ConfigReader.cpp" />
     <ClCompile Include="NetEventClient.cpp" />
     <ClCompile Include="NetEventServer.cpp" />

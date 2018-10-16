@@ -196,7 +196,6 @@ void NetEventClient::eventcb(struct bufferevent *bev, short event, void *arg)
 	}
 	else if (event & BEV_EVENT_CONNECTED)
 	{
-		LOG(info, "成功连接服务器！");
 		evutil_socket_t fd = bufferevent_getfd(bev);
 		evutil_make_socket_nonblocking(fd);
 	}

@@ -2,12 +2,10 @@
 #include <vector>
 #include "consts.h"
 
-typedef std::vector<char> StreamBuffer;
-
-class DataStream
+class DynamicBuffer
 {
 public:
-	DataStream()
+	DynamicBuffer()
 	{
 		m_buff_len = MAX_DATA_BUFFER_LEN;
 
@@ -54,7 +52,7 @@ public:
 	}
 
 private:
-	StreamBuffer m_StreamBuffer;
+	std::vector<char> m_StreamBuffer;
 	int m_head_size;
 	int m_buff_len;
 };

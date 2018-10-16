@@ -11,7 +11,7 @@
 
 #pragma once
 #include <event2/bufferevent.h>
-#include "DataStream.h"
+#include "DynamicBuffer.h"
 #include <mutex>
 #include <chrono>
 
@@ -36,7 +36,7 @@ public:
 	MessageQueueAB* GetMsgQueueAB();
 	void  SeMsgQueueAB(MessageQueueAB* pMsgQAB);
 
-	std::mutex& GetChannelMutex() { return channel_mtx; };
+	std::mutex& GetChannelMutex() { return m_channel_mtx; };
 
 	void SetNetEventServer(NetEventServer* evtServer) { m_pNetEvtSvr = evtServer; };
 	void SetBufferEvent(bufferevent* bev) { m_bev = bev; };
@@ -47,24 +47,21 @@ public:
 	std::string& GetIPAddr() { return m_ip; };
 	void SetIPAddr(std::string ip) { m_ip = ip; };
 
-	void handle_read();
-	void read_pack();
-	void close();
-	//send_stat send_data(unsigned short id1, unsigned short id2, const void* data, int len);
-	int send_data(void* data, int len);
+	void DoRead();
+	void ReadPackage();
+	void CloseChannel();
+	int SendData(void* data, int len);
 
 private:
-
-	std::string m_ip;
-	evutil_socket_t m_fd;
-	int m_channelID;
-	int m_tid;	//thread ID
-	bool m_bUsedFlag = false;
-
-	MessageQueueAB *m_pMsgQAB;
-	DataStream	m_readStream;
-	std::mutex channel_mtx;
-	NetEventServer* m_pNetEvtSvr;
-	bufferevent* m_bev;
+	int								m_channelID;
+	int								m_tid;	//thread ID
+	bool							m_bUsedFlag = false;
+	evutil_socket_t			m_fd;
+	std::string					m_ip;
+	std::mutex				m_channel_mtx;
+	DynamicBuffer			m_readBuffer;
+	MessageQueueAB		*m_pMsgQAB;
+	NetEventServer			*m_pNetEvtSvr;
+	bufferevent				*m_bev;
 };
 

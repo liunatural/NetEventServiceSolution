@@ -65,7 +65,9 @@ int VRSceneServer::Start()
 	confReader->GetStr("root.Server.name", sceneServerID);
 
 	pNetEventServer = CreateNetEvtServer();
-	if (!pNetEventServer->Start(port))
+
+	bool bRet = pNetEventServer->Start(port, maxlinks);
+	if (bRet == false)
 	{
 		return FAIL;
 	}
@@ -109,12 +111,12 @@ void VRSceneServer::HandleNetEvent()
 			case link_connected:
 			{
 
+				playerMgr->SendClientList(cid);
+
 				Player*  ply = new Player(cid);
 				ply->SetSeatNumber(cid);
 				ply->SetSceneServerID(sceneServerID);
 				playerMgr->AddPlayer(ply);
-
-				playerMgr->SendClientList(cid);
 
 				playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
 

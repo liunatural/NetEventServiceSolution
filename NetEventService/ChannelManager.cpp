@@ -1,28 +1,28 @@
 //**************************************************************************
-//  File......... : ChannelIDGenerator.cpp
+//  File......... : ChannelManager.cpp
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
-//  Date......... : 2018-09 
-//  Description.. : implementation file for class ChannelIDGenerator used as channelID management 
+//  Date......... : 2018-10 
+//  Description.. : implementation file for class ChannelManager used as channelID management 
 //
-//  History...... : first created by Liu Zhi 2018-09
+//  History...... : First created by Liu Zhi 2018-10
 //
 //**************************************************************************
 
 
-#include "ChannelIDGenerator.h"
+#include "ChannelManager.h"
 
-ChannelIDGenerator::ChannelIDGenerator()
+ChannelManager::ChannelManager()
 {
 	m_size = 0;
 }
 
 
-ChannelIDGenerator::~ChannelIDGenerator()
+ChannelManager::~ChannelManager()
 {
 }
 
-void ChannelIDGenerator::init(int start, int size)
+void ChannelManager::Init(int start, int size)
 {
 
 	m_size = size;
@@ -33,7 +33,7 @@ void ChannelIDGenerator::init(int start, int size)
 
 }
 
-int ChannelIDGenerator::getId()
+int ChannelManager::GetFreeID()
 {
 	if (m_ids.empty())
 		return -1;
@@ -43,17 +43,17 @@ int ChannelIDGenerator::getId()
 	return id;
 }
 
-void ChannelIDGenerator::freeId(int id)
+void ChannelManager::ReleaseID(int id)
 {
 	m_ids.push(id);
 }
 
-int ChannelIDGenerator::getSize()
+int ChannelManager::TotalIDs()
 {
 	return m_size;
 }
 
-int ChannelIDGenerator::getFreeId()
+int ChannelManager::TotalFreeIDs()
 {
 	return (int)m_ids.size();
 }

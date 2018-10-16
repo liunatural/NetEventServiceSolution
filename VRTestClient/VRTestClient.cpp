@@ -1,10 +1,5 @@
-// VRTestClient.cpp : Defines the entry point for the console application.
-//
-
-#include "stdafx.h"
 #include "NetEventService.h"
 #include "protocol.h"
-
 #include <vector>
 #include <thread>
 #include <time.h>
@@ -14,9 +9,7 @@
 #define random(x) (rand()%x)
 
 void Message_handle(void *args);
-
 void Send_testPack(void *args);
-
 void Send_TransformPack(void *args);
 
 
@@ -59,10 +52,6 @@ int main()
 		return -1;
 	}
 
-	std::thread send_thread(&Send_TransformPack, pNetEvClient);
-	//std::thread send_thread(&Send_testPack, pNetEvClient);
-	send_thread.detach();
-
 	pNetEvClient->Start();
 
 	Message_handle(pNetEvClient);
@@ -91,6 +80,15 @@ void Message_handle(void *args)
 			case link_connected:
 			{
 				LOG(info, "连接OK！");
+				//std::thread send_thread(&Send_TransformPack, pNetEventClient);
+				//std::thread send_thread(&Send_testPack, pNetEventClient);
+				//send_thread.detach();
+
+				break;
+			}
+			case link_error_exceed_max_connects:
+			{
+				LOG(info, "超过服务器最大连接数！请稍后重试！");
 				break;
 			}
 			case ID_User_Transform:
@@ -130,16 +128,7 @@ void Message_handle(void *args)
 			case ID_User_Notify:
 			{
 
-				if (0 == cmd_id)
-				{
-					int* j = (int*)pack->body();
-					printf("recv from server : cnt = %d, msg = %d\n", count++, *j);
-				}
-				else if (1 == cmd_id)
-				{
-					printf("recv from server : cnt = %d, msg = %s\n", count++, pack->body());
-				}
-				else if (s2c_client_list == cmd_id) //用户列表
+				if (s2c_client_list == cmd_id) //用户列表
 				{
 
 					const char * p = pack->body();
@@ -199,10 +188,6 @@ void Send_testPack(void *args)
 		int id = random(30) + 1;
 
 		MessagePackage msgPackage;
-		//msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
-		//msgPackage.header()->id2 = 0;
-		//memcpy(msgPackage.body(), &id, sizeof(int));
-		//msgPackage.SetBodyLength(sizeof(int));
 
 		msgPackage.WriteHeader(ID_User_Notify, 0);
 		msgPackage.WriteBody(&id, sizeof(int));
@@ -219,10 +204,6 @@ void Send_testPack(void *args)
 		int id = random(30) + 1;
 
 		MessagePackage msgPackage;
-		//msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
-		//msgPackage.header()->id2 = 1;
-		//memcpy(msgPackage.body(), "sdfsdfdsfd", sizeof("sdfsdfdsfd"));
-		//msgPackage.SetBodyLength(sizeof("sdfsdfdsfd"));
 
 		msgPackage.WriteHeader(ID_User_Notify, 0);
 		msgPackage.WriteBody("sdfsdfdsfd", sizeof("sdfsdfdsfd"));
@@ -239,7 +220,7 @@ void Send_testPack(void *args)
 void Send_TransformPack(void *args)
 {
 	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
-	//发送位置变换信息
+
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
@@ -252,12 +233,6 @@ void Send_TransformPack(void *args)
 		TransformInfo.dir = dir;
 		int len = sizeof(TransformInfo);
 		MessagePackage msgPackage;
-
-		//msgPackage.header()->id1 = ID_User_Transform; //发送位置变换信息
-		//msgPackage.header()->id2 = 0;
-		//msgPackage.header()->length = len;
-		//memcpy(msgPackage.body(), (void*)&TransformInfo, len);
-
 		msgPackage.WriteHeader(ID_User_Transform, 0);
 		msgPackage.WriteBody(&TransformInfo, len);
 

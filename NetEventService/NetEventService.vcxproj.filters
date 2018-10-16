@@ -4,9 +4,6 @@
     <ClCompile Include="Channel.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
-    <ClCompile Include="ChannelIDGenerator.cpp">
-      <Filter>SourceFiles</Filter>
-    </ClCompile>
     <ClCompile Include="MessageQueue.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
@@ -22,16 +19,15 @@
     <ClCompile Include="SLog.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
-    <ClCompile Include="ConfigReader.cpp" />
+    <ClCompile Include="ConfigReader.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="ChannelManager.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Channel.h">
-      <Filter>HeaderFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="ChannelIDGenerator.h">
-      <Filter>HeaderFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="DataStream.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Message.h">
@@ -55,7 +51,15 @@
     <ClInclude Include="SLog.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="ConfigReader.h" />
+    <ClInclude Include="ChannelManager.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicBuffer.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigReader.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SourceFiles">

@@ -25,7 +25,7 @@ using namespace std;
 class NetEventServer;
 class Channel;
 class Channel2;
-class ChannelIDGenerator;
+class ChannelManager;
 class MessageQueueAB;
 enum send_stat;
 
@@ -75,7 +75,7 @@ public:
 	//-----------------------------------------------------------------------------------------//
 	MessageQueueAB* GetMessageQueueAB() { return m_pMsgQueueAB; };
 	std::vector<Channel*>* GetChannels() { return &m_Channels; };
-	ChannelIDGenerator* GetChannelIDSet() { return m_channelID_set; };
+	ChannelManager* GetChannelIDSet() { return m_channelID_set; };
 
 private:
 	static void notify_cb(evutil_socket_t fd, short which, void *args);
@@ -94,7 +94,7 @@ public:
 private:
 	struct event_base					*m_base;
 	struct evconnlistener				*m_listener;
-	ChannelIDGenerator				*m_channelID_set;		//用户连接ID列表
+	ChannelManager				*m_channelID_set;		//用户连接ID列表
 	MessageQueueAB					*m_pMsgQueueAB;
 
 	vector<Channel*>					m_Channels;

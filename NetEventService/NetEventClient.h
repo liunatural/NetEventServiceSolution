@@ -14,7 +14,7 @@
 #include "event2/event.h"
 #include "event2/bufferevent.h"
 #include "NetEventService.h"
-#include "DataStream.h"
+#include "DynamicBuffer.h"
 #include <thread>
 
 class MessageQueueAB;
@@ -31,7 +31,7 @@ public:
 	int Send(MessagePackage& msg);
 	int	 Send(unsigned short id1, unsigned short id2, const char* data, unsigned int len);
 
-	DataStream& GetDataStream() {return m_readStream;}
+	DynamicBuffer& GetDataStream() {return m_readStream;}
 
 
 private:
@@ -47,7 +47,7 @@ private:
 	struct bufferevent* m_bev;
 	MessageQueueAB *m_pMsgQueueAB;
 	MessagePackage	 m_msgPack;
-	DataStream	m_readStream;
+	DynamicBuffer	m_readStream;
 
 
 	std::shared_ptr<std::thread> m_thread;
