@@ -74,7 +74,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>../Bin</OutDir>
+    <OutDir>..\Bin</OutDir>
     <IncludePath>../include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -83,7 +83,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>../Bin</OutDir>
+    <OutDir>..\Bin</OutDir>
     <IncludePath>../include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -115,6 +115,17 @@
       <AdditionalDependencies>ws2_32.lib;libevent.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../lib/$(TargetName).lib</ImportLibrary>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName).dll ..\..\..\Projects\NetEventServiceSolution\Bin\
+copy $(OutDir)$(TargetName).pdb ..\..\..\Projects\NetEventServiceSolution\Bin\
+copy $(ProjectDir)..\lib\$(TargetName).lib ..\..\..\Projects\NetEventServiceSolution\Lib\
+copy $(ProjectDir)..\include\NetEventService.h ..\..\..\Projects\NetEventServiceSolution\Include\
+copy $(ProjectDir)..\include\Message.h ..\..\..\Projects\NetEventServiceSolution\Include\
+copy $(ProjectDir)..\include\protocol.h ..\..\..\Projects\NetEventServiceSolution\Include\
+copy $(ProjectDir)..\include\consts.h ..\..\..\Projects\NetEventServiceSolution\Include\
+
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -152,6 +163,17 @@
       <ImportLibrary>../lib/$(TargetName).lib</ImportLibrary>
       <AdditionalDependencies>ws2_32.lib;libevent.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(OutDir)$(TargetName).dll ..\..\..\Projects\NetEventServiceSolution\Bin\
+copy $(OutDir)$(TargetName).pdb ..\..\..\Projects\NetEventServiceSolution\Bin\
+copy $(ProjectDir)..\lib\$(TargetName).lib ..\..\..\Projects\NetEventServiceSolution\Lib\
+copy $(ProjectDir)..\include\NetEventService.h ..\..\..\Projects\NetEventServiceSolution\Include\
+copy $(ProjectDir)..\include\Message.h ..\..\..\Projects\NetEventServiceSolution\Include\
+copy $(ProjectDir)..\include\protocol.h ..\..\..\Projects\NetEventServiceSolution\Include\
+copy $(ProjectDir)..\include\consts.h ..\..\..\Projects\NetEventServiceSolution\Include\
+
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Message.h" />

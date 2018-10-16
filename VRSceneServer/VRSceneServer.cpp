@@ -1,5 +1,4 @@
 #include "VRSceneServer.h"
-#include "CommonDef.h"
 #include <vector>
 #include <thread>
 
@@ -107,7 +106,7 @@ void VRSceneServer::HandleNetEvent()
 
 			switch (msgID)
 			{
-			case link_stat::link_connected:
+			case link_connected:
 			{
 
 				Player*  ply = new Player(cid);
@@ -121,7 +120,7 @@ void VRSceneServer::HandleNetEvent()
 
 				break;
 			}
-			case  link_stat::link_disconnected:
+			case  link_disconnected:
 			{
 				playerMgr->SendPlayerLeaveMsg(cid);
 				break;

@@ -51,7 +51,7 @@ public:
 	void read_pack();
 	void close();
 	//send_stat send_data(unsigned short id1, unsigned short id2, const void* data, int len);
-	send_stat send_data(void* data, int len);
+	int send_data(void* data, int len);
 
 private:
 

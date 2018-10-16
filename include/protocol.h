@@ -1,40 +1,37 @@
-﻿#ifndef Protocol_H
-#define Protocol_H
+﻿//**************************************************************************
+//  File......... : prototol.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-10 
+//  Description.. : Protocol file used as communication between the business layer and core network layer.
+//
+//  History...... : First created by Liu Zhi 2018-10
+//
+//***************************************************************************
 
+#pragma  once
 #include "consts.h"
 
-
-#pragma pack(push, 1)
-
-#define net_protocol_ver 100
-
-
-
-enum link_stat
+//系统消息ID（网络层消息ID）
+enum 
 {
-	link_unconnect = 1,
+	link_unconnect							= 1,
 	link_connecting,
 	link_connect_failed,
 	link_disconnected,
 	link_connected,
 	link_error_del_channel,
-	link_error_channel_is_exist,//channel已经存在
-};
+	link_error_channel_is_exist,							//channel已经存在
 
-enum send_stat
-{
-	send_succeed = 1,
-	send_buffer_full = 2,
-	send_disconnected = 3,
-	send_parameter_error = 4,
+	send_succeed								= 20,
+	send_buffer_full ,
+	send_disconnected,
+	send_parameter_error,
 	send_target_not_exist,
 };
 
 
-#define MAX_DATA_BUFFER_LEN 1024 * 1024
-
-
-//消息ID
+//用户消息ID （业务层消息ID，从1000以后开始）
 enum
 {
 	ID_User_Login							=1001,			//用户登录消息ID
@@ -51,10 +48,10 @@ enum
 	ID_FLV_StreamReback,									//数据流获取反馈消息
 };
 
-//命令ID
+//用户命令ID（业务层命令ID）
 enum
 {
-	c2s_tell_seat_num = 1,									//VIP客户端连接后发送座位号给场景服务器
+	c2s_tell_seat_num						= 1,				//VIP客户端连接后发送座位号给场景服务器
 	c2s_tell_user_type,										//客户端类型：胶囊体客户端；VIP客户端；摄像机视角客户端	
 	c2s_tell_ready,												//客户端已准备好
 	c2s_req_seat_num,										//胶囊客户端请求座位号
@@ -68,7 +65,7 @@ enum
 	c2s_stop_present_flowers,								//玩家结束献花	
 
 
-	s2c_ply_ready = 101,										//服务器返回用户已准备好命令ID
+	s2c_ply_ready							= 101,			//服务器返回用户已准备好命令ID
 	s2c_ply_leave,												//服务器返回用农离开命令ID
 	s2c_begin_flying,											//用户起飞命令
 	s2c_rsp_seat_num,										//下发座位号给胶囊体
@@ -85,6 +82,9 @@ enum
 	s2s_req_usr_list = 200,
 	//最大协议数值254，大了会出错
 };
+
+
+#pragma pack(push, 1)
 
 struct vec3
 {
@@ -172,4 +172,3 @@ struct FlvStreamReback
 };
 
 #pragma pack(pop)
-#endif //Protocol_H

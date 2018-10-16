@@ -88,7 +88,7 @@ void Message_handle(void *args)
 
 			switch (msgID)
 			{
-			case link_stat::link_connected:
+			case link_connected:
 			{
 				LOG(info, "连接OK！");
 				break;
@@ -199,10 +199,14 @@ void Send_testPack(void *args)
 		int id = random(30) + 1;
 
 		MessagePackage msgPackage;
-		msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
-		msgPackage.header()->id2 = 0;
-		memcpy(msgPackage.body(), &id, sizeof(int));
-		msgPackage.SetBodyLength(sizeof(int));
+		//msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
+		//msgPackage.header()->id2 = 0;
+		//memcpy(msgPackage.body(), &id, sizeof(int));
+		//msgPackage.SetBodyLength(sizeof(int));
+
+		msgPackage.WriteHeader(ID_User_Notify, 0);
+		msgPackage.WriteBody(&id, sizeof(int));
+
 
 		pNetEventClient->Send(msgPackage);
 
@@ -215,10 +219,14 @@ void Send_testPack(void *args)
 		int id = random(30) + 1;
 
 		MessagePackage msgPackage;
-		msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
-		msgPackage.header()->id2 = 1;
-		memcpy(msgPackage.body(), "sdfsdfdsfd", sizeof("sdfsdfdsfd"));
-		msgPackage.SetBodyLength(sizeof("sdfsdfdsfd"));
+		//msgPackage.header()->id1 = (unsigned short)ID_User_Notify;
+		//msgPackage.header()->id2 = 1;
+		//memcpy(msgPackage.body(), "sdfsdfdsfd", sizeof("sdfsdfdsfd"));
+		//msgPackage.SetBodyLength(sizeof("sdfsdfdsfd"));
+
+		msgPackage.WriteHeader(ID_User_Notify, 0);
+		msgPackage.WriteBody("sdfsdfdsfd", sizeof("sdfsdfdsfd"));
+
 
 		pNetEventClient->Send(msgPackage);
 
@@ -244,10 +252,15 @@ void Send_TransformPack(void *args)
 		TransformInfo.dir = dir;
 		int len = sizeof(TransformInfo);
 		MessagePackage msgPackage;
-		msgPackage.header()->id1 = ID_User_Transform; //发送位置变换信息
-		msgPackage.header()->id2 = 0;
-		msgPackage.header()->length = len;
-		memcpy(msgPackage.body(), (void*)&TransformInfo, len);
+
+		//msgPackage.header()->id1 = ID_User_Transform; //发送位置变换信息
+		//msgPackage.header()->id2 = 0;
+		//msgPackage.header()->length = len;
+		//memcpy(msgPackage.body(), (void*)&TransformInfo, len);
+
+		msgPackage.WriteHeader(ID_User_Transform, 0);
+		msgPackage.WriteBody(&TransformInfo, len);
+
 
 		pNetEventClient->Send(msgPackage);
 

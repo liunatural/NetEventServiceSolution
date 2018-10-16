@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "protocol.h"
+#include "consts.h"
 
 typedef std::vector<char> StreamBuffer;
 

@@ -1,7 +1,6 @@
 
 #include "NetEventService.h"
 #include "VRSceneServer.h"
-#include "CommonDef.h"
 #include  "SvcTimer.h"
 #include <thread>
 

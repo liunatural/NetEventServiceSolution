@@ -3,7 +3,7 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : implementaion file of the class ChannelIDGenerator used to 
+//  Description.. : implementation file for class ChannelIDGenerator used as channelID management 
 //
 //  History...... : first created by Liu Zhi 2018-09
 //

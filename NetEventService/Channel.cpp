@@ -3,19 +3,19 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : implementaion file of the class Channel used as user messages processing 
-//						and user connection  data managements.
+//  Description.. : Implementation file for class Channel used as user messages processing 
+//						and user connection data managements.
 //
-//  History...... : first created by Liu Zhi 2018-09
+//  History...... : First created by Liu Zhi 2018-09
 //**************************************************************************
 
 #include "Channel.h"
 #include "event2/buffer.h"
 #include "event2/event.h"
 #include "MessageQueue.h"
-#include "Message.h"
 #include "NetEventServer.h"
 #include "ChannelIDGenerator.h"
+#include "protocol.h"
 
 
 Channel::Channel(struct bufferevent *bev) 
@@ -75,6 +75,7 @@ void Channel::read_pack()
 			break;
 
 		char* data = m_readStream.Peek();
+		
 		//short tid = (short)GetTID();
 		//memcpy(data + 4, &tid, 2);  //加上线程号
 
@@ -110,22 +111,20 @@ void Channel::close()
 		int  cid = GetChannelID();
 		m_pNetEvtSvr->GetChannelIDSet()->freeId(cid); //归还ChannelID
 
-		MessagePackage msgPack;
-		msgPack.header()->id1 = link_stat::link_disconnected;
-		msgPack.header()->id2 = 0;
-
-		msgPack.SetLinkID(m_channelID);
 		int dataLen = strlen(m_ip.c_str());
-		memcpy(msgPack.body(), m_ip.c_str(), dataLen);
 
-		msgPack.SetBodyLength(dataLen);
+		MessagePackage msgPack;
+		msgPack.WriteHeader(link_disconnected, 0);
+		msgPack.WriteBody((void*)m_ip.c_str(), dataLen);
+		msgPack.SetLinkID(m_channelID);
+
 
 		m_pMsgQAB->Push(msgPack);
 	}
 }
 
 
-send_stat Channel::send_data(void* data, int len)
+int Channel::send_data(void* data, int len)
 {
 	std::lock_guard<std::mutex> lock(channel_mtx);
 
@@ -143,6 +142,6 @@ send_stat Channel::send_data(void* data, int len)
 
 	int ret = send(m_fd, (const char*)data, len, 0); 
 
-	return send_stat::send_succeed;
+	return send_succeed;
 }
 

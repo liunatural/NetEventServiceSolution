@@ -3,7 +3,7 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : implementaion file of the class NetEventClient used as encapsulation to common 
+//  Description.. : implementation file of the class NetEventClient used as encapsulation to common 
 //							functions in libevent open source library for network communication.
 //  History...... : first created by Liu Zhi 2018-09
 //
@@ -111,8 +111,6 @@ MsgQueue& NetEventClient::GetMsgQueue()
 
 int NetEventClient::Send(MessagePackage& msg)
 {
-	//return bufferevent_write(m_bev, msg.data(), msg.GetPackageLength());
-
 	evutil_socket_t fd = bufferevent_getfd(m_bev);
 	int ret = send(fd, msg.data(), msg.GetPackageLength(), 0);
 
@@ -124,27 +122,13 @@ int NetEventClient::Send(unsigned short id1, unsigned short id2, const char* dat
 
 	if (id1 < 0 || id2 < 0 || len < 0)
 	{
-		return send_stat::send_parameter_error;
+		return send_parameter_error;
 	}
 
-	int datalength = len;
-	m_msgPack.header()->id1 = id1;
-	m_msgPack.header()->id2 = id2;
-
-	if (data == NULL)
-	{
-		datalength = 0;
-	}
-
-	if (datalength > 0)
-	{
-		memcpy(m_msgPack.body(), data, datalength);
-	}
-
-	m_msgPack.SetBodyLength(datalength);
+	m_msgPack.WriteHeader(id1, id2);
+	m_msgPack.WriteBody((void*)data, len);
 
 	return Send(m_msgPack);
-
 }
 
 void NetEventClient::readcb(struct bufferevent* bev, void* arg)

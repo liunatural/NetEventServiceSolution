@@ -50,7 +50,13 @@
     <ClInclude Include="VRSceneServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\CommonDef.h">
+    <ClInclude Include="..\include\protocol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\Message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\consts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

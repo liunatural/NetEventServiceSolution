@@ -15,6 +15,7 @@
 #include "NetEventClient.h"
 #include "SLog.h"
 #include "ConfigReader.h"
+#include "consts.h"
 
 NETEVENTSERVICE_API NetEvtServer* CreateNetEvtServer()
 {

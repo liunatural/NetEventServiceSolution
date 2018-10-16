@@ -18,7 +18,8 @@
 #include "event2/buffer.h"
 #include "Channel.h"
 #include "MessageQueue.h"
-#include "CommonDef.h"
+#include "protocol.h"
+
 
 
 #define MUL_LIBEVENT_THREAD
@@ -160,27 +161,13 @@ int NetEventServer::Send(int connectid, unsigned short id1, unsigned short id2, 
 {
 	if (connectid < 0 || id1 < 0 || id2 < 0 || len < 0)
 	{
-		return send_stat::send_parameter_error;
+		return send_parameter_error;
 	}
 
-	int datalength = len;
-	m_msgPack.header()->id1 = id1;
-	m_msgPack.header()->id2 = id2;
-
-	if (data == NULL)
-	{
-		datalength = 0;
-	}
-
-	if (datalength > 0)
-	{
-		memcpy(m_msgPack.body(), data, datalength);
-	}
-
-	m_msgPack.SetBodyLength(datalength);
+	m_msgPack.WriteHeader(id1, id2);
+	m_msgPack.WriteBody((void*)data, len);
 
 	return Send(connectid, m_msgPack);
-
 }
 
 int NetEventServer::Send(int connectid, MessagePackage& msg)
@@ -189,7 +176,7 @@ int NetEventServer::Send(int connectid, MessagePackage& msg)
 	Channel* c = m_Channels[connectid];
 	if (c == NULL)
 	{
-		return send_stat::send_target_not_exist;
+		return send_target_not_exist;
 	}
 
 	return c->send_data(msg.data(), msg.GetPackageLength());
@@ -367,11 +354,10 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	/************************************************/
 	LOG(info, "[%s]连接服务器成功！", item.ip.c_str());
 		
+	//返回消息包给应用层，进行用户管理
 	MessagePackage msgPack;
-	msgPack.header()->id1 = link_stat::link_connected;
-	msgPack.header()->id2 = 0;
-	msgPack.SetLinkID(c->GetChannelID()); //服务器用户需要进行用户管理用
-	msgPack.SetBodyLength(0);
+	msgPack.WriteHeader(link_connected, 0);
+	msgPack.SetLinkID(c->GetChannelID());
 
 	plt->that->GetMessageQueueAB()->Push(msgPack);
 	/************************************************/
@@ -457,11 +443,9 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, int tid)
 	/************************************************/
 	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed())
 	{
+		//返回消息包给应用层
 		MessagePackage msgPack;
-		msgPack.header()->id1 = link_stat::link_error_channel_is_exist;
-		msgPack.header()->id2 = 0;
-		msgPack.SetBodyLength(0);
-
+		msgPack.WriteHeader(link_error_channel_is_exist, 0);
 		m_pMsgQueueAB->Push(msgPack);
 
 		return NULL;
