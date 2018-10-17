@@ -170,6 +170,8 @@ int NetEventServer::Send(int connectid, unsigned short id1, unsigned short id2, 
 
 int NetEventServer::Send(int connectid, MessagePackage& msg)
 {
+	std::lock_guard<std::mutex> lock(m_channel_mtx);
+	
 	Channel* c = m_Channels[connectid];
 	if (c == NULL)
 	{
@@ -181,6 +183,8 @@ int NetEventServer::Send(int connectid, MessagePackage& msg)
 
 void NetEventServer::Close(int connectid)
 {
+	std::lock_guard<std::mutex> lock(m_channel_mtx);
+
 	Channel* c = m_Channels[connectid];
 	if (c != NULL)
 	{

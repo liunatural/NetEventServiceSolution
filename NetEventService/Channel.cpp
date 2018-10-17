@@ -101,8 +101,6 @@ void Channel::ReadPackage()
 
 void Channel::CloseSocket()
 {
-	std::lock_guard<std::mutex> lock(m_channel_mtx);
-
 	if (m_fd != -1)
 	{
 		bufferevent_setfd(m_bev, -1);
@@ -132,8 +130,6 @@ void Channel::CloseSocket()
 
 int Channel::SendData(void* data, int len)
 {
-	std::lock_guard<std::mutex> lock(m_channel_mtx);
-
 	if (m_fd == -1)
 	{
 		return send_disconnected;

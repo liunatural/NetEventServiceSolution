@@ -36,8 +36,6 @@ public:
 	MessageQueueAB* GetMsgQueueAB();
 	void  SeMsgQueueAB(MessageQueueAB* pMsgQAB);
 
-	std::mutex& GetChannelMutex() { return m_channel_mtx; };
-
 	void SetNetEventServer(NetEventServer* evtServer) { m_pNetEvtSvr = evtServer; };
 	NetEventServer* GetNetEventServer();
 	void SetBufferEvent(bufferevent* bev) { m_bev = bev; };
@@ -59,7 +57,6 @@ private:
 	bool							m_bUsedFlag = false;
 	evutil_socket_t			m_fd;
 	std::string					m_ip;
-	std::mutex				m_channel_mtx;
 	DynamicBuffer*			m_readBuffer;
 	MessageQueueAB		*m_pMsgQAB;
 	NetEventServer			*m_pNetEvtSvr;
