@@ -170,7 +170,6 @@ int NetEventServer::Send(int connectid, unsigned short id1, unsigned short id2, 
 
 int NetEventServer::Send(int connectid, MessagePackage& msg)
 {
-
 	Channel* c = m_Channels[connectid];
 	if (c == NULL)
 	{
@@ -182,20 +181,21 @@ int NetEventServer::Send(int connectid, MessagePackage& msg)
 
 void NetEventServer::Close(int connectid)
 {
-
 	Channel* c = m_Channels[connectid];
 	if (c != NULL)
 	{
-		c->CloseChannel();
+		c->CloseSocket();
+		delete c;
+		m_Channels[connectid] = NULL;
+
+		LOG(info, "剩余在线人数: [%d]", GetOnlineAmount());
 	}
 }
 
 
 int NetEventServer::GetOnlineAmount()
 {
-
 	return m_channelMgr->TotalIDs() - m_channelMgr->TotalFreeIDs();
-
 }
 
 MessageQueue& NetEventServer::GetMsgQueue()
@@ -330,37 +330,23 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 		return;
 	}
 
-	Channel* c = pLibeventThread->that->CreateChannel(bev, item.tid);
-	if (NULL == c)
+	Channel* c = pLibeventThread->that->CreateChannel(bev, item);
+	if (NULL != c)
 	{
-		LOG(info, "[%s]尝试连接服务器失败！超过服务器最大连接数！", item.ip.c_str());
+		c->SetIPAddr(item.ip); //保存IP
+		LOG(info, "[%s]登录服务器！当前在线人数: [%d]", item.ip.c_str(), plt->that->GetOnlineAmount());
+
 		MessagePackage msgPack;
-		msgPack.WriteHeader(link_error_exceed_max_connects, 0);
+		msgPack.WriteHeader(link_connected, 0);
+		msgPack.SetLinkID(c->GetChannelID());
 
-		send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);
-		Sleep(10);
+		plt->that->GetMessageQueueAB()->Push(msgPack);						//返回消息包给应用层，进行用户管理
+		send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);		//同时向用户发送连接成功的消息
 
-		evutil_closesocket(item.fd);
+		bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c);
+		bufferevent_enable(bev, EV_READ | EV_WRITE);
 
-		return;
 	}
-	
-	c->SetIPAddr(item.ip); //保存IP
-
-	/************************************************/
-	LOG(info, "[%s]连接服务器成功！当前在线人数: [%d]", item.ip.c_str(), plt->that->GetOnlineAmount());
-	
-	MessagePackage msgPack;
-	msgPack.WriteHeader(link_connected, 0);
-	msgPack.SetLinkID(c->GetChannelID());
-
-	plt->that->GetMessageQueueAB()->Push(msgPack);						//返回消息包给应用层，进行用户管理
-	send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);		//同时向用户发送连接成功的消息
-	/************************************************/
-
-	bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c);
-	bufferevent_enable(bev, EV_READ | EV_WRITE);
-
 }
 
 
@@ -395,33 +381,44 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 }
 
 
-Channel* NetEventServer::CreateChannel(bufferevent *bev, int tid)
+Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connItem)
 {
 	int cid = m_channelMgr->GetFreeID();
+	MessagePackage msgPack;
 
 	if (cid == -1)
 	{
+		LOG(info, "[%s]尝试连接服务器失败！超过服务器最大连接数！", connItem.ip.c_str());
+		msgPack.WriteHeader(link_error_exceed_max_connects, 0);
+
+		send(connItem.fd, msgPack.data(), msgPack.GetPackageLength(), 0);
+
+		Sleep(10);
+		evutil_closesocket(connItem.fd);
+
 		return NULL;
 	}
 
-	/************************************************/
-	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed())
+	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed()) //这种情况应该不会发生
 	{
-		//返回消息包给应用层
-		MessagePackage msgPack;
+		LOG(error, "服务器分配了一个正在使用中的连接ID[%d]！", cid);
+		
+		//报告给上层应用
 		msgPack.WriteHeader(link_error_channel_is_exist, 0);
 		m_pMsgQueueAB->Push(msgPack);
 
+		//断开该连接
+		evutil_closesocket(connItem.fd);
+
 		return NULL;
 	}
-	/************************************************/
 
 	evutil_socket_t fd =  bufferevent_getfd(bev);
 
 	Channel* c = new Channel(bev);
 	c->SetNetEventServer(this);
 	c->SetChannelID(cid);
-	c->SetTID(tid);
+	c->SetTID(connItem.tid);
 	c->SetFD(fd);
 	c->SeMsgQueueAB(this->GetMessageQueueAB());
 	m_Channels[cid]  =  c;
@@ -436,7 +433,7 @@ void NetEventServer::conn_readcb(struct bufferevent *bev, void *arg)
 	Channel* c = (Channel*)arg;
 	c->SetBufferEvent(bev);
 
-	c->DoRead();						//数据流到channel中
+	c->DoRead();			//数据流到channel中
 }
 
 void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg)
@@ -450,19 +447,19 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 	}
 	else if (what & BEV_EVENT_EOF)
 	{
-		LOG(info, "客户端连接关闭！剩余消息数： %d", remain);
+		LOG(info, "客户端关闭连接！剩余消息数： %d", remain);
 	}
 	else if (what & BEV_EVENT_ERROR)
 	{
-		LOG(info, "客户端发生不明原因错误！ 剩余消息数： %d", remain);
+		LOG(info, "客户端退出！ 剩余消息数： %d", remain);
 	}
 
 	Channel* c = (Channel*)arg;
 	if (NULL != c)
 	{
-		c->CloseChannel();
+		NetEventServer* pNetEventSvr = c->GetNetEventServer();
+		int cid = c->GetChannelID();
+		pNetEventSvr->Close(cid);
 	}
-	
-	LOG(info, "剩余在线人数: [%d]", c->GetNetEventServer()->GetOnlineAmount());
 
 }

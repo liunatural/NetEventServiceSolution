@@ -8,8 +8,6 @@
 //  History...... : first created by Liu Zhi 2018-09
 //
 //***************************************************************************
-
-
 #pragma once
 #include "NetEventService.h"
 #include "MessageQueue.h"
@@ -86,7 +84,7 @@ private:
 	bool Init(int start, int size);
 	bool InitWorkerThreads(int thread_numb);
 	void SetupWorkerThread(WorkerThread * pLibeventThread);
-	Channel* CreateChannel(bufferevent *bev, int tid);
+	Channel* CreateChannel(bufferevent *bev, conn_queue_item& connItem);
 
 public:
 	std::mutex							m_channel_mtx;

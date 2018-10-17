@@ -4,7 +4,7 @@
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
 //  Description.. : head file of the class Channel used as user messages processing 
-//						and user connection  data managements.
+//						and user connection data managements.
 //
 //  History...... : first created by Liu Zhi 2018-09
 //**************************************************************************
@@ -50,17 +50,17 @@ public:
 
 	void DoRead();
 	void ReadPackage();
-	void CloseChannel();
+	void CloseSocket();
 	int SendData(void* data, int len);
 
 private:
 	int								m_channelID;
-	int								m_tid;	//thread ID
+	int								m_tid;	//thread ID£¨”√”⁄debug
 	bool							m_bUsedFlag = false;
 	evutil_socket_t			m_fd;
 	std::string					m_ip;
 	std::mutex				m_channel_mtx;
-	DynamicBuffer			m_readBuffer;
+	DynamicBuffer*			m_readBuffer;
 	MessageQueueAB		*m_pMsgQAB;
 	NetEventServer			*m_pNetEvtSvr;
 	bufferevent				*m_bev;

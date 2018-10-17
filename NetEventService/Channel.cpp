@@ -22,6 +22,9 @@ Channel::Channel(struct bufferevent *bev)
 {
 	m_bev = bev;
 	m_bUsedFlag = false;
+
+	m_readBuffer = new DynamicBuffer();
+
 }
 
 Channel::~Channel()
@@ -30,6 +33,11 @@ Channel::~Channel()
 	{
 		evutil_closesocket(m_fd);
 		bufferevent_free(m_bev);
+	}
+
+	if (m_readBuffer)
+	{
+		delete m_readBuffer;
 	}
 }
 
@@ -63,7 +71,7 @@ void Channel::DoRead()
 	}
 
 	int len = (int)bufferevent_read(m_bev, data, sizeof(data));
-	m_readBuffer.Push(data, len);
+	m_readBuffer->Push(data, len);
 
 	ReadPackage();
 
@@ -71,32 +79,27 @@ void Channel::DoRead()
 
 void Channel::ReadPackage()
 {
-
-	while (m_readBuffer.Size() >= 8)
+	while (m_readBuffer->Size() >= MessagePackage::header_length)
 	{
-
-		int len = *(int*)m_readBuffer.Peek();
-		if (m_readBuffer.Size() < len + 8 )
-			break;
-
-		char* data = m_readBuffer.Peek();
-		
-		//short tid = (short)GetTID();
-		//memcpy(data + 4, &tid, 2);  //加上线程号
-
+		int len = *(int*)m_readBuffer->Peek();
+		if (m_readBuffer->Size() < len + MessagePackage::header_length)
+		{
+				break;
+		}
+	
+		char* data = m_readBuffer->Peek();
 		MessagePackage msgPack;
-		memcpy(msgPack.data(), data, len + 8);
-
-		msgPack.SetLinkID(m_channelID);
+		memcpy(msgPack.data(), data, len + MessagePackage::header_length);
+		msgPack.SetLinkID(m_channelID);//将数据包加上连接ID
 
 		m_pMsgQAB->Push(msgPack);
 
-		m_readBuffer.Pop(len + 8);
+		m_readBuffer->Pop(len + MessagePackage::header_length);
 	}
 
 }
 
-void Channel::CloseChannel()
+void Channel::CloseSocket()
 {
 	std::lock_guard<std::mutex> lock(m_channel_mtx);
 
@@ -108,21 +111,19 @@ void Channel::CloseChannel()
 		bufferevent_free(m_bev);
 
 		m_fd = -1;
-
 		m_bev = NULL;
 		m_bUsedFlag = false;
-
 
 		int  cid = GetChannelID();
 		m_pNetEvtSvr->GetChannelManager()->ReleaseID(cid); //归还ChannelID
 
 		int dataLen = strlen(m_ip.c_str());
 
+		//将用户断开连接信息返回给上层应用
 		MessagePackage msgPack;
 		msgPack.WriteHeader(link_disconnected, 0);
 		msgPack.WriteBody((void*)m_ip.c_str(), dataLen);
 		msgPack.SetLinkID(m_channelID);
-
 
 		m_pMsgQAB->Push(msgPack);
 	}

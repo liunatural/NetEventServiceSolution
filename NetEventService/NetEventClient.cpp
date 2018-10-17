@@ -188,11 +188,11 @@ void NetEventClient::eventcb(struct bufferevent *bev, short event, void *arg)
 
 	if (event & BEV_EVENT_EOF)
 	{
-		LOG(info, "服务器端断开连接！");
+		LOG(info, "服务器端关闭连接！");
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		LOG(error, "服务器端发生错误！");
+		LOG(error, "服务器端退出！");
 	}
 	else if (event & BEV_EVENT_CONNECTED)
 	{

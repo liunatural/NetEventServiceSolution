@@ -2,7 +2,7 @@
 <root>
     <Server>
       <port>10001</port>
-	  <maxlinks>5</maxlinks>
+	  <maxlinks>3</maxlinks>
       <name>SceneSvr-Beijing-01</name>
     </Server>
     <CenterServer>

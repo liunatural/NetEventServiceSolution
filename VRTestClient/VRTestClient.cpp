@@ -120,7 +120,7 @@ void Message_handle(void *args)
 				if (s2c_upd_user_state == cmd_id)
 				{
 					UserStateInfo usrStatInfo = *(UserStateInfo*)(pack->body());
-					printf("新用户:%d，当前状态:%d\n", usrStatInfo.seatNumber, usrStatInfo.userState);
+					LOG(info, "新用户:%d，当前状态:%d", usrStatInfo.seatNumber, usrStatInfo.userState);
 				}
 
 				break;
@@ -139,24 +139,24 @@ void Message_handle(void *args)
 						int cout = s / sizeof(ProfileInfo);
 
 						int v = 0;
-						printf("+++++++++++++++++++++++++++++++++++++++++++++++++\r\n");
+						LOG(info, "+++++++++++++++++++++++++++++++++++++++++++++++++");
 						while (v < cout)
 						{
 							ProfileInfo* profileInfo = (ProfileInfo*)p;
 							
-							printf("%04d座椅开机\r\n", profileInfo->mSeatNumber);
+							LOG(info, "%04d座椅开机", profileInfo->mSeatNumber);
 
 							p += sizeof(ProfileInfo);
 
 							v++;
 						}
-						printf("///////////////////////////////////////////\r\n");
+						LOG(info, "///////////////////////////////////////////");
 					}
 				}
 				else if (s2c_ply_leave == cmd_id)  //用户下线
 				{
 					int cid = *(int *)(pack->body());
-					printf("%04d用户下线\n", cid);
+					LOG(info, "%04d用户下线", cid);
 				}
 
 				break;
