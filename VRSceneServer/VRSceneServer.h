@@ -14,16 +14,20 @@ public:
 	int ReadConfigFile();
 	int Start();
 	int CreatePlayerManager();
-	void HandleNetEvent();
-
+	int ConnectCenterSvr();
+	void Run();
 	PlayerManager*& GetPlayerManager();
 
 private:
+	void HandleNetEventFromClient();
+	void HandleNetEventFromCenterSvr();
 
-	ConfigService* confReader;
-	NetEvtServer* pNetEventServer;
-	PlayerManager *playerMgr;
-
+private:
+	ConfigService		*confReader;
+	NetEvtServer		*pNetEventServer;
+	NetEvtClient		*centerServerConn;
+	bool					bConnectCenterSvr;
+	PlayerManager	*playerMgr;
 	char sceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
 };
 

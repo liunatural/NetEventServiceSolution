@@ -11,6 +11,7 @@
 
 #pragma once
 #include <queue>
+#include <mutex>
 
 class ChannelManager
 {
@@ -27,7 +28,7 @@ public:
 private:
 	std::queue<int> m_ids;
 	int m_size;
-
+	std::mutex m_cid_mtx;
 
 };
 

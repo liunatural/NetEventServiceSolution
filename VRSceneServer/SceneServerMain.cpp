@@ -44,6 +44,9 @@ int main()
 		return ret;
 	}
 
+	//*****连接中心服务器*****//
+	ret = vrSceneServer.ConnectCenterSvr();
+
 
 	//*****启动定时器处理玩家位置变换信息*****//
 	std::thread tr(&Timer_SendTransformData, &vrSceneServer);
@@ -51,7 +54,7 @@ int main()
 
 
 	//*****进行消息处理*****//
-	vrSceneServer.HandleNetEvent();
+	vrSceneServer.Run();
 
     return SUCCESS;
 }

@@ -3,7 +3,7 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : head file of the class NetEventClient used as encapsulation to common 
+//  Description.. : head file of the class NetEventServer used as encapsulation to common 
 //							functions in libevent open source library for network communication.
 //  History...... : first created by Liu Zhi 2018-09
 //
@@ -86,10 +86,8 @@ private:
 	void SetupWorkerThread(WorkerThread * pLibeventThread);
 	Channel* CreateChannel(bufferevent *bev, conn_queue_item& connItem);
 
-public:
-	std::mutex							m_channel_mtx;
-
 private:
+	std::mutex							m_channel_mtx;
 	struct event_base					*m_base;
 	struct evconnlistener				*m_listener;
 	ChannelManager						*m_channelMgr;		//用户连接ID管理器
@@ -98,9 +96,9 @@ private:
 	vector<Channel*>					m_Channels;
 	vector<WorkerThread*>			m_libevent_threads;
 	int m_last_thread;
-
-	MessagePackage						m_msgPack;
 	int											m_thread_num;
+	MessagePackage						m_msgPack;
+
 
 	std::shared_ptr<std::thread> m_dispatchThread;// 消息派发线程
 

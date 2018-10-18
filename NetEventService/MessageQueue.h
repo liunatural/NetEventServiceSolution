@@ -2,14 +2,12 @@
 //  File......... : MessageQueue.h
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
-//  Date......... : 2018-09 
-//  Description.. : head file of the  MessageQueue.
-//
-//  History...... : first created by Liu Zhi 2018-09
+//  Date......... : 2018-10 
+//  Description.. : Head file of the class MessageQueue used as storing message packages 
+//							concurrently for multi-threads 
+//  History...... : first created by Liu Zhi 2018-10
 //
 //***************************************************************************
-
-
 #pragma once
 #include <mutex>
 #include <deque>

@@ -2,10 +2,10 @@
 //  File......... : MessageQueue.cpp
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
-//  Date......... : 2018-09 
-//  Description.. : implementaion file of the class MessageQueue used to 
-//
-//  History...... : first created by Liu Zhi 2018-09
+//  Date......... : 2018-10 
+//  Description.. : Implementation file of the class MessageQueue used as storing message packages 
+//							concurrently for multi-threads 
+//  History...... : First created by Liu Zhi 2018-10
 //
 //**************************************************************************
 #include "MessageQueue.h"

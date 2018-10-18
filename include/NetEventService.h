@@ -3,7 +3,7 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : Head file of the class NetEventService used to declare service interface.
+//  Description.. : Head file of the class NetEventService API.
 //
 //  History...... : First created by Liu Zhi 2018-09
 //
@@ -116,8 +116,6 @@ enum LOG_TYPE
 
 NETEVENTSERVICE_API void			InitLogger(const char* dir);//在使用Log功能之前必须先调用此函数  
 NETEVENTSERVICE_API void			LOG(LOG_TYPE logType, const char* format, ...);
-
-
 
 
 /*****************************************************************************************/

@@ -1,7 +1,5 @@
 #include "VRSceneServer.h"
 #include <vector>
-#include <thread>
-
 #include <direct.h>
 #include <windows.h>
 #include "PlayerManager.h"
@@ -12,6 +10,8 @@ VRSceneServer::VRSceneServer()
 	confReader = NULL;
 	pNetEventServer = NULL;
 	playerMgr = NULL;
+
+	bConnectCenterSvr = false;
 }
 
 VRSceneServer::~VRSceneServer()
@@ -71,7 +71,36 @@ int VRSceneServer::Start()
 	{
 		return FAIL;
 	}
+
+	LOG(info, "场景服务器启动成功！");
+	return SUCCESS;
+
 }
+
+
+int VRSceneServer::ConnectCenterSvr()
+{
+	char centerServerIP[50] = { 0 };
+	char centerServerPort[50] = { 0 };
+	confReader->GetStr("root.CenterServer.ip", centerServerIP);
+	confReader->GetStr("root.CenterServer.port", centerServerPort);
+	centerServerConn = CreateNetEvtClient();
+	if (centerServerConn->Connect(centerServerIP, centerServerPort) != 0)
+	{
+		LOG(error, "连接中心服务器失败!");
+		return ERR_CONNECT_CENTER_SERVER;
+	}
+
+	centerServerConn->Start();
+	
+	playerMgr->SetCenterSvrConnection(centerServerConn);
+	bConnectCenterSvr = true;
+	LOG(info, "连接中心服务器...");
+
+	return SUCCESS;
+
+}
+
 
 int VRSceneServer::CreatePlayerManager()
 {
@@ -91,12 +120,96 @@ int VRSceneServer::CreatePlayerManager()
 
 }
 
-void VRSceneServer::HandleNetEvent()
+
+void VRSceneServer::Run()
 {
-	int count = 0;
 	while (true)
 	{
-		MsgQueue& msgQ = pNetEventServer->GetMsgQueue();
+		HandleNetEventFromClient();
+
+		HandleNetEventFromCenterSvr();
+
+		Sleep(1);
+	}
+}
+
+
+void VRSceneServer::HandleNetEventFromClient()
+{
+
+	MsgQueue& msgQ = pNetEventServer->GetMsgQueue();
+	int msgAmount = msgQ.GetCount();
+
+	for (int i = 0; i < msgAmount; i++)
+	{
+		MessagePackage* pack = (MessagePackage*)msgQ.GetMsg(i);
+
+		int msgID = pack->header()->id1;
+		int cmdID = pack->header()->id2;
+		int cid = pack->GetLinkID();
+
+		switch (msgID)
+		{
+		case link_connected:
+		{
+
+			playerMgr->SendClientList(cid);
+
+			Player*  ply = new Player(cid);
+			ply->SetSceneServerID(sceneServerID);
+			playerMgr->AddPlayer(ply);
+
+			//playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
+
+			break;
+		}
+		case  link_disconnected:
+		{
+			playerMgr->SendPlayerLeaveMsg(cid);
+
+			break;
+		}
+		case ID_User_Login:
+		{
+			if (c2s_tell_seat_num == cmdID)		//接收从VIP客户端发来的座椅号消息
+			{
+				int seatNum = *(int*)pack->body();
+
+				//绑定座位号到一个玩家
+				bool bRet = playerMgr->UpdatePlayerSeatNumber(cid, seatNum);
+				if (bRet)
+				{
+					//向其他VIP客户端广播当前用户的状态为初始状态
+					playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
+				}
+			}
+			break;
+		}
+		case ID_User_Transform:		//玩家位置变换消息
+		{
+			TransformInfo* transInfo = (TransformInfo*)pack->body();
+			transInfo->plyId = cid;
+
+			playerMgr->UpdatePlayerTransform(cid, *transInfo);
+
+			break;
+		}
+		default:
+		{
+			break;
+		}
+
+		} //switch
+	}//for
+
+}
+
+
+void VRSceneServer::HandleNetEventFromCenterSvr()
+{
+	if (bConnectCenterSvr)
+	{
+		MsgQueue& msgQ = centerServerConn->GetMsgQueue();
 		int msgAmount = msgQ.GetCount();
 
 		for (int i = 0; i < msgAmount; i++)
@@ -108,68 +221,71 @@ void VRSceneServer::HandleNetEvent()
 
 			switch (msgID)
 			{
-			case link_connected:
+			case ID_Global_Notify:
 			{
+				int cmdID = pack->header()->id2;
+				if (s2c_begin_flying == cmdID)
+				{
+					//向所有VIP客户端发出起飞命令
+					playerMgr->BroadcastControlCmd(ID_User_control, s2c_begin_flying);
+				}
+				else if (s2c_play_video == cmdID)
+				{
+					//向所有VIP客户端发出播放视频命令
+					playerMgr->BroadcastControlCmd(ID_User_control, s2c_play_video);
+				}
+				else if (s2c_stand_up == cmdID)
+				{
+					//向所有VIP客户端发出站立命令
+					playerMgr->BroadcastControlCmd(ID_User_control, s2c_stand_up);
+				}
+				else if (s2c_walk == cmdID)
+				{
+					//向所有VIP客户端发出开始行走命令
+					playerMgr->BroadcastControlCmd(ID_User_control, s2c_walk);
+				}
+				else if (s2c_client_list_external == cmdID)
+				{
+					//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户列表
+					playerMgr->SendMsg(*pack);
+				}
+				else if (s2c_user_leave_external == cmdID)
+				{
+					//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户离开消息
+					playerMgr->SendMsg(*pack);
+				}
+				else if (s2s_req_usr_list == cmdID)
+				{
+					//设置用户跨场景服务器可见
+					playerMgr->SetUserVisibilityExternal(true);
 
-				playerMgr->SendClientList(cid);
-
-				Player*  ply = new Player(cid);
-				ply->SetSeatNumber(cid);
-				ply->SetSceneServerID(sceneServerID);
-				playerMgr->AddPlayer(ply);
-
-				playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
-
+					playerMgr->SendClientListToCenterServer();
+				}
 				break;
 			}
-			case  link_disconnected:
+			case ID_User_Login:
 			{
-				playerMgr->SendPlayerLeaveMsg(cid);
-
+				int cmdID = pack->header()->id2;
+				if (s2c_upd_user_state == cmdID)
+				{
+					//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户状态变化消息(开始献花，结束献花等等)
+					playerMgr->BroadcastExternalUserState(pack);
+				}
 				break;
 			}
-			case ID_User_Transform:		//玩家位置变换消息
+			case ID_Global_Transform:
 			{
-				TransformInfo* transInfo = (TransformInfo*)pack->body();
-				transInfo->plyId = cid;
-
-				playerMgr->UpdatePlayerTransform(cid, *transInfo);
-
-				break;
-			}
-			default:
-			{
-				////int* j = (int*)pack->body();
-				////printf("recv : cnt = %d, tid = %d, msg = %d\n", count++, pack->header()->id1, *j);
-
-				//std::vector<int>::iterator it = users.begin();
-				//while (it != users.end())
-				//{
-				//	int targetid = *it;
-				//	if (targetid >= 0)
-				//	{
-				//		int sourid = pack->GetLinkID();
-
-				//		if (sourid != targetid)
-				//		{
-				//			pNetEventServer->Send(targetid, *pack);
-				//		}
-				//	}
-
-				//	++it;
-				//}
+				//
+				playerMgr->SendMsg(*pack);
 				break;
 			}
 
-			}
+			} //switch end
+		} // for end
+	}// if end 	
 
-
-		}//for
-
-		Sleep(1);
-
-	}//while
 }
+
 
 PlayerManager*& VRSceneServer::GetPlayerManager()
 {

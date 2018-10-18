@@ -3,9 +3,9 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : implementaion file of the class NetEvtService used to
+//  Description.. : Implementation file of the class NetEvtService API
 //
-//  History...... : first created by Liu Zhi 2018-09
+//  History...... : First created by Liu Zhi 2018-09
 //
 //**************************************************************************
 

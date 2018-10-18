@@ -2,7 +2,7 @@
 <root>
     <Server>
       <port>20001</port>
-	  <maxlinks>300</maxlinks>
+	  <maxlinks>100</maxlinks>
       <name>server1</name>
     </Server>
     <DBServer>

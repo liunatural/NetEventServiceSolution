@@ -35,6 +35,7 @@ void ChannelManager::Init(int start, int size)
 
 int ChannelManager::GetFreeID()
 {
+	std::lock_guard<std::mutex> lock(m_cid_mtx);
 	if (m_ids.empty())
 		return -1;
 
@@ -45,6 +46,8 @@ int ChannelManager::GetFreeID()
 
 void ChannelManager::ReleaseID(int id)
 {
+	std::lock_guard<std::mutex> lock(m_cid_mtx);
+
 	m_ids.push(id);
 }
 

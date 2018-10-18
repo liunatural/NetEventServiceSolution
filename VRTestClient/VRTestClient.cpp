@@ -11,7 +11,9 @@
 void Message_handle(void *args);
 void Send_testPack(void *args);
 void Send_TransformPack(void *args);
+void Send_SeatNumber(void *args);
 
+std::thread send_thread;
 
 int main()
 {
@@ -67,7 +69,7 @@ void Message_handle(void *args)
 	{
 		MsgQueue& msgQ = pNetEventClient->GetMsgQueue();
 		int msgAmount = msgQ.GetCount();
-		//printf(" message amount : = %d \t##############\n", msgAmount);
+
 		for (int i = 0; i < msgAmount; i++)
 		{
 			MessagePackage* pack = (MessagePackage*)msgQ.GetMsg(i);
@@ -80,9 +82,11 @@ void Message_handle(void *args)
 			case link_connected:
 			{
 				LOG(info, "连接OK！");
-				std::thread send_thread(&Send_TransformPack, pNetEventClient);
-				//std::thread send_thread(&Send_testPack, pNetEventClient);
-				send_thread.detach();
+
+				Send_SeatNumber(pNetEventClient);
+
+				send_thread = std::thread(&Send_TransformPack, pNetEventClient);
+				//send_thread = std::thread(&Send_testPack, pNetEventClient);
 
 				break;
 			}
@@ -105,7 +109,7 @@ void Message_handle(void *args)
 					{
 						TransformInfo* transInfo = (TransformInfo*)p;
 						char buffer[100] = { 0 };
-						printf("%04d用户发送位置变换信息[%4.2f_%4.2f_%4.2f]\n", transInfo->plyId, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
+						LOG(info, "%04d用户发送位置变换信息[%4.2f_%4.2f_%4.2f]", transInfo->plyId, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
 
 						p += sizeof(TransformInfo);
 
@@ -120,14 +124,13 @@ void Message_handle(void *args)
 				if (s2c_upd_user_state == cmd_id)
 				{
 					UserStateInfo usrStatInfo = *(UserStateInfo*)(pack->body());
-					LOG(info, "新用户:%d，当前状态:%d", usrStatInfo.seatNumber, usrStatInfo.userState);
+					LOG(info, "新用户上线： 座椅号[%d]，当前状态:%d", usrStatInfo.seatNumber, usrStatInfo.userState);
 				}
 
 				break;
 			}
 			case ID_User_Notify:
 			{
-
 				if (s2c_client_list == cmd_id) //用户列表
 				{
 
@@ -139,12 +142,13 @@ void Message_handle(void *args)
 						int cout = s / sizeof(ProfileInfo);
 
 						int v = 0;
-						LOG(info, "+++++++++++++++++++++++++++++++++++++++++++++++++");
+						LOG(info, "///////////////////////////////////////////");
+						LOG(info, "当前在线用户：");
 						while (v < cout)
 						{
 							ProfileInfo* profileInfo = (ProfileInfo*)p;
 							
-							LOG(info, "%04d座椅开机", profileInfo->mSeatNumber);
+							LOG(info, "座椅[%04d]", profileInfo->mSeatNumber);
 
 							p += sizeof(ProfileInfo);
 
@@ -224,7 +228,7 @@ void Send_TransformPack(void *args)
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
-	for (int count = 0; count < 10000; count++)
+	for (int count = 0; count < 10; count++)
 	{
 		vec3 pos = { ++x, ++x, ++x };
 		vec3 dir = { ++y, ++y, ++y };
@@ -239,7 +243,25 @@ void Send_TransformPack(void *args)
 
 		pNetEventClient->Send(msgPackage);
 
-		Sleep(10);
+		Sleep(30);
 	}
 
+}
+
+
+void Send_SeatNumber(void *args)
+{
+
+	time_t t;
+	srand((unsigned)time(&t));
+
+	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
+	int seatNum = random(10) + 1;
+	int len = sizeof(int);
+	MessagePackage msgPackage;
+	msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
+	msgPackage.WriteBody(&seatNum, len);
+	pNetEventClient->Send(msgPackage);
+
+	LOG(info, "向服务器发送座椅号:[%d]\n", seatNum);
 }

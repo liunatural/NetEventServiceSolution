@@ -3,7 +3,7 @@
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-09 
-//  Description.. : Implementation file of the class NetEventClient used as encapsulation to common 
+//  Description.. : Implementation file of the class NetEventServer used as encapsulation to common 
 //							functions in libevent open source library for network communication.
 //  History...... : First created by Liu Zhi 2018-09
 //
@@ -88,7 +88,7 @@ bool NetEventServer::Start(int port, int maxConnects)
 		}
 	}));
 
-	LOG(info, "服务器成功启动! 端口号:[%d]; 线程数:[%d]; 最大连接数[%d]", port, m_thread_num, maxConnects);
+	LOG(info, "服务开始运行! 端口号:[%d]; 线程数:[%d]; 最大连接数[%d]", port, m_thread_num, maxConnects);
 
 	return true;
 }
@@ -403,7 +403,8 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 		return NULL;
 	}
 
-	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed()) //这种情况应该不会发生
+	//这种情况应该不会发生，m_channelMgr->GetFreeID()已经加锁
+	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed()) 
 	{
 		LOG(error, "服务器分配了一个正在使用中的连接ID[%d]！", cid);
 		

@@ -8,7 +8,6 @@
 //  History...... : first created by Liu Zhi 2018-09
 //
 //**************************************************************************
-
 #include "NetEventClient.h"
 #include "MessageQueue.h"
 #include "protocol.h"
