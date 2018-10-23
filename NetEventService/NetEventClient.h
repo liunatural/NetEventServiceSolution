@@ -17,6 +17,7 @@
 #include "DynamicBuffer.h"
 #include <thread>
 
+
 class MessageQueueAB;
 class NetEventClient : public NetEvtClient
 {
@@ -33,6 +34,7 @@ public:
 
 	DynamicBuffer& GetDataStream() {return m_readStream;}
 
+	void SetEventCallback(fn_on_event_cb fncb) { m_fncb = fncb; }
 
 private:
 	static void readcb(struct bufferevent* bev, void* arg);
@@ -54,5 +56,8 @@ private:
 
 	struct timeval m_timeout;
 	struct event* m_pEvstop;
+
+	fn_on_event_cb m_fncb;
+
 };
 

@@ -17,6 +17,7 @@
 #define MAX_SEAT_NUMBER					30
 #define MAX_DATA_BUFFER_LEN				(1024 * 1024)
 #define	MAX_LOG_TEXT_LENGTH			8192					//最大LOG输出的一行文本为8192字节
+#define MAX_PATH									250
 
 enum ERROR_CODE
 {

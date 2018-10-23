@@ -21,7 +21,7 @@ public:
 
 	//设置或者获取与中心服务器的网络连接服务
 	NetEvtClient* GetCenterSvrConnection() { return mpConnToCenterSvr; };
-	void SetCenterSvrConnection(NetEvtClient* pConn) { mpConnToCenterSvr = pConn; };
+	void SetCenterSvrClient(NetEvtClient* pConn) { mpConnToCenterSvr = pConn; };
 
 	//设置与本地场景服务器的连接服务
 	void SetNetworkService(NetEvtServer* pService) { mpService = pService; };

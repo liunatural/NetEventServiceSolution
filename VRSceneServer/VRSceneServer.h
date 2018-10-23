@@ -17,15 +17,17 @@ public:
 	int ConnectCenterSvr();
 	void Run();
 	PlayerManager*& GetPlayerManager();
+	void OnConnectCenterServer(int& msgID);
 
 private:
 	void HandleNetEventFromClient();
 	void HandleNetEventFromCenterSvr();
 
+
 private:
 	ConfigService		*confReader;
 	NetEvtServer		*pNetEventServer;
-	NetEvtClient		*centerServerConn;
+	NetEvtClient		*centerSvrClient;
 	bool					bConnectCenterSvr;
 	PlayerManager	*playerMgr;
 	char sceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };

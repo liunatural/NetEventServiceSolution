@@ -192,7 +192,6 @@ void NetEventServer::Close(int connectid)
 		delete c;
 		m_Channels[connectid] = NULL;
 
-		LOG(info, "剩余在线人数: [%d]", GetOnlineAmount());
 	}
 }
 
@@ -464,7 +463,11 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 	{
 		NetEventServer* pNetEventSvr = c->GetNetEventServer();
 		int cid = c->GetChannelID();
+		string userIP = c->GetIPAddr();
+
 		pNetEventSvr->Close(cid);
+
+		LOG(info, "[%s]用户退出！ 剩余在线人数: [%d]", userIP.c_str(), pNetEventSvr->GetOnlineAmount());
 	}
 
 }

@@ -37,9 +37,13 @@ public:
 };
 
 
+
 /*****************************************************************************************/
 /////////////////////												 网络消息服务：客户端接口									//////////////////
 /*****************************************************************************************/
+
+typedef void(__stdcall *fn_on_event_cb)(int& msgID);
+
 class NetEvtClient
 {
 public:
@@ -63,6 +67,8 @@ public:
 	
 	//发送消息（id1:消息ID, id2:命令ID, data: 发送的数据, len:数据长度）
 	virtual	int	 Send(unsigned short id1, unsigned short id2, const char* data, unsigned int len) = 0;
+
+	virtual void SetEventCallback(fn_on_event_cb fncb) = 0;
 
 };
 

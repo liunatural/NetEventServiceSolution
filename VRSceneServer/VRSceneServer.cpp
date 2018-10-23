@@ -1,9 +1,19 @@
 #include "VRSceneServer.h"
+#include "PlayerManager.h"
 #include <vector>
 #include <direct.h>
-#include <windows.h>
-#include "PlayerManager.h"
+#include <thread>
 
+
+VRSceneServer* g_pSceneSvr = NULL;
+
+void __stdcall  OnConnectEvent(int& msgID)
+{
+	if (g_pSceneSvr)
+	{
+		return g_pSceneSvr->OnConnectCenterServer(msgID);
+	}
+}
 
 VRSceneServer::VRSceneServer()
 {
@@ -84,21 +94,25 @@ int VRSceneServer::ConnectCenterSvr()
 	char centerServerPort[50] = { 0 };
 	confReader->GetStr("root.CenterServer.ip", centerServerIP);
 	confReader->GetStr("root.CenterServer.port", centerServerPort);
-	centerServerConn = CreateNetEvtClient();
-	if (centerServerConn->Connect(centerServerIP, centerServerPort) != 0)
+	centerSvrClient = CreateNetEvtClient();
+	centerSvrClient->SetEventCallback(OnConnectEvent);
+	if (centerSvrClient->Connect(centerServerIP, centerServerPort) != 0)
 	{
-		LOG(error, "连接中心服务器失败!");
+		LOG(error, "初始化中心服务器连接时出现错误!");
 		return ERR_CONNECT_CENTER_SERVER;
 	}
 
-	centerServerConn->Start();
-	
-	playerMgr->SetCenterSvrConnection(centerServerConn);
-	bConnectCenterSvr = true;
-	LOG(info, "连接中心服务器...");
+	LOG(info, "正在开始与中心服务器连接......");
+	centerSvrClient->Start();
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+	if (bConnectCenterSvr)
+	{
+		playerMgr->SetCenterSvrClient(centerSvrClient);
+	}
 
 	return SUCCESS;
-
 }
 
 
@@ -129,9 +143,29 @@ void VRSceneServer::Run()
 
 		HandleNetEventFromCenterSvr();
 
-		Sleep(1);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
+
+
+void VRSceneServer::OnConnectCenterServer(int& msgID)
+{
+
+	if (link_connected == msgID)
+	{
+		LOG(info, "连接中心服务器成功！");
+		bConnectCenterSvr = true;
+	}
+	else if (link_server_closed == msgID)
+	{
+		LOG(error, "中心服务器端断开了连接！");
+	}
+	else if (link_server_failed == msgID)
+	{
+		LOG(info, "连接中心服务器没有成功！");
+	}
+}
+
 
 
 void VRSceneServer::HandleNetEventFromClient()
@@ -209,7 +243,7 @@ void VRSceneServer::HandleNetEventFromCenterSvr()
 {
 	if (bConnectCenterSvr)
 	{
-		MsgQueue& msgQ = centerServerConn->GetMsgQueue();
+		MsgQueue& msgQ = centerSvrClient->GetMsgQueue();
 		int msgAmount = msgQ.GetCount();
 
 		for (int i = 0; i < msgAmount; i++)

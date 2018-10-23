@@ -29,6 +29,10 @@ enum
 	send_disconnected,
 	send_parameter_error,
 	send_target_not_exist,
+
+	link_server_closed,
+	link_server_failed,
+
 };
 
 

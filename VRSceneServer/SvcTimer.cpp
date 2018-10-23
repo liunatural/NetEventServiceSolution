@@ -2,7 +2,7 @@
 #include "protocol.h"
 
 //毫秒级定时器， 每隔30毫秒触发一次， 更新玩家的位置信息
-SvcTimer::SvcTimer(asio::io_service& ios, PlayerManager*& playerMgr)
+SvcTimer::SvcTimer(io_service& ios, PlayerManager*& playerMgr)
 	: mTimer(ios, boost::posix_time::milliseconds(30)), mPlayMgr(playerMgr)
 {
 	mTimer.async_wait(boost::bind(&SvcTimer::handler, this));

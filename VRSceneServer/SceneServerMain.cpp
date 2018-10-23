@@ -4,14 +4,15 @@
 #include  "SvcTimer.h"
 #include <thread>
 
+
+extern VRSceneServer* g_pSceneSvr;
+
 void Timer_SendTransformData(VRSceneServer *pSceneServer)
 {
 	io_service io;
 	SvcTimer p(io, pSceneServer->GetPlayerManager());
 	io.run();
 }
-
-
 
 int main()
 {
@@ -22,6 +23,8 @@ int main()
 
 
 	VRSceneServer vrSceneServer;
+
+	g_pSceneSvr = &vrSceneServer;
 
 	//*****¶ÁÈ¡ÅäÖÃÎÄ¼ş*******//
 	ret  = vrSceneServer.ReadConfigFile();

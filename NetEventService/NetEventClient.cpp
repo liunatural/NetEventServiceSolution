@@ -16,6 +16,8 @@
 NetEventClient::NetEventClient() 
 {
 	m_pMsgQueueAB = new MessageQueueAB();
+
+	m_fncb = NULL;
 }
 
 
@@ -184,19 +186,28 @@ void NetEventClient::signal_cb(evutil_socket_t sig, short events, void * arg)
 
 void NetEventClient::eventcb(struct bufferevent *bev, short event, void *arg)
 {
+	NetEventClient* pNetEvClient = (NetEventClient*)arg;
+	int msgID = link_connected;
 
 	if (event & BEV_EVENT_EOF)
 	{
-		LOG(info, "服务器端关闭连接！");
+		//LOG(info, "服务器端关闭连接！");
+		msgID = link_server_closed;
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		LOG(error, "服务器端退出！");
+		//LOG(error, "连接服务器失败！");
+		msgID = link_server_failed;
 	}
 	else if (event & BEV_EVENT_CONNECTED)
 	{
 		evutil_socket_t fd = bufferevent_getfd(bev);
 		evutil_make_socket_nonblocking(fd);
+	}
+
+	if (pNetEvClient->m_fncb)
+	{
+		pNetEvClient->m_fncb(msgID);
 	}
 
 }
