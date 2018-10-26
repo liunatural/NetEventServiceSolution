@@ -78,6 +78,9 @@ private:
 	//查找一个玩家
 	Player* FindPlayer(int plyId);
 
+	void ListPlayer();
+
+
 	//根据座椅号查找玩家ID
 	Player* FindPlayerBySeatNumber(int seatNumber);
 

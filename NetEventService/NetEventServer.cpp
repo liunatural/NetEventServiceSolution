@@ -344,7 +344,7 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 		msgPack.SetLinkID(c->GetChannelID());
 
 		plt->that->GetMessageQueueAB()->Push(msgPack);						//返回消息包给应用层，进行用户管理
-		send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);		//同时向用户发送连接成功的消息
+		//send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);		//同时向用户发送连接成功的消息
 
 		bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c);
 		bufferevent_enable(bev, EV_READ | EV_WRITE);

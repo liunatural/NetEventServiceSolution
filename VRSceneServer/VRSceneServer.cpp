@@ -187,11 +187,13 @@ void VRSceneServer::HandleNetEventFromClient()
 		case link_connected:
 		{
 
-			playerMgr->SendClientList(cid);
-
 			Player*  ply = new Player(cid);
 			ply->SetSceneServerID(sceneServerID);
 			playerMgr->AddPlayer(ply);
+
+			playerMgr->SendCmd(cid, link_connected, 0, NULL, 0);
+
+			playerMgr->SendClientList(cid);
 
 			//playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
 

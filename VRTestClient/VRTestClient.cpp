@@ -85,6 +85,7 @@ void Message_handle(void *args)
 
 				Send_SeatNumber(pNetEventClient);
 
+				Sleep(10);
 				send_thread = std::thread(&Send_TransformPack, pNetEventClient);
 				//send_thread = std::thread(&Send_testPack, pNetEventClient);
 
@@ -109,7 +110,7 @@ void Message_handle(void *args)
 					{
 						TransformInfo* transInfo = (TransformInfo*)p;
 						char buffer[100] = { 0 };
-						LOG(info, "%04d用户发送位置变换信息[%4.2f_%4.2f_%4.2f]", transInfo->plyId, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
+						//LOG(info, "%04d用户发送位置变换信息[%4.2f_%4.2f_%4.2f]", transInfo->plyId, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
 
 						p += sizeof(TransformInfo);
 
@@ -174,7 +175,7 @@ void Message_handle(void *args)
 
 		}//for
 
-		Sleep(1);
+		Sleep(10);
 
 	}//while
 }
@@ -228,7 +229,7 @@ void Send_TransformPack(void *args)
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
-	for (int count = 0; count < 10; count++)
+	for (int count = 0; count < 100000; count++)
 	{
 		vec3 pos = { ++x, ++x, ++x };
 		vec3 dir = { ++y, ++y, ++y };
@@ -243,7 +244,7 @@ void Send_TransformPack(void *args)
 
 		pNetEventClient->Send(msgPackage);
 
-		Sleep(30);
+		Sleep(1);
 	}
 
 }

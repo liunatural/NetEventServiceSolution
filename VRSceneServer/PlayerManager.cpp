@@ -1,5 +1,6 @@
 #include "PlayerManager.h"
 #include <assert.h>
+#include <thread>
 
 PlayerManager::PlayerManager()
 {
@@ -18,6 +19,11 @@ void PlayerManager::AddPlayer(Player* ply)
 {
 	boost::mutex::scoped_lock lock(mMutex);
 	push_back(ply);
+
+	LOG(info, "玩家ID[%d]加入！", ply->GetLinkID());
+
+	//ListPlayer();
+
 }
 
 void PlayerManager::SendClientList(LinkID& linkID)
@@ -38,7 +44,7 @@ void PlayerManager::SendClientList(LinkID& linkID)
 		}
 
 		ply = (Player*)(*i);
-		if (NULL != ply && ply->GetUserType() == VIP)
+		if (NULL != ply && ply->GetUserType() == VIP && (ply->GetLinkID() != linkID))
 		{
 			memcpy(p, (const void*)&ply->mProfileInfo, sizeof(ProfileInfo));
 
@@ -98,7 +104,7 @@ bool PlayerManager::SendPlayerLeaveMsg(int& plyId)
 	ply = FindPlayer(plyId);
 	if (NULL == ply)
 	{
-		LOG(error, "[SendPlayerLeaveMsg] error：玩家ID在列表中不存在！");
+		LOG(error, "[SendPlayerLeaveMsg] error：玩家ID[%d]在列表中不存在！", plyId);
 		return false;
 	}
 
@@ -137,7 +143,8 @@ void PlayerManager::UpdatePlayerTransform(int plyId, TransformInfo &transInfo)
 	Player* ply = FindPlayer(plyId);
 	if (NULL == ply)
 	{
-		LOG(error, "[UpdatePlayerTransform] 存储玩家位置变换数据出错：玩家ID在列表中不存在！");
+		LOG(error, "[UpdatePlayerTransform] 存储玩家位置变换数据出错：玩家ID[%d]在列表中不存在！", plyId);
+		//ListPlayer();
 		return;
 	}
 
@@ -153,7 +160,7 @@ bool PlayerManager::UpdatePlayerSeatNumber(int plyId, int seatNumber)
 	Player* ply = FindPlayer(plyId);
 	if (NULL == ply)
 	{
-		LOG(error, "[UpdatePlayerSeatNumber] 更新玩家座位号出错：玩家ID在列表中不存在！");
+		LOG(error, "[UpdatePlayerSeatNumber] 更新玩家座位号出错：玩家ID[%d]在列表中不存在！", plyId);
 		return false;
 	}
 
@@ -170,7 +177,7 @@ bool PlayerManager::UpdateUserType(int plyId, UserType userType)
 	Player* ply = FindPlayer(plyId);
 	if (NULL == ply)
 	{
-		LOG(error, "[UpdatePlayerSeatNumber] 更新玩家类型出错：玩家ID在列表中不存在！");
+		LOG(error, "[UpdatePlayerSeatNumber] 更新玩家类型出错：玩家ID[%d]在列表中不存在！", plyId);
 		return false;
 	}
 
@@ -360,6 +367,18 @@ Player* PlayerManager::FindPlayer(int plyId)
 	return ply;
 }
 
+
+void PlayerManager::ListPlayer()
+{
+
+	Player* plyTemp = NULL;
+
+	for (iterator i = begin(); i != end(); i++)
+	{
+		plyTemp = (Player*)(*i);
+		LOG(info, "ID: %d", plyTemp->GetLinkID());
+	}
+}
 
 Player* PlayerManager::FindPlayerBySeatNumber(int seatNumber)
 {
