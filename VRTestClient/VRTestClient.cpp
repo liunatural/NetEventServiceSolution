@@ -15,6 +15,8 @@ void Send_SeatNumber(void *args);
 
 std::thread send_thread;
 
+int seatNum;
+
 int main()
 {
 	InitLogger("Log/Client");
@@ -110,7 +112,8 @@ void Message_handle(void *args)
 					{
 						TransformInfo* transInfo = (TransformInfo*)p;
 						char buffer[100] = { 0 };
-						//LOG(info, "%04d用户发送位置变换信息[%4.2f_%4.2f_%4.2f]", transInfo->plyId, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
+						LOG(info, "%04d用户,座椅号[%d]:发送位置变换信息[%4.2f_%4.2f_%4.2f]", 
+							transInfo->plyId, transInfo->seatNumber, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
 
 						p += sizeof(TransformInfo);
 
@@ -229,17 +232,20 @@ void Send_TransformPack(void *args)
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
-	for (int count = 0; count < 100000; count++)
+	for (int count = 0; count < 10; count++)
 	{
 		vec3 pos = { ++x, ++x, ++x };
 		vec3 dir = { ++y, ++y, ++y };
-		TransformInfo TransformInfo;
-		TransformInfo.pos = pos;
-		TransformInfo.dir = dir;
+		TransformInfo transformInfo;
+		transformInfo.seatNumber = seatNum;
+		transformInfo.pos = pos;
+		transformInfo.dir = dir;
+		
 		int len = sizeof(TransformInfo);
 		MessagePackage msgPackage;
+
 		msgPackage.WriteHeader(ID_User_Transform, 0);
-		msgPackage.WriteBody(&TransformInfo, len);
+		msgPackage.WriteBody(&transformInfo, len);
 
 
 		pNetEventClient->Send(msgPackage);
@@ -249,7 +255,6 @@ void Send_TransformPack(void *args)
 
 }
 
-
 void Send_SeatNumber(void *args)
 {
 
@@ -257,7 +262,7 @@ void Send_SeatNumber(void *args)
 	srand((unsigned)time(&t));
 
 	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
-	int seatNum = random(10) + 1;
+	seatNum = random(10) + 1;
 	int len = sizeof(int);
 	MessagePackage msgPackage;
 	msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
