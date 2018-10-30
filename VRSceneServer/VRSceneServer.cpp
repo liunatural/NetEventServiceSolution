@@ -83,6 +83,11 @@ int VRSceneServer::Start()
 	}
 
 	LOG(info, "场景服务器启动成功！");
+
+
+	//pNetEventServer->Stop();
+	//getchar();
+
 	return SUCCESS;
 
 }

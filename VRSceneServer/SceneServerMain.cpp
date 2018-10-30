@@ -40,6 +40,9 @@ int main()
 		return ret;
 	}
 
+
+
+
 	//*****创建用户管理器*****//
 	ret= vrSceneServer.CreatePlayerManager();
 	if (ret == FAIL)

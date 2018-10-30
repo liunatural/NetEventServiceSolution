@@ -18,8 +18,7 @@
 #include "ChannelManager.h"
 #include "MessageQueue.h"
 #include "protocol.h"
-
-
+#include <thread>
 
 NetEventServer::NetEventServer()
 {
@@ -30,6 +29,9 @@ NetEventServer::NetEventServer()
 
 	m_thread_num = 1;
 
+	m_pSendMsgQueue = new CommonMsgQueue<MessagePackage>(MAX_SEND_MSGQ_LEN);
+
+	m_bStopThread = false;
 }
 
 
@@ -41,13 +43,25 @@ NetEventServer::~NetEventServer()
 
 bool NetEventServer::Start(int port, int maxConnects)
 {
-	
+	//并发线程数
+	m_thread_num = std::thread::hardware_concurrency() / 2;
+
 	bool bRet = Init(0, maxConnects);
 	if (!bRet) 
 	{
 		return false;
 	}
 	
+	//启动接收线程
+	bRet = StartReceiverThreads(m_thread_num);
+	if (!bRet)
+	{
+		return false;
+	}
+
+	//启动发送线程
+	StartSenderThreads(m_thread_num);
+
 	struct sockaddr_in sin;
 	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = AF_INET;
@@ -84,7 +98,7 @@ bool NetEventServer::Start(int port, int maxConnects)
 		if (WSAENOTSOCK == WSAGetLastError())
 		{
 			LOG(error, "无效套接字！");
-			exit(0);
+			return false;
 		}
 	}));
 
@@ -112,7 +126,7 @@ bool NetEventServer::Stop()
 		m_base = NULL;
 	}
 
-	//销毁消息队列
+	//销毁消息接收队列
 	if (m_pMsgQueueAB)
 	{
 		delete m_pMsgQueueAB;
@@ -126,7 +140,7 @@ bool NetEventServer::Stop()
 		m_channelMgr = nullptr;
 	}
 
-	//结束工作线程
+	//结束接收线程
 	for (int i = 0; i < m_libevent_threads.size(); ++i)
 	{
 		if (m_libevent_threads[i] != NULL)
@@ -138,6 +152,15 @@ bool NetEventServer::Stop()
 		}
 	}
 	m_libevent_threads.clear();
+
+
+	//结束发送线程
+	m_bStopThread = true;
+	for (int i = 0; i < m_send_threads.size(); ++i)
+	{
+		m_send_threads[i].join();
+	}
+
 
 	//销毁用户连接列表
 	for (int i = 0; i < m_Channels.size(); ++i)
@@ -170,8 +193,20 @@ int NetEventServer::Send(int connectid, unsigned short id1, unsigned short id2, 
 
 int NetEventServer::Send(int connectid, MessagePackage& msg)
 {
+
+	msg.SetLinkID(connectid);
+	m_pSendMsgQueue->put(msg);
+
+	return true;
+}
+
+
+int NetEventServer::DoSend(MessagePackage& msg)
+{
 	std::lock_guard<std::mutex> lock(m_channel_mtx);
 	
+	int connectid = msg.GetLinkID();
+
 	Channel* c = m_Channels[connectid];
 	if (c == NULL)
 	{
@@ -180,6 +215,46 @@ int NetEventServer::Send(int connectid, MessagePackage& msg)
 
 	return c->SendData(msg.data(), msg.GetPackageLength());
 }
+
+
+void NetEventServer::sender_thread_task(NetEventServer *pNetEvtSvr)
+{
+	if (!pNetEvtSvr)
+	{
+		return;
+	}
+
+	MessagePackage msgpacK;
+	bool bIsEmpty = false;
+
+	while (true)
+	{
+		bool bStopFlag = pNetEvtSvr->GetStopSenderThreadFlag();
+		if (bStopFlag == true)
+		{
+			break;
+		}
+
+		pNetEvtSvr->GetSendMsgQueue()->get(msgpacK, bIsEmpty);
+		if (!bIsEmpty)
+		{
+			pNetEvtSvr->DoSend(msgpacK);
+		}
+	}
+
+	LOG(error, "发送线程结束并退出.");
+
+}
+
+void NetEventServer::StartSenderThreads(int thread_numb)
+{
+	m_send_threads.resize(thread_numb);
+	for (int i = 0; i < thread_numb; i++)
+	{
+		m_send_threads[i]  = std::thread(sender_thread_task, this);
+	}
+}
+
 
 void NetEventServer::Close(int connectid)
 {
@@ -214,8 +289,8 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 
 	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
 	{
-		LOG(error, "WSAStartup failed with error %d", ret);
-		exit(1);
+		LOG(error, "WSAStartup失败！错误ID:%d", ret);
+		return false;
 	}
 
 	m_channelMgr = new ChannelManager();
@@ -229,50 +304,46 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 	m_base = event_base_new();
 	if (NULL == m_base)
 	{
-		LOG(error, "初始化Libevent失败！");
+		LOG(error, "初始化event_base失败.");
 		return false;
 	}
 
 	m_last_thread = -1; 
-	m_thread_num = std::thread::hardware_concurrency();
-	
-	//初始化线程
-	InitWorkerThreads(m_thread_num);
 
 	return true;
 }
 
-bool NetEventServer::InitWorkerThreads(int thread_numb)
+bool NetEventServer::StartReceiverThreads(int thread_numb)
 {
+
 	m_libevent_threads.resize(thread_numb);
 
 	for (int i = 0; i < thread_numb; ++i)
 	{
 
-		WorkerThread* plt = new WorkerThread();
-#ifdef WIN32
+		ReceiverThread* plt = new ReceiverThread();
+
 		//创建互相通信的两个socket
 		evutil_socket_t fds[2];
 		if (evutil_socketpair(AF_INET, SOCK_STREAM, 0, fds) < 0)
 		{
-			printf( "创建socketpair失败！");
+			LOG(error, "创建socketpair失败！");
 			return false;
 		}
 		//设置成无阻赛的socket
 		evutil_make_socket_nonblocking(fds[0]);
 		evutil_make_socket_nonblocking(fds[1]);
-#else
-		int fds[2];
-		if (pipe(fds)) {
-			printf("Can't create notify pipe");
-			exit(1);
-		}
-#endif
+
 		plt->notfiy_recv_fd = fds[0];
 		plt->notfiy_send_fd = fds[1];
 
 
-		SetupWorkerThread(plt);
+		bool bRet = SetupReceiverThread(plt);
+		if (!bRet)
+		{
+			LOG(error, "SetupReceiverThread:注册通知事件失败.");
+			return false;
+		}
 
 		m_libevent_threads[i] = plt;
 	}
@@ -283,15 +354,16 @@ bool NetEventServer::InitWorkerThreads(int thread_numb)
 		m_libevent_threads[i]->spThread.reset(new std::thread([]
 		(void* arg)
 		{
-			auto me = (WorkerThread*)arg;
+			auto me = (ReceiverThread*)arg;
 			event_base_loop(me->thread_base, 0);
 		}, m_libevent_threads[i]));
 	}
+
 	return true;
 }
 
 //注册通知事件及其回调函数
-void NetEventServer::SetupWorkerThread(WorkerThread * pLibeventThread)
+bool NetEventServer::SetupReceiverThread(ReceiverThread * pLibeventThread)
 {
 	auto plt = pLibeventThread;
 	
@@ -300,15 +372,22 @@ void NetEventServer::SetupWorkerThread(WorkerThread * pLibeventThread)
 	plt->that = this;
 
 	int ret = event_assign(&plt->notify_event, plt->thread_base, plt->notfiy_recv_fd, EV_READ | EV_PERSIST, notify_cb, plt);
+	if (ret == SUCCESS)
+	{
+		ret = event_add(&plt->notify_event, 0);
+	}
 
-	ret  = event_add(&plt->notify_event, 0); 
+	bool bRet = (ret == SUCCESS);
+	
+	return bRet;
 }
+
 
 //管道通知事件回调函数
 void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 {
 
-	WorkerThread * pLibeventThread = (WorkerThread *)args;
+	ReceiverThread * pLibeventThread = (ReceiverThread *)args;
 
 	//首先将socketpair的1个字节通知信号读出
 	//在水平触发模式下如果不处理该事件，则会循环通知，直到事件被处理
@@ -429,6 +508,7 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 
 	return c;
 }
+
 
 
 void NetEventServer::conn_readcb(struct bufferevent *bev, void *arg)

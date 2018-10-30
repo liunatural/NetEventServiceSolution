@@ -188,6 +188,7 @@ copy $(ProjectDir)..\include\consts.h ..\..\..\Projects\NetEventServiceSolution\
     <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="NetEventClient.h" />
     <ClInclude Include="NetEventServer.h" />
+    <ClInclude Include="CommonMsgQueue.h" />
     <ClInclude Include="SLog.h" />
   </ItemGroup>
   <ItemGroup>

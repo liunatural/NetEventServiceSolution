@@ -60,6 +60,9 @@
     <ClInclude Include="ConfigReader.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
+    <ClInclude Include="CommonMsgQueue.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SourceFiles">

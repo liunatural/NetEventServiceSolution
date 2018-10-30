@@ -232,7 +232,7 @@ void Send_TransformPack(void *args)
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
-	for (int count = 0; count < 10; count++)
+	for (int count = 0; count < 100000; count++)
 	{
 		vec3 pos = { ++x, ++x, ++x };
 		vec3 dir = { ++y, ++y, ++y };
@@ -250,7 +250,7 @@ void Send_TransformPack(void *args)
 
 		pNetEventClient->Send(msgPackage);
 
-		Sleep(1);
+		Sleep(5);
 	}
 
 }
