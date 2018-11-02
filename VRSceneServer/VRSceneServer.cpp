@@ -155,7 +155,6 @@ void VRSceneServer::Run()
 
 void VRSceneServer::OnConnectCenterServer(int& msgID)
 {
-
 	if (link_connected == msgID)
 	{
 		LOG(info, "连接中心服务器成功！");
@@ -170,7 +169,6 @@ void VRSceneServer::OnConnectCenterServer(int& msgID)
 		LOG(info, "连接中心服务器没有成功！");
 	}
 }
-
 
 
 void VRSceneServer::HandleNetEventFromClient()
@@ -235,6 +233,20 @@ void VRSceneServer::HandleNetEventFromClient()
 
 			break;
 		}
+		case ID_Global_Notify:
+		{
+			//发送
+			if (cmdID == c2s_seen_external)
+			{
+				centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile,	 (const char*)pack->body(), pack->GetBodyLength());
+			}
+			break;
+		}
+		case ID_Global_Transform:
+		{
+
+		}
+
 		default:
 		{
 			break;
@@ -265,62 +277,67 @@ void VRSceneServer::HandleNetEventFromCenterSvr()
 			case ID_Global_Notify:
 			{
 				int cmdID = pack->header()->id2;
-				if (s2c_begin_flying == cmdID)
+				if (s2c_trans_ext_usr_profile == cmdID)
 				{
-					//向所有VIP客户端发出起飞命令
-					playerMgr->BroadcastControlCmd(ID_User_control, s2c_begin_flying);
+					//向所有VIP客户端发送其他场景服务器用户描述信息
+					playerMgr->SendMsg(*pack);;
 				}
-				else if (s2c_play_video == cmdID)
-				{
-					//向所有VIP客户端发出播放视频命令
-					playerMgr->BroadcastControlCmd(ID_User_control, s2c_play_video);
-				}
-				else if (s2c_stand_up == cmdID)
-				{
-					//向所有VIP客户端发出站立命令
-					playerMgr->BroadcastControlCmd(ID_User_control, s2c_stand_up);
-				}
-				else if (s2c_walk == cmdID)
-				{
-					//向所有VIP客户端发出开始行走命令
-					playerMgr->BroadcastControlCmd(ID_User_control, s2c_walk);
-				}
-				else if (s2c_client_list_external == cmdID)
-				{
-					//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户列表
-					playerMgr->SendMsg(*pack);
-				}
-				else if (s2c_user_leave_external == cmdID)
-				{
-					//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户离开消息
-					playerMgr->SendMsg(*pack);
-				}
-				else if (s2s_req_usr_list == cmdID)
-				{
-					//设置用户跨场景服务器可见
-					playerMgr->SetUserVisibilityExternal(true);
 
-					playerMgr->SendClientListToCenterServer();
+				//	else if (s2c_begin_flying == cmdID)
+				//	{
+				//		//向所有VIP客户端发出起飞命令
+				//		playerMgr->BroadcastControlCmd(ID_User_control, s2c_begin_flying);
+				//	}
+				//	else if (s2c_play_video == cmdID)
+				//	{
+				//		//向所有VIP客户端发出播放视频命令
+				//		playerMgr->BroadcastControlCmd(ID_User_control, s2c_play_video);
+				//	}
+				//	else if (s2c_stand_up == cmdID)
+				//	{
+				//		//向所有VIP客户端发出站立命令
+				//		playerMgr->BroadcastControlCmd(ID_User_control, s2c_stand_up);
+				//	}
+				//	else if (s2c_walk == cmdID)
+				//	{
+				//		//向所有VIP客户端发出开始行走命令
+				//		playerMgr->BroadcastControlCmd(ID_User_control, s2c_walk);
+				//	}
+				//	else if (s2c_client_list_external == cmdID)
+				//	{
+				//		//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户列表
+				//		playerMgr->SendMsg(*pack);
+				//	}
+				//	else if (s2c_user_leave_external == cmdID)
+				//	{
+				//		//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户离开消息
+				//		playerMgr->SendMsg(*pack);
+				//	}
+				//	else if (s2s_req_usr_list == cmdID)
+				//	{
+				//		//设置用户跨场景服务器可见
+				//		playerMgr->SetUserVisibilityExternal(true);
+
+				//		playerMgr->SendClientListToCenterServer();
+				//	}
+				//	break;
 				}
-				break;
-			}
-			case ID_User_Login:
-			{
-				int cmdID = pack->header()->id2;
-				if (s2c_upd_user_state == cmdID)
-				{
-					//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户状态变化消息(开始献花，结束献花等等)
-					playerMgr->BroadcastExternalUserState(pack);
-				}
-				break;
-			}
+				//case ID_User_Login:
+				//{
+				//	int cmdID = pack->header()->id2;
+				//	if (s2c_upd_user_state == cmdID)
+				//	{
+				//		//向所有VIP客户端发送中心服务器转发过来的其它场景服务器上的用户状态变化消息(开始献花，结束献花等等)
+				//		playerMgr->BroadcastExternalUserState(pack);
+				//	}
+				//	break;
+				//}
 			case ID_Global_Transform:
 			{
 				//
 				playerMgr->SendMsg(*pack);
 				break;
 			}
-
 			} //switch end
 		} // for end
 	}// if end 	

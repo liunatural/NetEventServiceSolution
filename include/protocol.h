@@ -62,7 +62,7 @@ enum
 	c2s_req_seat_num,										//胶囊客户端请求座位号
 	c2s_tell_user_profile,										//胶囊客户端登录后发送用户基本描述信息给场景服务器
 	c2s_begin_flying,											//起飞命令
-	c2s_seen_external,
+	c2s_seen_external,											//
 	c2s_play_video,												//播放视频命令
 	c2s_stand_up,												//玩家站起命令	
 	c2s_walk,														//玩家行走命令
@@ -83,6 +83,7 @@ enum
 	s2c_stand_up,												//玩家站起命令
 	s2c_walk,														//玩家行走命令
 	s2c_rsp_id_verify,
+	s2c_trans_ext_usr_profile,								//传递外部用户描述数据
 
 	s2s_req_usr_list = 200,
 	//最大协议数值254，大了会出错

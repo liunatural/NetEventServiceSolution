@@ -235,9 +235,17 @@ void NetEventServer::sender_thread_task(NetEventServer *pNetEvtSvr)
 			break;
 		}
 
+		//pNetEvtSvr->GetSendMsgQueue()->get(msgpacK);
+		//pNetEvtSvr->DoSend(msgpacK);
+
 		pNetEvtSvr->GetSendMsgQueue()->get(msgpacK, bIsEmpty);
-		if (!bIsEmpty)
+		if (bIsEmpty)
 		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(30));
+		}
+		else
+		{
+			
 			pNetEvtSvr->DoSend(msgpacK);
 		}
 	}

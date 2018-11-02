@@ -12,6 +12,7 @@ void Message_handle(void *args);
 void Send_testPack(void *args);
 void Send_TransformPack(void *args);
 void Send_SeatNumber(void *args);
+void Send_Profile(void *args);
 
 std::thread send_thread;
 
@@ -88,8 +89,10 @@ void Message_handle(void *args)
 				Send_SeatNumber(pNetEventClient);
 
 				Sleep(10);
-				send_thread = std::thread(&Send_TransformPack, pNetEventClient);
+				//send_thread = std::thread(&Send_TransformPack, pNetEventClient);
 				//send_thread = std::thread(&Send_testPack, pNetEventClient);
+				send_thread = std::thread(&Send_Profile, pNetEventClient);
+				
 
 				break;
 			}
@@ -169,6 +172,41 @@ void Message_handle(void *args)
 
 				break;
 			}
+			case ID_Global_Notify:
+			{
+				int cmdID = pack->header()->id2;
+				if (s2c_trans_ext_usr_profile == cmdID)
+				{
+					ProfileInfo *pProfInfo = (ProfileInfo*)pack->body();
+					LOG(info, "外部用户座椅号：%d", pProfInfo->mSeatNumber);
+				}
+				break;
+			}
+			case ID_Global_Transform:
+			{
+				const char * p = pack->body();
+				int s = pack->header()->length;
+
+				if (s > 0)
+				{
+					int cout = s / sizeof(TransformInfo);
+
+					int v = 0;
+					while (v < cout)
+					{
+						TransformInfo* transInfo = (TransformInfo*)p;
+						char buffer[100] = { 0 };
+						sprintf(buffer, "外部用户%04d发送位置变换信息[%4.2f_%4.2f_%4.2f]\n", transInfo->plyId, transInfo->pos.x, transInfo->pos.y, transInfo->pos.z);
+						printf(buffer);
+
+						p += sizeof(TransformInfo);
+
+						v++;
+					}
+				}
+				break;
+			}
+
 			default:
 			{
 				break;
@@ -232,7 +270,7 @@ void Send_TransformPack(void *args)
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
-	for (int count = 0; count < 100000; count++)
+	for (int count = 0; count < 50; count++)
 	{
 		vec3 pos = { ++x, ++x, ++x };
 		vec3 dir = { ++y, ++y, ++y };
@@ -270,4 +308,23 @@ void Send_SeatNumber(void *args)
 	pNetEventClient->Send(msgPackage);
 
 	LOG(info, "向服务器发送座椅号:[%d]\n", seatNum);
+}
+
+
+void Send_Profile(void *args)
+{
+
+	time_t t;
+	srand((unsigned)time(&t));
+
+	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
+	ProfileInfo pi;
+	pi.mSeatNumber = 250;
+	int len = sizeof(ProfileInfo);
+	MessagePackage msgPackage;
+	msgPackage.WriteHeader(ID_Global_Notify, c2s_seen_external);
+	msgPackage.WriteBody((void*)&pi, len);
+	pNetEventClient->Send(msgPackage);
+
+	LOG(info, "向外部场景服务器发送座椅号:[%d]\n", pi.mSeatNumber);
 }

@@ -82,6 +82,8 @@ int VRCenterSvr::CreateUserManager()
 
 	userMgr = new UserManager();
 
+	userMgr->SetNetworkService(&pNetEventServer);
+
 	return SUCCESS;
 }
 
@@ -125,40 +127,46 @@ void VRCenterSvr::HandleNetEvent()
 			case ID_Global_Notify:
 			{
 				int cmdID = pack->header()->id2;
-				if (s2c_begin_flying == cmdID)
+
+				if (s2c_trans_ext_usr_profile == cmdID)
 				{
-					//向所有场景服务器转发起飞命令
+					//向所有场景服务器转发外部用户描述数据
 					userMgr->ForwardCommand(pack);
 				}
-				else if (s2c_play_video == cmdID)
-				{
-					//向所有场景服务器转发播放视频命令
-					userMgr->ForwardCommand(pack);
-				}
-				else if (s2c_stand_up == cmdID)
-				{
-					//向所有场景服务器转发站立命令
-					userMgr->ForwardCommand(pack);
-				}
-				else if (s2c_walk == cmdID)
-				{
-					//向所有场景服务器转发行走命令
-					userMgr->ForwardCommand(pack);
-				}
-				else if (s2c_client_list_external == cmdID)
-				{
-					//向其它场景服务器转发另一场景服务器的用户列表
-					userMgr->ForwardMsg(cid, pack);
-				}
-				else if (s2c_user_leave_external == cmdID)
-				{
-					//向其它场景服务器转发另一场景服务器的用户离开消息
-					userMgr->ForwardMsg(cid, pack);
-				}
-				else if (s2s_req_usr_list == cmdID)
-				{
-					userMgr->ForwardMsg(cid, pack);
-				}
+				//else if (s2c_begin_flying == cmdID)
+				//{
+				//	//向所有场景服务器转发起飞命令
+				//	userMgr->ForwardCommand(pack);
+				//}
+				//else if (s2c_play_video == cmdID)
+				//{
+				//	//向所有场景服务器转发播放视频命令
+				//	userMgr->ForwardCommand(pack);
+				//}
+				//else if (s2c_stand_up == cmdID)
+				//{
+				//	//向所有场景服务器转发站立命令
+				//	userMgr->ForwardCommand(pack);
+				//}
+				//else if (s2c_walk == cmdID)
+				//{
+				//	//向所有场景服务器转发行走命令
+				//	userMgr->ForwardCommand(pack);
+				//}
+				//else if (s2c_client_list_external == cmdID)
+				//{
+				//	//向其它场景服务器转发另一场景服务器的用户列表
+				//	userMgr->ForwardMsg(cid, pack);
+				//}
+				//else if (s2c_user_leave_external == cmdID)
+				//{
+				//	//向其它场景服务器转发另一场景服务器的用户离开消息
+				//	userMgr->ForwardMsg(cid, pack);
+				//}
+				//else if (s2s_req_usr_list == cmdID)
+				//{
+				//	userMgr->ForwardMsg(cid, pack);
+				//}
 
 				break;
 			}
@@ -180,7 +188,7 @@ void VRCenterSvr::HandleNetEvent()
 			}// switch end
 		}// for loop end
 
-		Sleep(1);
+		Sleep(10);
 
 	} //while end
 }

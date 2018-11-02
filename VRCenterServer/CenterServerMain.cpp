@@ -32,6 +32,7 @@ int main()
 		return ret;
 	}
 
+	
 	//*****进行消息处理*****//
 	vrCentServer.HandleNetEvent();
 
