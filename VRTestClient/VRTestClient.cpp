@@ -319,7 +319,7 @@ void Send_Profile(void *args)
 
 	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
 	ProfileInfo pi;
-	pi.mSeatNumber = 250;
+	pi.mSeatNumber = random(100) + 1;
 	int len = sizeof(ProfileInfo);
 	MessagePackage msgPackage;
 	msgPackage.WriteHeader(ID_Global_Notify, c2s_seen_external);

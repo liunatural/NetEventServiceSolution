@@ -93,6 +93,8 @@ private:
 	bool SetupReceiverThread(ReceiverThread * pLibeventThread);
 	Channel* CreateChannel(bufferevent *bev, conn_queue_item& connItem);
 
+	bool SetEventConfig();
+
 private:
 	std::mutex							m_channel_mtx;
 	struct event_base					*m_base;
@@ -109,6 +111,8 @@ private:
 
 	std::shared_ptr<std::thread> m_dispatchThread;// 消息派发线程
 
+
+	struct event_config					*m_ec ;
 
 	volatile bool m_bStopThread;
 

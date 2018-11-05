@@ -316,6 +316,8 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 		return false;
 	}
 
+	SetEventConfig();
+
 	m_last_thread = -1; 
 
 	return true;
@@ -376,7 +378,8 @@ bool NetEventServer::SetupReceiverThread(ReceiverThread * pLibeventThread)
 	auto plt = pLibeventThread;
 	
 	//创建属于每个线程的event_base，
-	plt->thread_base = event_base_new(); 
+	plt->thread_base = event_base_new_with_config(m_ec);
+	//plt->thread_base = event_base_new(); 
 	plt->that = this;
 
 	int ret = event_assign(&plt->notify_event, plt->thread_base, plt->notfiy_recv_fd, EV_READ | EV_PERSIST, notify_cb, plt);
@@ -517,6 +520,22 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 	return c;
 }
 
+
+bool NetEventServer::SetEventConfig()
+{
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+
+	int cpu_num = si.dwNumberOfProcessors;
+
+	m_ec = event_config_new();
+	//event_config_set_flag(m_ec, EVENT_BASE_FLAG_STARTUP_IOCP);
+	//event_config_require_features(m_ec, EV_FEATURE_ET);
+
+	event_config_set_num_cpus_hint(m_ec, cpu_num);
+
+	return true;
+}
 
 
 void NetEventServer::conn_readcb(struct bufferevent *bev, void *arg)

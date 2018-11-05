@@ -43,7 +43,7 @@ int UserManager::ForwardCommand(MessagePackage *pkt)
 }
 
 
-int UserManager::ForwardMsg(LinkID& sourceLinkID, MessagePackage *pkt)
+int UserManager::ForwardMsgToOtherSceneServers(LinkID& sourceLinkID, MessagePackage *pkt)
 {
 	LinkID linkID;
 	User* user = NULL;
@@ -89,6 +89,8 @@ User* UserManager::FindUser(int plyId)
 
 	return ply;
 }
+
+
 bool UserManager::DeleteUser(int plyId)
 {
 	bool ret = false;

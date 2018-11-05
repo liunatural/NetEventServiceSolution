@@ -280,9 +280,8 @@ void VRSceneServer::HandleNetEventFromCenterSvr()
 				if (s2c_trans_ext_usr_profile == cmdID)
 				{
 					//向所有VIP客户端发送其他场景服务器用户描述信息
-					playerMgr->SendMsg(*pack);;
+					playerMgr->SendMsg(*pack);
 				}
-
 				//	else if (s2c_begin_flying == cmdID)
 				//	{
 				//		//向所有VIP客户端发出起飞命令
@@ -320,7 +319,7 @@ void VRSceneServer::HandleNetEventFromCenterSvr()
 
 				//		playerMgr->SendClientListToCenterServer();
 				//	}
-				//	break;
+					break;
 				}
 				//case ID_User_Login:
 				//{

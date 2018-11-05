@@ -120,7 +120,7 @@ void VRCenterSvr::HandleNetEvent()
 				if (s2c_upd_user_state == cmdID)
 				{
 					//向其它场景服务器转发用户状态变化消息（目前开始献花，结束献花状态）
-					userMgr->ForwardMsg(cid, pack);
+					userMgr->ForwardMsgToOtherSceneServers(cid, pack);
 				}
 				break;
 			}
@@ -130,8 +130,8 @@ void VRCenterSvr::HandleNetEvent()
 
 				if (s2c_trans_ext_usr_profile == cmdID)
 				{
-					//向所有场景服务器转发外部用户描述数据
-					userMgr->ForwardCommand(pack);
+					//向其他场景服务器转发外部用户描述数据
+					userMgr->ForwardMsgToOtherSceneServers(cid, pack);
 				}
 				//else if (s2c_begin_flying == cmdID)
 				//{
@@ -173,7 +173,7 @@ void VRCenterSvr::HandleNetEvent()
 			case ID_Global_Transform:
 			{
 				//向其它场景服务器转发另一场景服务器的用户运动变换信息
-				userMgr->ForwardMsg(cid, pack);
+				userMgr->ForwardMsgToOtherSceneServers(cid, pack);
 				break;
 			}
 

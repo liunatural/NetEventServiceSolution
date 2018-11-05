@@ -22,7 +22,7 @@ public:
 	int SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len);
 	
 	int ForwardCommand(MessagePackage *pkt);
-	int ForwardMsg(LinkID& sourceLinkID, MessagePackage *pkt);
+	int ForwardMsgToOtherSceneServers(LinkID& sourceLinkID, MessagePackage *pkt);
 
 private:
 	User* FindUser(int plyId);

@@ -42,6 +42,7 @@ enum UserType
 	VideoCamera,
 	SceneServer,
 	OBSServer,
+	ExternalVIP,
 };
 
 //ÓÃ»§×´Ì¬

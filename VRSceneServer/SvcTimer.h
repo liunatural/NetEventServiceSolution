@@ -18,9 +18,13 @@ public:
 
 	void handler();
 
+	void SendTransformDataByUserType(UserType usrType);
+
 private:
 	deadline_timer mTimer;
 	PlayerManager* mPlayMgr;
+
 	char buffer[MessagePackage::max_body_length] = { 0 };
+
 };
 

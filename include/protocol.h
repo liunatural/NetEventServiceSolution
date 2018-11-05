@@ -109,10 +109,12 @@ struct TransformInfo
 	vec3 rhand;					//右手数据
 	vec3 dir;						//身体朝向
 	bool update;					//是否更新位置标志
+	bool bSeenExternal;		//是否外部VIP用户			
 
 	TransformInfo()
 	{
 		update = false;
+		bSeenExternal = false;
 	}
 
 	TransformInfo(const TransformInfo& other)
@@ -124,6 +126,7 @@ struct TransformInfo
 		this->rhand = other.rhand;
 		this->plyId = other.plyId;
 		this->seatNumber = other.seatNumber;
+		this->bSeenExternal = other.bSeenExternal;
 	}
 
 	TransformInfo& operator = (const TransformInfo& other)
@@ -135,6 +138,8 @@ struct TransformInfo
 		this->rhand = other.rhand;
 		this->plyId = other.plyId;
 		this->seatNumber = other.seatNumber;
+		this->bSeenExternal = other.bSeenExternal;
+
 		return *this;
 	}
 };
@@ -151,6 +156,7 @@ struct  ProfileInfo
 {
 	char SceneServerID[SCENE_SERVER_ID_LENGTH + 1] = {0};
 	int mSeatNumber;
+	UserType usrType = VIP;
 	FaceModel mFaceModel;
 };
 

@@ -12,11 +12,68 @@ SvcTimer::~SvcTimer()
 {
 }
 
+//void SvcTimer::handler()
+//{
+//	//为了防止在发送数据包时有玩家退出引起程序崩溃， 从这个地方加锁
+//	boost::mutex::scoped_lock lock(mPlayMgr->mMutex);		
+//
+//	memset(buffer, 0, sizeof(buffer));
+//	char*p = buffer;
+//	int count = 0;
+//
+//	for (PlayerManager::iterator i = mPlayMgr->begin(); i != mPlayMgr->end(); i++)
+//	{
+//		if ((sizeof(buffer) - count * sizeof(TransformInfo)) < sizeof(TransformInfo))
+//		{
+//			break;
+//		}
+//		Player* ply = (Player*)(*i);
+//		if (NULL != ply && ply->transInfo.update)
+//		{
+//			memcpy(p, (const void*)&ply->transInfo, sizeof(TransformInfo));
+//			ply->transInfo.update = false;
+//
+//			p += sizeof(TransformInfo);
+//			count++;
+//		}
+//	}
+//
+//	if(count > 0)
+//	{ 
+//		for (PlayerManager::iterator j = mPlayMgr->begin(); j != mPlayMgr->end(); j++)
+//		{
+//			Player* ply1 = (Player*)(*j);
+//			if (NULL != ply1)
+//			{
+//				mPlayMgr->SendCmd(ply1->GetLinkID(), ID_User_Transform, 0, &buffer, sizeof(TransformInfo)* count);
+//			}
+//		}
+//
+//		//if (mPlayMgr->GetUserVisibilityExternal())
+//		//{
+//		//	mPlayMgr->GetCenterSvrConnection()->Send(ID_Global_Transform, 0, (char*)&buffer, sizeof(TransformInfo)* count);
+//		//}
+//
+//	}
+//
+//	mTimer.expires_at(mTimer.expires_at() + boost::posix_time::milliseconds(30));
+//	mTimer.async_wait(boost::bind(&SvcTimer::handler, this));
+//}
+
+
 void SvcTimer::handler()
 {
-	//为了防止在发送数据包时有玩家退出引起程序崩溃， 从这个地方加锁
-	boost::mutex::scoped_lock lock(mPlayMgr->mMutex);		
+		//为了防止在发送数据包时有玩家退出引起程序崩溃， 从这个地方加锁
+		boost::mutex::scoped_lock lock(mPlayMgr->mMutex);	
 
+		SendTransformDataByUserType(VIP);
+		SendTransformDataByUserType(ExternalVIP);
+
+}
+
+
+void SvcTimer::SendTransformDataByUserType(UserType usrType)
+{
 	memset(buffer, 0, sizeof(buffer));
 	char*p = buffer;
 	int count = 0;
@@ -28,7 +85,7 @@ void SvcTimer::handler()
 			break;
 		}
 		Player* ply = (Player*)(*i);
-		if (NULL != ply && ply->transInfo.update)
+		if (NULL != ply && ply->transInfo.update && (ply->GetUserType() == usrType))
 		{
 			memcpy(p, (const void*)&ply->transInfo, sizeof(TransformInfo));
 			ply->transInfo.update = false;
@@ -38,25 +95,26 @@ void SvcTimer::handler()
 		}
 	}
 
-	if(count > 0)
-	{ 
+	if (count > 0)
+	{
+
+		int len = sizeof(TransformInfo)* count;
+
 		for (PlayerManager::iterator j = mPlayMgr->begin(); j != mPlayMgr->end(); j++)
 		{
 			Player* ply1 = (Player*)(*j);
 			if (NULL != ply1)
 			{
-				mPlayMgr->SendCmd(ply1->GetLinkID(), ID_User_Transform, 0, &buffer, sizeof(TransformInfo)* count);
+				mPlayMgr->SendCmd(ply1->GetLinkID(), ID_User_Transform, 0, &buffer, len);
 			}
 		}
 
-		//if (mPlayMgr->GetUserVisibilityExternal())
-		//{
-		//	mPlayMgr->GetCenterSvrConnection()->Send(ID_Global_Transform, 0, (char*)&buffer, sizeof(TransformInfo)* count);
-		//}
+		if (usrType == ExternalVIP)
+		{
+			mPlayMgr->GetCenterSvrConnection()->Send(ID_Global_Transform, 0, (char*)&buffer, len);
+		}
 
 	}
 
-	mTimer.expires_at(mTimer.expires_at() + boost::posix_time::milliseconds(30));
-	mTimer.async_wait(boost::bind(&SvcTimer::handler, this));
 }
 
