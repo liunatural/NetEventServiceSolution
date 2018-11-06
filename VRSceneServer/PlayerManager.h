@@ -20,8 +20,8 @@ public:
 	void SetSceneServerID(char* pSceneSvrID) { memcpy(mSceneServerID, pSceneSvrID, SCENE_SERVER_ID_LENGTH); }
 
 	//设置或者获取与中心服务器的网络连接服务
-	NetEvtClient* GetCenterSvrConnection() { return mpConnToCenterSvr; };
-	void SetCenterSvrClient(NetEvtClient* pConn) { mpConnToCenterSvr = pConn; };
+	NetEvtClient*& GetCenterSvrConnection() { return mpConnToCenterSvr; };
+	void SetCenterSvrClient(NetEvtClient*& pConn) { mpConnToCenterSvr = pConn; };
 
 	//设置与本地场景服务器的连接服务
 	void SetNetworkService(NetEvtServer* pService) { mpService = pService; };
@@ -43,8 +43,14 @@ public:
 	//更新玩家的座位号
 	bool UpdatePlayerSeatNumber(int plyId, int seatNumber);
 
+	//绑定userID
+	bool BindUserIDToPlayer(int plyId, char* userid, int len);
+
 	//更新玩家类型
 	bool UpdateUserType(int plyId, UserType userType);
+
+	bool UpdateUserTypeByUserID(char* userid, int len, UserType userType);
+
 
 	//绑定用户脸模数据到座席号
 	void BindFaceModeWithSeatNumber(LinkID& linkID, FaceModel* faceModel, int& plyId);
@@ -60,16 +66,6 @@ public:
 	//更新玩家位置
 	void UpdatePlayerTransform(int plyId, TransformInfo& transInfo);
 
-	////发送音视频的FLV格式的封装数据
-	//int SendFlvStream(char* data, int len);
-
-	////发送音视频的Sequence_Header数据(SPS/PPS等)
-	//bool SendFlvSeqHeaderData(Player* user);
-
-	////缓存音视频的Sequence_Header数据
-	//void CacheFlvSeqHeaderData(unsigned char* data, int len);
-
-
 	bool SendMsg(const MessagePackage& msgPackage);
 
 	bool SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len);
@@ -84,6 +80,9 @@ private:
 	//根据座椅号查找玩家ID
 	Player* FindPlayerBySeatNumber(int seatNumber);
 
+
+	Player* FindPlayerByUserID(char* userid);
+
 	//从玩家列表中删除一个玩家
 	bool DeletePlayer(int plyId);
 
@@ -94,9 +93,6 @@ public:
 	boost::mutex			mMutex;
 
 private:
-	//typedef map<uint8_t, FlvSeqHeader> FlvSeqHeaderMap;
-	//FlvSeqHeaderMap flvSeqHeaderMap;	//FLV Sequence Header 数组
-	//bool flvSeqHeaderChange;
 
 	NetEvtServer *mpService;
 	NetEvtClient* mpConnToCenterSvr;

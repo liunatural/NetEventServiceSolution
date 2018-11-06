@@ -18,3 +18,17 @@ Player::~Player()
 {
 }
 
+void Player::SetUserID(char* userid, int len)
+{
+	if (len > USER_ID_LENGTH)
+	{
+		len = USER_ID_LENGTH;
+	}
+
+	memset(mUserID, 0, sizeof(mUserID));
+	//memcpy(mUserID, userid, len);
+
+	sprintf(mUserID, "%04d", mPlyID);
+
+}
+

@@ -22,6 +22,7 @@ VRSceneServer::VRSceneServer()
 	playerMgr = NULL;
 
 	bConnectCenterSvr = false;
+	centerSvrClient = NULL;
 }
 
 VRSceneServer::~VRSceneServer()
@@ -43,6 +44,7 @@ VRSceneServer::~VRSceneServer()
 		delete playerMgr;
 		playerMgr = NULL;
 	}
+
 
 }
 
@@ -112,11 +114,6 @@ int VRSceneServer::ConnectCenterSvr()
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
-	if (bConnectCenterSvr)
-	{
-		playerMgr->SetCenterSvrClient(centerSvrClient);
-	}
-
 	return SUCCESS;
 }
 
@@ -159,6 +156,7 @@ void VRSceneServer::OnConnectCenterServer(int& msgID)
 	{
 		LOG(info, "连接中心服务器成功！");
 		bConnectCenterSvr = true;
+		playerMgr->SetCenterSvrClient(centerSvrClient);
 	}
 	else if (link_server_closed == msgID)
 	{
@@ -222,6 +220,15 @@ void VRSceneServer::HandleNetEventFromClient()
 					playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
 				}
 			}
+			else if (c2s_tell_user_id == cmdID)		//
+			{
+				char* userid = pack->body();
+				int userid_len = pack->GetBodyLength();
+
+				//绑定userid号到一个玩家
+				bool bRet = playerMgr->BindUserIDToPlayer(cid, userid, userid_len);
+			}
+
 			break;
 		}
 		case ID_User_Transform:		//玩家位置变换消息
@@ -235,18 +242,26 @@ void VRSceneServer::HandleNetEventFromClient()
 		}
 		case ID_Global_Notify:
 		{
-			//发送
+
 			if (cmdID == c2s_seen_external)
 			{
-				centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile,	 (const char*)pack->body(), pack->GetBodyLength());
+				
+				char* userid = pack->body();
+				int userid_len = pack->GetBodyLength();
+				
+				bool bRet = playerMgr->UpdateUserTypeByUserID(userid, userid_len, ExternalVIP);
+				if (bRet)
+				{
+					centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
+				}
 			}
 			break;
 		}
 		case ID_Global_Transform:
 		{
-
+			playerMgr->SendMsg(*pack);
+			break;
 		}
-
 		default:
 		{
 			break;

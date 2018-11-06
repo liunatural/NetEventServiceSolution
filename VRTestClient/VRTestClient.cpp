@@ -12,7 +12,9 @@ void Message_handle(void *args);
 void Send_testPack(void *args);
 void Send_TransformPack(void *args);
 void Send_SeatNumber(void *args);
-void Send_Profile(void *args);
+void Send_Seen_External(void *args);
+void Send_Tell_UserID(void *args);
+
 
 std::thread send_thread;
 
@@ -86,13 +88,20 @@ void Message_handle(void *args)
 			{
 				LOG(info, "连接OK！");
 
-				Send_SeatNumber(pNetEventClient);
+				//Send_SeatNumber(pNetEventClient);
 
-				Sleep(10);
-				//send_thread = std::thread(&Send_TransformPack, pNetEventClient);
-				//send_thread = std::thread(&Send_testPack, pNetEventClient);
-				send_thread = std::thread(&Send_Profile, pNetEventClient);
 				
+				Send_Tell_UserID(pNetEventClient);
+
+				//Sleep(10);
+				//Send_Seen_External(pNetEventClient);
+	
+				//send_thread = std::thread(&Send_testPack, pNetEventClient);
+	
+				Sleep(10);
+				send_thread = std::thread(&Send_TransformPack, pNetEventClient);
+
+
 
 				break;
 			}
@@ -270,7 +279,7 @@ void Send_TransformPack(void *args)
 	LOG(info, "发送位置变换信息\n");
 	int x = 1;
 	int y = 100;
-	for (int count = 0; count < 50; count++)
+	for (int count = 0; count < 10000; count++)
 	{
 		vec3 pos = { ++x, ++x, ++x };
 		vec3 dir = { ++y, ++y, ++y };
@@ -293,6 +302,8 @@ void Send_TransformPack(void *args)
 
 }
 
+
+
 void Send_SeatNumber(void *args)
 {
 
@@ -311,20 +322,38 @@ void Send_SeatNumber(void *args)
 }
 
 
-void Send_Profile(void *args)
+
+
+void Send_Tell_UserID(void *args)
+{
+	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
+	char* userid = "user0001";
+
+	MessagePackage msgPackage;
+	msgPackage.WriteHeader(ID_User_Login, c2s_tell_user_id);
+	msgPackage.WriteBody(&userid, strlen(userid));
+	pNetEventClient->Send(msgPackage);
+
+	LOG(info, "向服务器发送userID:[%s]\n", userid);
+}
+
+
+
+void Send_Seen_External(void *args)
 {
 
 	time_t t;
 	srand((unsigned)time(&t));
 
 	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
-	ProfileInfo pi;
-	pi.mSeatNumber = random(100) + 1;
-	int len = sizeof(ProfileInfo);
+
+	char* UserID =  "0001";
+	int len = strlen(UserID);
 	MessagePackage msgPackage;
 	msgPackage.WriteHeader(ID_Global_Notify, c2s_seen_external);
-	msgPackage.WriteBody((void*)&pi, len);
+	msgPackage.WriteBody((void*)UserID, len);
 	pNetEventClient->Send(msgPackage);
 
-	LOG(info, "向外部场景服务器发送座椅号:[%d]\n", pi.mSeatNumber);
+	LOG(info, "向外部场景服务器发送UserID号:[%s]\n", UserID);
 }
+

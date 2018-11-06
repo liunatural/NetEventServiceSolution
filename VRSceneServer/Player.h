@@ -20,6 +20,7 @@ public:
 	void SetSeatNumber(int seatNum) { mSeatNumber = mProfileInfo.mSeatNumber = seatNum; }
 	int GetSeatNumber() { return mSeatNumber; }
 
+	void SetUserID(char* userid, int len);
 
 
 	void UpdateProfileInfo(ProfileInfo* profileInfo) { mProfileInfo = *profileInfo; }
@@ -34,6 +35,7 @@ public:
 public:
 	int		mPlyID;
 	bool	bBoundUser;
+	char mUserID[USER_ID_LENGTH + 1];
 
 	UserState mUserState;
 	ProfileInfo mProfileInfo;
@@ -44,5 +46,8 @@ private:
 	LinkID mLinkID;
 	bool		mFlvSeqHeaderFlag;
 	int		mUserType;			//1: VIP客户端， 2: 胶囊客户端
+
+
+
 
 };

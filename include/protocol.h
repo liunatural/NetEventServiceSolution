@@ -68,6 +68,8 @@ enum
 	c2s_walk,														//玩家行走命令
 	c2s_present_flowers,										//玩家发起献花	
 	c2s_stop_present_flowers,								//玩家结束献花	
+	c2s_tell_user_id,											//
+
 
 
 	s2c_ply_ready							= 101,			//服务器返回用户已准备好命令ID
@@ -109,12 +111,10 @@ struct TransformInfo
 	vec3 rhand;					//右手数据
 	vec3 dir;						//身体朝向
 	bool update;					//是否更新位置标志
-	bool bSeenExternal;		//是否外部VIP用户			
-
+	
 	TransformInfo()
 	{
 		update = false;
-		bSeenExternal = false;
 	}
 
 	TransformInfo(const TransformInfo& other)
@@ -126,7 +126,6 @@ struct TransformInfo
 		this->rhand = other.rhand;
 		this->plyId = other.plyId;
 		this->seatNumber = other.seatNumber;
-		this->bSeenExternal = other.bSeenExternal;
 	}
 
 	TransformInfo& operator = (const TransformInfo& other)
@@ -138,7 +137,6 @@ struct TransformInfo
 		this->rhand = other.rhand;
 		this->plyId = other.plyId;
 		this->seatNumber = other.seatNumber;
-		this->bSeenExternal = other.bSeenExternal;
 
 		return *this;
 	}
@@ -155,8 +153,8 @@ struct  FaceModel
 struct  ProfileInfo
 {
 	char SceneServerID[SCENE_SERVER_ID_LENGTH + 1] = {0};
+	char UserID[USER_ID_LENGTH + 1] = { 0 };
 	int mSeatNumber;
-	UserType usrType = VIP;
 	FaceModel mFaceModel;
 };
 

@@ -69,6 +69,9 @@ void SvcTimer::handler()
 		SendTransformDataByUserType(VIP);
 		SendTransformDataByUserType(ExternalVIP);
 
+		mTimer.expires_at(mTimer.expires_at() + boost::posix_time::milliseconds(30));
+		mTimer.async_wait(boost::bind(&SvcTimer::handler, this));
+
 }
 
 
@@ -111,9 +114,14 @@ void SvcTimer::SendTransformDataByUserType(UserType usrType)
 
 		if (usrType == ExternalVIP)
 		{
-			mPlayMgr->GetCenterSvrConnection()->Send(ID_Global_Transform, 0, (char*)&buffer, len);
-		}
+			NetEvtClient* pCenterSvrClient = mPlayMgr->GetCenterSvrConnection();
 
+			if (pCenterSvrClient)
+			{
+				pCenterSvrClient->Send(ID_Global_Transform, 0, (char*)&buffer, len);
+			}
+
+		}
 	}
 
 }

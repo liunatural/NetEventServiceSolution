@@ -4,9 +4,10 @@
 
 PlayerManager::PlayerManager()
 {
-	//bigDataPkt = CreateBigPackage();
-
 	SetUserVisibilityExternal(false);
+
+	mpConnToCenterSvr = NULL;
+
 }
 
 
@@ -155,8 +156,8 @@ void PlayerManager::UpdatePlayerTransform(int plyId, TransformInfo &transInfo)
 
 bool PlayerManager::UpdatePlayerSeatNumber(int plyId, int seatNumber)
 {
-
 	boost::mutex::scoped_lock lock(mMutex);
+
 	Player* ply = FindPlayer(plyId);
 	if (NULL == ply)
 	{
@@ -170,6 +171,24 @@ bool PlayerManager::UpdatePlayerSeatNumber(int plyId, int seatNumber)
 }
 
 
+bool PlayerManager::BindUserIDToPlayer(int plyId, char* userid, int len)
+{
+	boost::mutex::scoped_lock lock(mMutex);
+
+	Player* ply = FindPlayer(plyId);
+	if (NULL == ply)
+	{
+		LOG(error, "[BindUserIDToPlayer] 绑定userID出错：玩家ID[%d]在列表中不存在！", plyId);
+		return false;
+	}
+
+	ply->SetUserID(userid, len);
+
+	return true;
+}
+
+
+
 bool PlayerManager::UpdateUserType(int plyId, UserType userType)
 {
 
@@ -177,7 +196,7 @@ bool PlayerManager::UpdateUserType(int plyId, UserType userType)
 	Player* ply = FindPlayer(plyId);
 	if (NULL == ply)
 	{
-		LOG(error, "[UpdatePlayerSeatNumber] 更新玩家类型出错：玩家ID[%d]在列表中不存在！", plyId);
+		LOG(error, "[UpdateUserType] 更新玩家类型出错：玩家ID[%d]在列表中不存在！", plyId);
 		return false;
 	}
 
@@ -186,6 +205,38 @@ bool PlayerManager::UpdateUserType(int plyId, UserType userType)
 	return true;
 }
 
+
+bool PlayerManager::UpdateUserTypeByUserID(char* userid, int len, UserType userType)
+{
+	if (len <= 0 || userid==NULL)
+	{
+		LOG(error, "[UpdateUserTypeByUserID] 更新玩家类型参数错误！");
+		return false;
+	}
+
+	if (len > USER_ID_LENGTH)
+	{
+		len = USER_ID_LENGTH;
+	}
+
+	char uidBuf[USER_ID_LENGTH + 1] = { 0 };
+	memcpy(uidBuf, userid, len);
+
+	{
+		boost::mutex::scoped_lock lock(mMutex);
+		Player* ply = FindPlayerByUserID(uidBuf);
+		if (NULL == ply)
+		{
+			LOG(error, "[UpdateUserTypeByUserID] 更新玩家类型出错：UserID[%s]在列表中不存在！", uidBuf);
+			return false;
+		}
+
+		ply->SetUserType(userType);
+
+	}
+	return true;
+
+}
 
 void PlayerManager::BindFaceModeWithSeatNumber(LinkID& linkID, FaceModel* faceModel, int& plyId)
 {
@@ -397,6 +448,28 @@ Player* PlayerManager::FindPlayerBySeatNumber(int seatNumber)
 
 	return ply;
 }
+
+
+Player* PlayerManager::FindPlayerByUserID(char* userid)
+{
+	Player* ply = NULL;
+	Player* plyTemp = NULL;
+
+	for (iterator i = begin(); i != end(); i++)
+	{
+		plyTemp = (Player*)(*i);
+		if (strcmp(plyTemp->mUserID, userid) == 0)
+		{
+			ply = plyTemp;
+			break;
+		}
+	}
+
+	return ply;
+}
+
+
+
 
 Player*  PlayerManager::GetFreePlayer()
 {
