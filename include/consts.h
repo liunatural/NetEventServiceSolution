@@ -43,6 +43,7 @@ enum UserType
 	SceneServer,
 	OBSServer,
 	ExternalVIP,
+	VRClientAgent,
 };
 
 //ÓÃ»§×´Ì¬

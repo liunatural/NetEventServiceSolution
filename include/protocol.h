@@ -51,6 +51,7 @@ enum
 	ID_Global_Transform,										//跨场景服务器的运动变换消息
 	ID_ERROR,													//运行错误消息ID
 	ID_FLV_StreamReback,									//数据流获取反馈消息
+	ID_SceneCntrl_Notify,										//场景控制器通知消息
 };
 
 //用户命令ID（业务层命令ID）
@@ -87,6 +88,7 @@ enum
 	s2c_walk,														//玩家行走命令
 	s2c_rsp_id_verify,
 	s2c_trans_ext_usr_profile,								//传递外部用户描述数据
+	s2c_tell_user_id,											//场景控制器告知用户ID
 
 	s2s_req_usr_list = 200,
 	//最大协议数值254，大了会出错
