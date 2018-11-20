@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRCenterServer", "VRCenterS
 		{AED5C451-BDC5-49D6-9E1A-6A54E265DCAF} = {AED5C451-BDC5-49D6-9E1A-6A54E265DCAF}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRClientAgent", "VRClientAgent\VRClientAgent.vcxproj", "{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -73,6 +75,14 @@ Global
 		{E8A6ED82-C910-4C2A-8C5A-9B5094B046A6}.Release|x64.Build.0 = Release|x64
 		{E8A6ED82-C910-4C2A-8C5A-9B5094B046A6}.Release|x86.ActiveCfg = Release|Win32
 		{E8A6ED82-C910-4C2A-8C5A-9B5094B046A6}.Release|x86.Build.0 = Release|Win32
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Debug|x64.ActiveCfg = Debug|x64
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Debug|x64.Build.0 = Debug|x64
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Debug|x86.ActiveCfg = Debug|Win32
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Debug|x86.Build.0 = Debug|Win32
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Release|x64.ActiveCfg = Release|x64
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Release|x64.Build.0 = Release|x64
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Release|x86.ActiveCfg = Release|Win32
+		{07AEB9B0-231A-4E46-AA29-49CAEB3AEA9C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

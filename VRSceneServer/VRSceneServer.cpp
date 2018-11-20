@@ -255,6 +255,18 @@ void VRSceneServer::HandleNetEventFromClient()
 					centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
 				}
 			}
+			else if(cmdID == c2s_stop_seen_external)
+			{
+
+				char* userid = pack->body();
+				int userid_len = pack->GetBodyLength();
+
+				bool bRet = playerMgr->UpdateUserTypeByUserID(userid, userid_len, VIP);
+				if (bRet)
+				{
+					centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
+				}
+			}
 			break;
 		}
 		case ID_Global_Transform:

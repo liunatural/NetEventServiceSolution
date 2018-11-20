@@ -63,6 +63,7 @@ enum
 	c2s_tell_user_profile,										//胶囊客户端登录后发送用户基本描述信息给场景服务器
 	c2s_begin_flying,											//起飞命令
 	c2s_seen_external,											//
+	c2s_stop_seen_external,									//
 	c2s_play_video,												//播放视频命令
 	c2s_stand_up,												//玩家站起命令	
 	c2s_walk,														//玩家行走命令
