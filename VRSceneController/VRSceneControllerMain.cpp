@@ -3,8 +3,6 @@
 #include "VRSceneController.h"
 #include <thread>
 
-extern VRSceneController* g_pSceneCtrl;
-
 int main()
 {
 	int ret = 0;
@@ -15,7 +13,6 @@ int main()
 
 	VRSceneController vrSceneController;
 
-	g_pSceneCtrl = &vrSceneController;
 
 	//*****读取配置文件*******//
 	ret  = vrSceneController.ReadConfigFile();
@@ -35,7 +32,7 @@ int main()
 
 
 	//*****创建用户管理器*****//
-	ret= vrSceneController.CreatePlayerManager();
+	ret= vrSceneController.CreateVRClientManager();
 	if (ret == FAIL)
 	{
 		return ret;

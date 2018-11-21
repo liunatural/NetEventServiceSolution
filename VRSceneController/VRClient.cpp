@@ -6,7 +6,7 @@ VRClient::VRClient(LinkID linkID)
 	mUserType		= VRClientAgent;
 	bBoundUser		= false;
 	mLinkID			= linkID;
-	mPlyID				= linkID;
+	mClientID				= linkID;
 
 	mSeatNumber = mProfileInfo.mSeatNumber = 0;
 	SetUserState(state_initial);
@@ -26,9 +26,8 @@ void VRClient::SetUserID(char* userid, int len)
 	}
 
 	memset(mUserID, 0, sizeof(mUserID));
-	//memcpy(mUserID, userid, len);
 
-	sprintf(mUserID, "%04d", mPlyID);
+	sprintf(mUserID, "%04d", mClientID);
 
 }
 

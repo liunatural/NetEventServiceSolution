@@ -15,17 +15,19 @@ public:
 	void Run();
 	void OnConnectSceneController(int& msgID);
 	void HandleNetEventFromSceneController();
-
-
+	void Disconn();
+public:
+	bool					bConnectedToSceneController;
 
 private:
 	NetEvtClient		*SceneControllerClient;				
-	bool					bConnectedToSceneController;
+
 
 	char m_SceneControllerIP[16] = { 0 };
 	char  m_SceneControllerPort[6] = {0};
 
-	const char* m_CfgFile = "./VRAgentConfig.ini";
+	int m_SeatNumber = -1;
+	char m_CfgFile[MAX_PATH] = { 0 };
 
 	char m_UserID[32] = { 0 };
 };

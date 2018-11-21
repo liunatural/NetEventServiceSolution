@@ -1,7 +1,6 @@
 #pragma once
 #include "VRClient.h"
 #include "NetEventService.h"
-#include <vector>
 #include <boost/thread/mutex.hpp>
 
 using namespace std;
@@ -13,58 +12,38 @@ public:
 	VRClientManager();
 	virtual ~VRClientManager();
 
-
-	//设置与本地场景服务器的连接服务
 	void SetNetworkService(NetEvtServer* pService) { mpService = pService; };
 
-	void AddVRClient(VRClient* ply);
+	void AddVRClient(VRClient* client);
 
 
-	//广播玩家离开消息
-	bool DeleteVRClientFromList(int& plyId);
+	bool DeleteVRClientFromList(int& clientID);
 
 	//更新终端的座位号
-	bool UpdateSeatNumber(int plyId, int seatNumber);
+	bool UpdateSeatNumber(int clientID, int seatNumber);
 
-	//绑定userID
-	bool BindUserIDToVRClient(int plyId, char* userid, int len);
+	//绑定userID, 同时返回座席号
+	bool BindUserIDToVRClient(char* userid, int len, int &seatNumber);
 
-	//更新玩家类型
-	bool UpdateUserType(int plyId, UserType userType);
-
-	bool UpdateUserTypeByUserID(char* userid, int len, UserType userType);
-
-
-	bool SendMsg(const MessagePackage& msgPackage);
+	//更新用户类型
+	bool UpdateClientType(int clientID, UserType userType);
 
 	bool SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len);
 
 private:
-	//查找一个玩家
-	VRClient* FindVRClient(int plyId);
+	//查找一个用户
+	VRClient* FindVRClient(int clientID);
 
-	//void ListPlayer();
+	//删除一个用户
+	bool DeleteVRClient(int clientID);
 
-
-	//根据座椅号查找玩家ID
-	VRClient* FindVRClientBySeatNumber(int seatNumber);
-
-
-	VRClient* FindVRClientByUserID(char* userid);
-
-	//从玩家列表中删除一个玩家
-	bool DeleteVRClient(int plyId);
-
-	//获取一个未绑定玩家的VIP客户端
-	VRClient*  GetFreePlayer();
+	//获取一个未绑定用户的VR客户端
+	VRClient*  GetFreeVRClient();
 
 public:
 	boost::mutex			mMutex;
 
 private:
-
 	NetEvtServer *mpService;
-	char user_list_buffer[MessagePackage::max_body_length] = { 0 };
-	char mSceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
 };
 

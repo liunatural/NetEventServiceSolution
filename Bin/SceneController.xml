@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
     <Server>
-      <port>10011</port>
+      <port>10001</port>
 	  <maxlinks>100</maxlinks>
       <name>SceneCntl-Beijing-01</name>
     </Server>

@@ -1,13 +1,7 @@
 #include "VRSceneController.h"
 #include "VRClientManager.h"
-#include <vector>
 #include <direct.h>
 #include <thread>
-
-
-VRSceneController* g_pSceneCtrl = NULL;
-
-
 
 VRSceneController::VRSceneController()
 {
@@ -36,8 +30,6 @@ VRSceneController::~VRSceneController()
 		delete clientMgr;
 		clientMgr = NULL;
 	}
-
-
 }
 
 int VRSceneController::ReadConfigFile()
@@ -83,9 +75,7 @@ int VRSceneController::Start()
 
 }
 
-
-
-int VRSceneController::CreatePlayerManager()
+int VRSceneController::CreateVRClientManager()
 {
 
 	if (!pNetEventServer || strlen(sceneControllerID) == 0)
@@ -114,9 +104,6 @@ void VRSceneController::Run()
 }
 
 
-
-
-
 void VRSceneController::HandleNetEventFromClient()
 {
 
@@ -136,12 +123,10 @@ void VRSceneController::HandleNetEventFromClient()
 		case link_connected:
 		{
 
-			VRClient*  ply = new VRClient(cid);
-			ply->SetSceneCntrlID(sceneControllerID);
-			clientMgr->AddVRClient(ply);
+			VRClient*  pClient = new VRClient(cid);
+			clientMgr->AddVRClient(pClient);
 
 			clientMgr->SendCmd(cid, link_connected, 0, NULL, 0);
-
 
 			break;
 		}
@@ -157,21 +142,27 @@ void VRSceneController::HandleNetEventFromClient()
 			{
 				int seatNum = *(int*)pack->body();
 
-				//绑定座位号到一个玩家
 				bool bRet = clientMgr->UpdateSeatNumber(cid, seatNum);
-				//if (bRet)
-				//{
-				//	//向其他VIP客户端广播当前用户的状态为初始状态
-				//	clientMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
-				//}
+
 			}
-			else if (c2s_tell_user_id == cmdID)		//
+			else if (c2s_tell_user_id == cmdID)		//处理胶囊体发来的消息
 			{
 				char* userid = pack->body();
 				int userid_len = pack->GetBodyLength();
+				int seatNumber = -1;
 
-				//绑定userid号到一个玩家
-				bool bRet = clientMgr->BindUserIDToVRClient(cid, userid, userid_len);
+				//绑定userid号到一个VR终端
+				bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, seatNumber);
+
+				if (bRet)
+				{
+					//更新终端类型为胶囊体类型
+					clientMgr->UpdateClientType(cid, Capsule);
+
+					//返回座席号给胶囊体
+					clientMgr->SendCmd(cid, ID_SceneCntrl_Notify, s2c_rsp_seat_num, &seatNumber, sizeof(int));
+				}
+
 			}
 
 			break;
@@ -184,10 +175,4 @@ void VRSceneController::HandleNetEventFromClient()
 		} //switch
 	}//for
 
-}
-
-
-VRClientManager*& VRSceneController::GetPlayerManager()
-{
-	return clientMgr;
 }

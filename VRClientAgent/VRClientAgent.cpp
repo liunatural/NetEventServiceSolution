@@ -6,7 +6,6 @@
 
 
 #define SLEEP_TIME 1000
-#define LOGFILE "D:/memstatus.txt"
 
 NetClient* pNetClient = NULL;
 
@@ -16,8 +15,6 @@ SERVICE_STATUS_HANDLE hStatus;
 void ServiceMain(int argc, char** argv);
 void ControlHandler(DWORD request);
 int InitService();
-int WriteToLog(char* str);
-
 
 int main(int argc, char* argv[])
 {
@@ -79,11 +76,6 @@ void ServiceMain(int argc, char** argv)
 	MEMORYSTATUS memory;
 	// The worker loop of a service
 
-	if (!pNetClient)
-	{
-		return;
-	}
-
 	while (ServiceStatus.dwCurrentState ==
 		SERVICE_RUNNING)
 	{
@@ -100,9 +92,20 @@ void ServiceMain(int argc, char** argv)
 		//		&ServiceStatus);
 		//	return;
 		//}
-		
-		pNetClient->HandleNetEventFromSceneController();
 
+		if (!(pNetClient->bConnectedToSceneController))
+		{
+			pNetClient->Disconn();
+			delete pNetClient;
+			pNetClient = new NetClient();
+			pNetClient->ReadIniFile();
+			pNetClient->ConnectSceneController();
+			Sleep(50000);
+		}
+		else
+		{
+			pNetClient->HandleNetEventFromSceneController();
+		}
 		Sleep(SLEEP_TIME);
 	}
 	return;
@@ -113,7 +116,7 @@ void ControlHandler(DWORD request)
 	switch (request)
 	{
 	case SERVICE_CONTROL_STOP:
-		WriteToLog("Monitoring stopped.");
+		//LOG(info, "Monitoring stopped.");
 		ServiceStatus.dwWin32ExitCode = 0;
 		ServiceStatus.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus(hStatus, &ServiceStatus);
@@ -121,7 +124,7 @@ void ControlHandler(DWORD request)
 
 
 	case SERVICE_CONTROL_SHUTDOWN:
-		WriteToLog("Monitoring stopped.");
+		//LOG(info, "Monitoring stopped.");
 		ServiceStatus.dwWin32ExitCode = 0;
 		ServiceStatus.dwCurrentState = SERVICE_STOPPED;
 		SetServiceStatus(hStatus, &ServiceStatus);
@@ -138,33 +141,26 @@ void ControlHandler(DWORD request)
 }
 
 
-int WriteToLog(char* str)
-{
-	FILE* log;
-	log = fopen(LOGFILE, "a+");
-	if (log == NULL)
-		return -1;
-	fprintf(log, "%s ", str);
-	fclose(log);
-	return 0;
-}
-
 int InitService() {
-	//WriteToLog("VRClientAgent started.");
+
+	//*****开启日志系统*****//
+	InitLogger("Log/VRClientAgent");
+	LOG(info, "VR Client Agent Service start.");
 	
 	pNetClient = new NetClient();
+	
+	if (!pNetClient)
+	{
+		return false;
+	}
+
 	int ret = pNetClient->ReadIniFile();
 	if (ret != SUCCESS)
 	{
 		return false;
 	}
-	
-	ret = pNetClient->ConnectSceneController();
-	if (ret != SUCCESS)
-	{
-		return false;
-	}
 
+	pNetClient->ConnectSceneController();
 
 	return true;
 }

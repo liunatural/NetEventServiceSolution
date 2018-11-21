@@ -12,7 +12,6 @@ public:
 
 	//³¡¾°·þÎñÆ÷ID
 	char* GetSceneServerID() { return mProfileInfo.SceneServerID; }
-	void SetSceneCntrlID(char* pSceneSvrID) { memcpy(mProfileInfo.SceneServerID, pSceneSvrID, SCENE_SERVER_ID_LENGTH); }
 
 
 	void SetSeatNumber(int seatNum) { mSeatNumber = mProfileInfo.mSeatNumber = seatNum; }
@@ -31,7 +30,7 @@ public:
 	UserState GetUserState() { return mUserState; }
 
 public:
-	int		mPlyID;
+	int		mClientID;
 	bool	bBoundUser;
 	char mUserID[USER_ID_LENGTH + 1];
 
