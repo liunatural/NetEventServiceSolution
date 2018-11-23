@@ -8,43 +8,21 @@ class VRClient
 public:
 	VRClient(LinkID linkID);
 	virtual ~VRClient();
-	LinkID& GetLinkID() { return mLinkID; };
 
-	//场景服务器ID
-	char* GetSceneServerID() { return mProfileInfo.SceneServerID; }
+	LinkID& GetLinkID() { return m_LinkID; };
 
-
-	void SetSeatNumber(int seatNum) { mSeatNumber = mProfileInfo.mSeatNumber = seatNum; }
-	int GetSeatNumber() { return mSeatNumber; }
+	void SetSeatNumber(int seatNum) { m_userInfo.SeatNumber  = seatNum; }
+	int GetSeatNumber() { return m_userInfo.SeatNumber; }
 
 	void SetUserID(char* userid, int len);
 
-
-	void UpdateProfileInfo(ProfileInfo* profileInfo) { mProfileInfo = *profileInfo; }
-
-	void SetUserType(int userType) {	mUserType = userType;}
-	int GetUserType() { return mUserType; }
-
-
-	void SetUserState(UserState userState) { mUserState = userState; }
-	UserState GetUserState() { return mUserState; }
-
-public:
-	int		mClientID;
-	bool	bBoundUser;
-	char mUserID[USER_ID_LENGTH + 1];
-
-	UserState mUserState;
-	ProfileInfo mProfileInfo;
-	TransformInfo transInfo;
+	void SetUserType(int userType) {	m_UserType = userType;}
+	int GetUserType() { return m_UserType; }
+	bool BoundUser() { return bBoundUser; }
 
 private:
-	int mSeatNumber;
-	LinkID mLinkID;
-	bool		mFlvSeqHeaderFlag;
-	int		mUserType;			//1: VIP客户端， 2: 胶囊客户端
-
-
-
-
+	UserInfo	m_userInfo;
+	LinkID		m_LinkID;
+	int				m_UserType;			//1: VIP客户端， 2: 胶囊客户端
+	bool			bBoundUser;
 };

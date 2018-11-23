@@ -175,6 +175,15 @@ struct LeaveUserInfo
 	int mSeatNumber;
 };
 
+
+//存储用户基本信息
+struct  UserInfo
+{
+	char	UserID[USER_ID_LENGTH + 1] = { 0 };
+	int		SeatNumber;
+};
+
+
 struct FlvStreamReback
 {
 	double		dTimer;//当前时间

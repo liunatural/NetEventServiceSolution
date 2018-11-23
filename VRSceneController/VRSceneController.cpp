@@ -159,8 +159,16 @@ void VRSceneController::HandleNetEventFromClient()
 					//更新终端类型为胶囊体类型
 					clientMgr->UpdateClientType(cid, Capsule);
 
+					UserInfo usrInfo;
+					memcpy(usrInfo.UserID, userid, userid_len);
+					usrInfo.SeatNumber = seatNumber;
+
+					MessagePackage package;
+					package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
+					package.WriteBody(&usrInfo, sizeof(UserInfo));
+
 					//返回座席号给胶囊体
-					clientMgr->SendCmd(cid, ID_SceneCntrl_Notify, s2c_rsp_seat_num, &seatNumber, sizeof(int));
+					clientMgr->SendMsg(cid, package);
 				}
 
 			}

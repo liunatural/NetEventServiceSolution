@@ -21,8 +21,8 @@ private:
 
 
 private:
-	ConfigService		*confReader;
-	NetEvtServer		*pNetEventServer;					//net server
+	ConfigService			*confReader;
+	NetEvtServer			*pNetEventServer;		//net server
 	VRClientManager	*clientMgr;
 	char sceneControllerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
 };

@@ -106,9 +106,14 @@ bool VRClientManager::SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, 
 		memcpy(msgPackage.body(), data, len);
 	}
 
-	return mpService->Send(linkID, msgPackage);
+	return SendMsg(linkID, msgPackage);
 }
 
+
+bool VRClientManager::SendMsg(LinkID& linkID, const MessagePackage& msgPackage)
+{
+		return mpService->Send(linkID, (MessagePackage)msgPackage);
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -120,7 +125,7 @@ VRClient* VRClientManager::FindVRClient(int clientID)
 	for (iterator i = begin(); i != end(); i++)
 	{
 		clientTemp = (VRClient*)(*i);
-		if (clientTemp->mClientID == clientID)
+		if (clientTemp->GetLinkID() == clientID)
 		{
 			client = clientTemp;
 			break;
@@ -138,7 +143,7 @@ VRClient*  VRClientManager::GetFreeVRClient()
 	for (iterator i = begin(); i != end(); i++)
 	{
 		plyTemp = (VRClient*)(*i);
-		if (NULL != plyTemp && !(plyTemp->bBoundUser) && (plyTemp->GetUserType() == VRClientAgent) )
+		if (NULL != plyTemp && !(plyTemp->BoundUser()) && (plyTemp->GetUserType() == VRClientAgent) )
 		{
 			ply = plyTemp;
 			break;
@@ -157,7 +162,7 @@ bool VRClientManager::DeleteVRClient(int clientID)
 	for (iterator i = begin(); i != end(); i++)
 	{
 		client = (VRClient*)(*i);
-		if (NULL != client && (client->mClientID == clientID))
+		if (NULL != client && (client->GetLinkID() == clientID))
 		{
 			delete client;
 			client = NULL;

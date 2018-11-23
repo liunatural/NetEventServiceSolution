@@ -30,6 +30,8 @@ public:
 
 	bool SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len);
 
+	bool SendMsg(LinkID& linkID, const MessagePackage& msgPackage);
+
 private:
 	//查找一个用户
 	VRClient* FindVRClient(int clientID);
