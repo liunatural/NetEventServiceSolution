@@ -56,19 +56,21 @@ bool VRClientManager::UpdateSeatNumber(int clientID, int seatNumber)
 }
 
 
-bool VRClientManager::BindUserIDToVRClient( char* userid, int len, int &seatNumber)
+bool VRClientManager::BindUserIDToVRClient( char* userid, int len, VRClient** client)
 {
 	boost::mutex::scoped_lock lock(mMutex);
 
-	VRClient* client = GetFreeVRClient();
-	if (NULL == client)
+	*client = GetFreeVRClient();
+	if (NULL == *client)
 	{
 		LOG(error, "[BindUserIDToVRClient] 绑定userID出错：没有空闲的座席号供分配了！");
 		return false;
 	}
 
-	client->SetUserID(userid, len);
-	seatNumber = client->GetSeatNumber();
+	(*client)->SetUserID(userid, len);
+
+
+	(*client)->SetBoundUser(true);
 
 	return true;
 }
@@ -138,19 +140,19 @@ VRClient* VRClientManager::FindVRClient(int clientID)
 
 VRClient*  VRClientManager::GetFreeVRClient()
 {
-	VRClient* ply				= NULL;
-	VRClient* plyTemp		= NULL;
+	VRClient* client				= NULL;
+	VRClient* clientTemp		= NULL;
 	for (iterator i = begin(); i != end(); i++)
 	{
-		plyTemp = (VRClient*)(*i);
-		if (NULL != plyTemp && !(plyTemp->BoundUser()) && (plyTemp->GetUserType() == VRClientAgent) )
+		clientTemp = (VRClient*)(*i);
+		if (NULL != clientTemp && !(clientTemp->BoundUser()) && (clientTemp->GetUserType() == VRClientAgent) )
 		{
-			ply = plyTemp;
+			client = clientTemp;
 			break;
 		}
 	}
 
-	return ply;
+	return client;
 }
 
 

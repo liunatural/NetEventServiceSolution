@@ -100,7 +100,7 @@ void ServiceMain(int argc, char** argv)
 			pNetClient = new NetClient();
 			pNetClient->ReadIniFile();
 			pNetClient->ConnectSceneController();
-			Sleep(50000);
+			Sleep(5000);
 		}
 		else
 		{

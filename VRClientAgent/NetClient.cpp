@@ -145,8 +145,12 @@ void NetClient::HandleNetEventFromSceneController()
 					{
 						len = sizeof(m_UserID) - 1;
 					}
-					strncpy(m_UserID, pack->body(), len);
+
+					memset(m_UserID, 0, sizeof(m_UserID));
+					memcpy(m_UserID, pack->body(), len);
+
 					::WritePrivateProfileStringA("VRAgentConfig", "UserID", m_UserID, m_CfgFile);
+
 				}
 
 				break;

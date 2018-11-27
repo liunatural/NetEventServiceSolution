@@ -25,9 +25,9 @@ namespace CapsuleClient
                 ShowMsg("客户端:" + client.LocalEndPoint.ToString());
 
 
-                string userID = "UserID0001";
+                string userID = "useridxxxxxxxxx00001";
 
-                byte[] byte_userID = System.Text.Encoding.Default.GetBytes(userID);
+                byte[] byte_userID = Encoding.UTF8.GetBytes(userID);
 
                 CSMsgPackage msg = new CSMsgPackage();
                 msg.WriteBody(byte_userID, byte_userID.Length);
@@ -37,11 +37,11 @@ namespace CapsuleClient
                 ReceiveMsg();
 
 
-               ret = client.Send(msg.data(), msg.GetPackageLength(), SocketFlags.None);
-               ReceiveMsg();
+               //ret = client.Send(msg.data(), msg.GetPackageLength(), SocketFlags.None);
+               //ReceiveMsg();
 
-                ret = client.Send(msg.data(), msg.GetPackageLength(), SocketFlags.None);
-                ReceiveMsg();
+               // ret = client.Send(msg.data(), msg.GetPackageLength(), SocketFlags.None);
+               // ReceiveMsg();
 
 
                 //Thread th = new Thread(ReceiveMsg);
@@ -114,7 +114,7 @@ namespace CapsuleClient
             {
                 try
                 {
-                    byte[] buffer = Encoding.UTF8.GetBytes("userid00001");
+                    byte[] buffer = Encoding.UTF8.GetBytes("useridxxxxxxxxx00001");
                     client.Send(buffer);
                 }
                 catch (Exception ex)

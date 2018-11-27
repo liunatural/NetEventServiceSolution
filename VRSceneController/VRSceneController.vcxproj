@@ -158,6 +158,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CSVFile.cpp" />
     <ClCompile Include="VRClient.cpp" />
     <ClCompile Include="VRClientManager.cpp" />
     <ClCompile Include="VRSceneControllerMain.cpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="..\include\Message.h" />
     <ClInclude Include="..\include\NetEventService.h" />
     <ClInclude Include="..\include\protocol.h" />
+    <ClInclude Include="CSVFile.h" />
     <ClInclude Include="VRClient.h" />
     <ClInclude Include="VRClientManager.h" />
     <ClInclude Include="VRSceneController.h" />

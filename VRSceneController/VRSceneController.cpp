@@ -9,6 +9,8 @@ VRSceneController::VRSceneController()
 	pNetEventServer = NULL;
 	clientMgr = NULL;
 
+	m_pCSVFile = NULL;
+
 }
 
 VRSceneController::~VRSceneController()
@@ -30,6 +32,13 @@ VRSceneController::~VRSceneController()
 		delete clientMgr;
 		clientMgr = NULL;
 	}
+
+	if (m_pCSVFile)
+	{
+		delete m_pCSVFile;
+		m_pCSVFile = NULL;
+	}
+
 }
 
 int VRSceneController::ReadConfigFile()
@@ -104,6 +113,41 @@ void VRSceneController::Run()
 }
 
 
+int VRSceneController::CreateUserSeatMap()
+{
+	if (!m_pCSVFile)
+	{
+		m_pCSVFile = new CSVFile();
+	}
+
+	m_pCSVFile->OpenFile();
+	int ret =  m_pCSVFile->CreateUserSeatMap();
+	if (ret == 0)
+	{
+		m_USM = m_pCSVFile->GetUserSeatMap();
+	}
+
+
+	//char* userid;
+	//int seat;
+
+	//User_Seat_Map::iterator it = m_USM.begin();
+	//while (it != m_USM.end())
+	//{
+	//	seat = it->first;
+	//	userid =(char*) (it->second).c_str();
+
+	//	cout << (*it).first << (*it).second << endl;
+
+	//	it++;
+	//}
+
+
+	m_pCSVFile->Write(6, "wefrewrwerwe023");
+
+	return ret;
+}
+
 void VRSceneController::HandleNetEventFromClient()
 {
 
@@ -147,21 +191,23 @@ void VRSceneController::HandleNetEventFromClient()
 			}
 			else if (c2s_tell_user_id == cmdID)		//处理胶囊体发来的消息
 			{
+
+				//更新终端类型为胶囊体类型, 一定要先更新类型，后绑定
+				clientMgr->UpdateClientType(cid, Capsule);
+
 				char* userid = pack->body();
 				int userid_len = pack->GetBodyLength();
-				int seatNumber = -1;
+				
+				VRClient *client = NULL;
 
 				//绑定userid号到一个VR终端
-				bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, seatNumber);
+				bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, &client);
 
 				if (bRet)
 				{
-					//更新终端类型为胶囊体类型
-					clientMgr->UpdateClientType(cid, Capsule);
-
 					UserInfo usrInfo;
 					memcpy(usrInfo.UserID, userid, userid_len);
-					usrInfo.SeatNumber = seatNumber;
+					usrInfo.SeatNumber = client->GetSeatNumber();;
 
 					MessagePackage package;
 					package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
@@ -169,6 +215,12 @@ void VRSceneController::HandleNetEventFromClient()
 
 					//返回座席号给胶囊体
 					clientMgr->SendMsg(cid, package);
+
+					//向终端代理发送绑定的userID
+					MessagePackage package1;
+					package1.WriteHeader(ID_SceneCntrl_Notify, s2c_tell_user_id);
+					package1.WriteBody(userid, userid_len);
+					clientMgr->SendMsg(client->GetLinkID(), package1);
 				}
 
 			}

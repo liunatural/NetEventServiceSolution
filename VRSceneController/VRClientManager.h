@@ -23,7 +23,7 @@ public:
 	bool UpdateSeatNumber(int clientID, int seatNumber);
 
 	//绑定userID, 同时返回座席号
-	bool BindUserIDToVRClient(char* userid, int len, int &seatNumber);
+	bool BindUserIDToVRClient(char* userid, int len, VRClient** client);
 
 	//更新用户类型
 	bool UpdateClientType(int clientID, UserType userType);

@@ -21,6 +21,13 @@ int main()
 		return ret;
 	}
 
+
+	ret = vrSceneController.CreateUserSeatMap();
+	if (ret == FAIL)
+	{
+		return ret;
+	}
+
 	//*****启动场景服务器*****//
 	ret = vrSceneController.Start();
 	if (ret == FAIL)
