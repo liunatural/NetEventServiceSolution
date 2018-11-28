@@ -96,6 +96,7 @@ int VRSceneController::CreateVRClientManager()
 	clientMgr = new VRClientManager();
 
 	clientMgr->SetNetworkService(pNetEventServer);
+	clientMgr->SetSceneController(this);
 
 	return SUCCESS;
 
@@ -142,8 +143,7 @@ int VRSceneController::CreateUserSeatMap()
 	//	it++;
 	//}
 
-
-	m_pCSVFile->Write(6, "wefrewrwerwe023");
+	//m_pCSVFile->Write(6, "wefrewrwerwe023");
 
 	return ret;
 }

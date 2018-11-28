@@ -16,6 +16,7 @@ public:
 	void Run();
 
 	int CreateUserSeatMap();
+	User_Seat_Map& GetUserSeatMap() { return m_USM; }
 
 private:
 	void HandleNetEventFromClient();

@@ -5,6 +5,9 @@
 
 using namespace std;
 
+
+class VRSceneController;
+
 //管理类
 class VRClientManager : public std::vector<VRClient*>
 {
@@ -12,7 +15,8 @@ public:
 	VRClientManager();
 	virtual ~VRClientManager();
 
-	void SetNetworkService(NetEvtServer* pService) { mpService = pService; };
+	void SetNetworkService(NetEvtServer* pService) { mpService = pService; }
+	void SetSceneController(VRSceneController* pSceneCtrl) { mpSceneCtrl = pSceneCtrl; }
 
 	void AddVRClient(VRClient* client);
 
@@ -21,6 +25,9 @@ public:
 
 	//更新终端的座位号
 	bool UpdateSeatNumber(int clientID, int seatNumber);
+
+	//根据UserSeatMap表设定userID和绑定状态
+	void CheckUserSeatMap(VRClient* pClient);
 
 	//绑定userID, 同时返回座席号
 	bool BindUserIDToVRClient(char* userid, int len, VRClient** client);
@@ -47,5 +54,8 @@ public:
 
 private:
 	NetEvtServer *mpService;
+	
+	VRSceneController *mpSceneCtrl;
+
 };
 

@@ -1,4 +1,6 @@
 #include "VRClientManager.h"
+#include "VRSceneController.h"
+
 
 VRClientManager::VRClientManager()
 {
@@ -52,9 +54,30 @@ bool VRClientManager::UpdateSeatNumber(int clientID, int seatNumber)
 
 	client->SetSeatNumber(seatNumber);
 
+	CheckUserSeatMap(client);
+
 	return true;
 }
 
+
+void VRClientManager::CheckUserSeatMap(VRClient* pClient)
+{
+	int seatNumber = pClient->GetSeatNumber();
+
+	User_Seat_Map userSeatMap = mpSceneCtrl->GetUserSeatMap();
+	User_Seat_Map::iterator it;
+
+	it = userSeatMap.find(seatNumber);
+
+	if (it != userSeatMap.end())
+	{
+		string userID = it->second;
+		pClient->SetUserID((char*)userID.c_str(), userID.size());
+
+		pClient->SetBoundUser(true);
+
+	}
+}
 
 bool VRClientManager::BindUserIDToVRClient( char* userid, int len, VRClient** client)
 {
