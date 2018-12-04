@@ -168,7 +168,7 @@ VRClient*  VRClientManager::GetFreeVRClient()
 	for (iterator i = begin(); i != end(); i++)
 	{
 		clientTemp = (VRClient*)(*i);
-		if (NULL != clientTemp && !(clientTemp->BoundUser()) && (clientTemp->GetUserType() == VRClientAgent) )
+		if (NULL != clientTemp && !(clientTemp->HasBoundUser()) && (clientTemp->GetUserType() == VRClientAgent) )
 		{
 			client = clientTemp;
 			break;

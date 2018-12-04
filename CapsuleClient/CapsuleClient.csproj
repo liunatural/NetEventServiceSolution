@@ -37,7 +37,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NetClient.cs" />
+    <Compile Include="SceneControllerClient.cs" />
     <Compile Include="CSMsgPackage.cs" />
     <Compile Include="MessageBuffer.cs" />
     <Compile Include="Program.cs" />

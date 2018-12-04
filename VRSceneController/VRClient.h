@@ -18,7 +18,7 @@ public:
 
 	void SetUserType(int userType) {	m_UserType = userType;}
 	int GetUserType() { return m_UserType; }
-	bool BoundUser() { return bBoundUser; }
+	bool HasBoundUser() { return bBoundUser; }
 	void SetBoundUser(bool flag) { bBoundUser = flag; }
 private:
 	UserInfo	m_userInfo;
