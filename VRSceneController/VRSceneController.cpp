@@ -128,7 +128,6 @@ int VRSceneController::CreateUserSeatMap()
 		m_USM = m_pCSVFile->GetUserSeatMap();
 	}
 
-
 	//char* userid;
 	//int seat;
 
@@ -202,12 +201,13 @@ void VRSceneController::HandleNetEventFromClient()
 
 				//绑定userid号到一个VR终端
 				bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, &client);
-
 				if (bRet)
 				{
+					int seatNumber = client->GetSeatNumber();
 					UserInfo usrInfo;
+
 					memcpy(usrInfo.UserID, userid, userid_len);
-					usrInfo.SeatNumber = client->GetSeatNumber();;
+					usrInfo.SeatNumber = seatNumber;
 
 					MessagePackage package;
 					package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
@@ -221,7 +221,27 @@ void VRSceneController::HandleNetEventFromClient()
 					package1.WriteHeader(ID_SceneCntrl_Notify, s2c_tell_user_id);
 					package1.WriteBody(userid, userid_len);
 					clientMgr->SendMsg(client->GetLinkID(), package1);
+
+					//向csv文件写入SeatNumber-UserID映射关系
+					m_pCSVFile->Write(seatNumber, usrInfo.UserID);
 				}
+				else
+				{
+
+					UserInfo usrInfo;
+
+					memcpy(usrInfo.UserID, userid, userid_len);
+					usrInfo.SeatNumber = -1;
+
+					MessagePackage package;
+					package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
+					package.WriteBody(&usrInfo, sizeof(UserInfo));
+					
+					//返回座席号-1给胶囊体
+					clientMgr->SendMsg(cid, package);
+
+				}
+
 
 			}
 

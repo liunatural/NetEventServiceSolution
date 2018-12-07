@@ -12,7 +12,7 @@ public:
 
 	int ReadIniFile();
 	int ConnectSceneController();
-	void Run();
+	//void Run();
 	void OnConnectSceneController(int& msgID);
 	void HandleNetEventFromSceneController();
 	void Disconn();

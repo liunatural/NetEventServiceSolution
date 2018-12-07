@@ -31,6 +31,7 @@ NetClient::~NetClient()
 	}
 }
 
+
 int NetClient::ReadIniFile()
 {
 
@@ -48,17 +49,16 @@ int NetClient::ReadIniFile()
 }
 
 
-
 int NetClient::ConnectSceneController()
 {
 
 	if (SceneControllerClient->Connect(m_SceneControllerIP, m_SceneControllerPort) != 0)
 	{
-		//LOG(error, "初始化与场景控制服务器的连接时出现错误!");
+		LOG(error, "初始化与场景控制服务器的连接时出现错误!");
 		return ERR_CONNECT_CENTER_SERVER;
 	}
 
-	//LOG(info, "正在开始与场景控制服务器连接......");
+	LOG(info, "******正在开始与场景控制服务器连接......");
 	SceneControllerClient->Start();
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -75,33 +75,33 @@ int NetClient::ConnectSceneController()
 }
 
 
-void NetClient::Run()
-{
-	while (true)
-	{
-
-		HandleNetEventFromSceneController();
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	}
-}
+//void NetClient::Run()
+//{
+//	while (true)
+//	{
+//
+//		HandleNetEventFromSceneController();
+//
+//		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+//	}
+//}
 
 
 void NetClient::OnConnectSceneController(int& msgID)
 {
 	if (link_connected == msgID)
 	{
-		//LOG(info, "连接场景控制服务器成功！");
+		LOG(info, "连接场景控制服务器成功！");
 		bConnectedToSceneController = true;
 	}
 	else if (link_server_closed == msgID)
 	{
-		//LOG(error, "场景控制服务器端断开了连接！");
+		LOG(error, "场景控制服务器端断开了连接！");
 		bConnectedToSceneController = false;
 	}
 	else if (link_server_failed == msgID)
 	{
-		//LOG(info, "连接场景控制服务器没有成功！");
+		LOG(info, "连接场景控制服务器失败！");
 		bConnectedToSceneController = false;
 	}
 }
@@ -126,7 +126,7 @@ void NetClient::HandleNetEventFromSceneController()
 			{
 			case link_connected:
 			{
-				LOG(info, "连接到场景控制器OK！");
+				LOG(info, "*****场景控制器返回连接成功消息！");
 
 				MessagePackage msgPackage;
 				msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
@@ -150,6 +150,8 @@ void NetClient::HandleNetEventFromSceneController()
 					memcpy(m_UserID, pack->body(), len);
 
 					::WritePrivateProfileStringA("VRAgentConfig", "UserID", m_UserID, m_CfgFile);
+
+					LOG(info, "成功绑定了用户ID: %s !", m_UserID);
 
 				}
 

@@ -14,7 +14,7 @@ SERVICE_STATUS ServiceStatus;
 SERVICE_STATUS_HANDLE hStatus;
 void ServiceMain(int argc, char** argv);
 void ControlHandler(DWORD request);
-int InitService();
+bool InitService();
 
 int main(int argc, char* argv[])
 {
@@ -32,52 +32,41 @@ int main(int argc, char* argv[])
 
 void ServiceMain(int argc, char** argv)
 {
-	int error;
-
-
-	ServiceStatus.dwServiceType =
-		SERVICE_WIN32;
-	ServiceStatus.dwCurrentState =
-		SERVICE_START_PENDING;
-	ServiceStatus.dwControlsAccepted =
-		SERVICE_ACCEPT_STOP |
-		SERVICE_ACCEPT_SHUTDOWN;
+	ServiceStatus.dwServiceType =	SERVICE_WIN32;
+	ServiceStatus.dwCurrentState =	SERVICE_START_PENDING;
+	ServiceStatus.dwControlsAccepted =	SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN;
 	ServiceStatus.dwWin32ExitCode = 0;
 	ServiceStatus.dwServiceSpecificExitCode = 0;
 	ServiceStatus.dwCheckPoint = 0;
 	ServiceStatus.dwWaitHint = 0;
 
 
-	hStatus = RegisterServiceCtrlHandler(
-		L"MemoryStatus",
-		(LPHANDLER_FUNCTION)ControlHandler);
+	hStatus = RegisterServiceCtrlHandler(	L"MemoryStatus", (LPHANDLER_FUNCTION)ControlHandler);
 	if (hStatus == (SERVICE_STATUS_HANDLE)0)
 	{
 		// Registering Control Handler failed
 		return;
 	}
+
+
 	// Initialize Service 
-	error = InitService();
-	if (!error)
+	bool bRet = InitService();
+	if (!bRet)
 	{
 		// Initialization failed
-		ServiceStatus.dwCurrentState =
-			SERVICE_STOPPED;
+		ServiceStatus.dwCurrentState =	SERVICE_STOPPED;
 		ServiceStatus.dwWin32ExitCode = -1;
 		SetServiceStatus(hStatus, &ServiceStatus);
 		return;
 	}
 	// We report the running status to SCM. 
-	ServiceStatus.dwCurrentState =
-		SERVICE_RUNNING;
+	ServiceStatus.dwCurrentState =	SERVICE_RUNNING;
 	SetServiceStatus(hStatus, &ServiceStatus);
 
 
 	MEMORYSTATUS memory;
 	// The worker loop of a service
-
-	while (ServiceStatus.dwCurrentState ==
-		SERVICE_RUNNING)
+	while (ServiceStatus.dwCurrentState ==	SERVICE_RUNNING)
 	{
 		//char buffer[16];
 		//GlobalMemoryStatus(&memory);
@@ -97,10 +86,10 @@ void ServiceMain(int argc, char** argv)
 		{
 			pNetClient->Disconn();
 			delete pNetClient;
+			Sleep(SLEEP_TIME);
 			pNetClient = new NetClient();
 			pNetClient->ReadIniFile();
 			pNetClient->ConnectSceneController();
-			Sleep(5000);
 		}
 		else
 		{
@@ -141,14 +130,12 @@ void ControlHandler(DWORD request)
 }
 
 
-int InitService() {
+bool InitService() {
 
 	//*****开启日志系统*****//
 	InitLogger("Log/VRClientAgent");
-	LOG(info, "VR Client Agent Service start.");
-	
+
 	pNetClient = new NetClient();
-	
 	if (!pNetClient)
 	{
 		return false;
@@ -161,6 +148,8 @@ int InitService() {
 	}
 
 	pNetClient->ConnectSceneController();
+
+	LOG(info, "VR Client Agent Service start.");
 
 	return true;
 }

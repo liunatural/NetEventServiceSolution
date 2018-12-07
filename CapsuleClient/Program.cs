@@ -25,8 +25,13 @@ namespace CapsuleClient
                 if (bRet)
                 {
                     ShowMsg(seatNumber.ToString());
-
                 }
+                else
+                {
+                    ShowMsg("场景控制器返回无效的座位号！");
+                }
+
+                Console.ReadLine();
 
             }
             catch (Exception ex)
