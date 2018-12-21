@@ -1,0 +1,26 @@
+胶囊体与场景控制器通信：
+
+1. 与场景控制器连接成功消息：
+
+	消息ID： link_connected
+	命令ID： NULL
+	消息体： NULL
+
+2. 向场景控制器发送user_id消息
+
+	消息ID： ID_User_Login
+	命令ID： c2s_tell_user_id
+	消息体： UserID[USER_ID_LENGTH + 1]
+	
+3. 场景控制器返回给胶囊体的座位号消息：
+
+	消息ID： ID_SceneCntrl_Notify
+	命令ID： s2c_rsp_seat_num
+	消息体： 
+	struct  UserInfo
+	{
+		char	UserID[USER_ID_LENGTH + 1] = { 0 };
+		int		SeatNumber;
+	}
+	
+	

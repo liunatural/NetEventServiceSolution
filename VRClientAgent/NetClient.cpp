@@ -57,7 +57,7 @@ int NetClient::ConnectSceneController()
 		LOG(error, "初始化与场景控制服务器的连接时出现错误!");
 		return ERR_CONNECT_CENTER_SERVER;
 	}
-
+javascript:void(0);
 	LOG(info, "******正在开始与场景控制服务器连接......");
 	SceneControllerClient->Start();
 

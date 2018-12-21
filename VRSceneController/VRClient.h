@@ -1,3 +1,13 @@
+//**************************************************************************
+//  File......... : VRClient.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Head file of the VRClient class. 
+//
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
 #pragma once
 #include "protocol.h"
 #include  "Message.h"
@@ -23,6 +33,6 @@ public:
 private:
 	UserInfo	m_userInfo;
 	LinkID		m_LinkID;
-	int				m_UserType;			//1: VIP客户端， 2: 胶囊客户端
+	int				m_UserType;			//7: VR终端代理， 2: 胶囊客户端
 	bool			bBoundUser;
 };

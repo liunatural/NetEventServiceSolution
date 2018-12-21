@@ -1,3 +1,14 @@
+//**************************************************************************
+//  File......... : VRSceneController.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Head file of the VRSceneController class used as business logics process
+//							of VR Scene Controller server.
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
+
 #pragma once
 #include "NetEventService.h"
 #include "protocol.h"

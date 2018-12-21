@@ -1,3 +1,12 @@
+//**************************************************************************
+//  File......... : VRSceneControllerMain.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : main file of VR Scene Controller server.
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
 
 #include "NetEventService.h"
 #include "VRSceneController.h"

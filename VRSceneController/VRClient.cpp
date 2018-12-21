@@ -1,5 +1,14 @@
-#include "VRClient.h"
+//**************************************************************************
+//  File......... : .cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Implementation file of the class NetEventServer used as .
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
 
+#include "VRClient.h"
 
 VRClient::VRClient(LinkID linkID)
 {

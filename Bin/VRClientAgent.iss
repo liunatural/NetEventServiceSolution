@@ -1,6 +1,6 @@
 #define MyAppName "VRAgent"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "VR Agent"
+#define MyAppPublisher "HXDF Cop Ltd."
 #define MyAppURL "http://"
 #define MyAppId="4475443D-382C-4ACC-88FC-576FC57BE338"
 
@@ -17,7 +17,7 @@ AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\VRSystem\VRAgent
-DisableDirPage=no
+DisableDirPage=yes
 DefaultGroupName=VRSystem\VRAgent
 DisableProgramGroupPage=yes
 OutputDir=.\install

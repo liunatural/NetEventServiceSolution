@@ -1,3 +1,15 @@
+//**************************************************************************
+//  File......... : VRClientManager.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Implementation file of the class VRClientManager used as the user manager 
+//							of VRScene controller.
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
+
+
 #include "VRClientManager.h"
 #include "VRSceneController.h"
 

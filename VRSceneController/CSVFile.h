@@ -1,3 +1,13 @@
+//**************************************************************************
+//  File......... : CSVFile.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Head file of the CSVFile class used as read/write .csv file and create
+//						user_seat map data.
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
 #pragma once
 #include <iostream>
 #include <fstream>

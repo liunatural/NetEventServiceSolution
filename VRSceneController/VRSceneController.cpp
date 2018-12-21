@@ -1,3 +1,14 @@
+//**************************************************************************
+//  File......... : VRSceneController.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Implementation file of the class VRSceneController used as business logics process
+//							of VR Scene Controller server.
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
+
 #include "VRSceneController.h"
 #include "VRClientManager.h"
 #include <direct.h>

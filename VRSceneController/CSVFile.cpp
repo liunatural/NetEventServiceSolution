@@ -1,3 +1,14 @@
+//**************************************************************************
+//  File......... : CSVFile.cpp
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Implementation file of the class CSVFile used as read/write .csv file and create
+//							user_seat map data.
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
+
 #include "CSVFile.h"
 #include <windows.h>
 #include <time.h>

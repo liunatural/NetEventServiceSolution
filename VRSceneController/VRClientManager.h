@@ -1,3 +1,13 @@
+//**************************************************************************
+//  File......... : VRClientManager.h
+//  Project...... : VR                            
+//  Author....... : Liu Zhi                                                 
+//  Date......... : 2018-11 
+//  Description.. : Head file of the VRClientManager class used as the user manager
+//						of VRScene controller
+//  History...... : First created by Liu Zhi 2018-11
+//
+//***************************************************************************
 #pragma once
 #include "VRClient.h"
 #include "NetEventService.h"

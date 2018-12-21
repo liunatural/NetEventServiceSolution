@@ -13,7 +13,7 @@ namespace CapsuleClient
             try
             {
                 //2. 连接场景控制器
-                sceneCtrlClient.connectServer("127.0.0.1", "10001");
+                sceneCtrlClient.connectServer("192.168.2.48", "10001");
                 ShowMsg("连接到场景控制服务器成功: " + sceneCtrlClient.m_client.RemoteEndPoint.ToString());
 
 
