@@ -11,9 +11,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRTestClient", "VRTestClien
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetEventSvcTestClientDlg", "NetEventSvcTestClientDlg\NetEventSvcTestClientDlg.vcxproj", "{AFB1E782-F367-4EBB-AFCB-669345314994}"
-	ProjectSection(ProjectDependencies) = postProject
-		{AED5C451-BDC5-49D6-9E1A-6A54E265DCAF} = {AED5C451-BDC5-49D6-9E1A-6A54E265DCAF}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRCenterServer", "VRCenterServer\VRCenterServer.vcxproj", "{E8A6ED82-C910-4C2A-8C5A-9B5094B046A6}"
 	ProjectSection(ProjectDependencies) = postProject
