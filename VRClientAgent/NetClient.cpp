@@ -57,7 +57,8 @@ int NetClient::ConnectSceneController()
 		LOG(error, "初始化与场景控制服务器的连接时出现错误!");
 		return ERR_CONNECT_CENTER_SERVER;
 	}
-javascript:void(0);
+
+
 	LOG(info, "******正在开始与场景控制服务器连接......");
 	SceneControllerClient->Start();
 
@@ -124,44 +125,71 @@ void NetClient::HandleNetEventFromSceneController()
 
 			switch (msgID)
 			{
-			case link_connected:
-			{
-				LOG(info, "*****场景控制器返回连接成功消息！");
-
-				MessagePackage msgPackage;
-				msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
-				msgPackage.WriteBody(&m_SeatNumber, sizeof(int));
-				SceneControllerClient->Send(msgPackage);
-				
-				break;
-			}
-			case ID_SceneCntrl_Notify:
-			{
-				int cmdID = pack->header()->id2;
-				if (s2c_tell_user_id == cmdID)
+				case link_connected:
 				{
-					int len = pack->GetBodyLength();
-					if (len > sizeof(m_UserID) -1 )
+					LOG(info, "*****场景控制器返回连接成功消息！");
+
+					//向场景控制器上报座位号
+					MessagePackage msgPackage;
+					msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
+					msgPackage.WriteBody(&m_SeatNumber, sizeof(int));
+					SceneControllerClient->Send(msgPackage);
+				
+					break;
+				}
+				case ID_SceneCntrl_Notify:
+				{
+					int cmdID = pack->header()->id2;
+
+					if (s2c_tell_user_id == cmdID)
 					{
-						len = sizeof(m_UserID) - 1;
+						int len = pack->GetBodyLength();
+						if (len > sizeof(m_UserID) -1 )
+						{
+							len = sizeof(m_UserID) - 1;
+						}
+
+						memset(m_UserID, 0, sizeof(m_UserID));
+						memcpy(m_UserID, pack->body(), len);
+
+						::WritePrivateProfileStringA("VRAgentConfig", "UserID", m_UserID, m_CfgFile);
+
+						LOG(info, "成功绑定了用户ID: %s !", m_UserID);
 					}
 
-					memset(m_UserID, 0, sizeof(m_UserID));
-					memcpy(m_UserID, pack->body(), len);
-
-					::WritePrivateProfileStringA("VRAgentConfig", "UserID", m_UserID, m_CfgFile);
-
-					LOG(info, "成功绑定了用户ID: %s !", m_UserID);
-
+					break;
 				}
-
-				break;
-			}
 			} //switch end
 		} // for end
 
 	}//if
 }
+
+
+
+void NetClient::HandleDeviceStatus()
+{
+	int m_Status = ::GetPrivateProfileIntA("VRAgentConfig", "Status", 0, m_CfgFile);
+
+	if (m_Status == 0)
+	{
+		//向场景控制器上报座位当前的状态是空闲
+		MessagePackage msgPackage;
+		msgPackage.WriteHeader(ID_VRClientAgent_Notify, c2s_device_status);
+
+		DeviceStatus devStatus;
+		devStatus.seatNumber = m_SeatNumber;
+		devStatus.status = m_Status;
+		msgPackage.WriteBody(&devStatus, sizeof(DeviceStatus));
+
+		SceneControllerClient->Send(msgPackage);
+	}
+
+}
+
+
+
+
 
 void NetClient::Disconn()
 {

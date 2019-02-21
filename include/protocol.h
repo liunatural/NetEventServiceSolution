@@ -52,12 +52,13 @@ enum
 	ID_ERROR,													//运行错误消息ID
 	ID_FLV_StreamReback,									//数据流获取反馈消息
 	ID_SceneCntrl_Notify,										//场景控制器通知消息
+	ID_VRClientAgent_Notify,								//VR终端代理通知消息
 };
 
 //用户命令ID（业务层命令ID）
 enum
 {
-	c2s_tell_seat_num						= 1,				//VIP客户端连接后发送座位号给场景服务器
+	c2s_tell_seat_num						= 1,				//VIP客户端连接后发送座位号给场景服务器				****即将废除****
 	c2s_tell_user_type,										//客户端类型：胶囊体客户端；VIP客户端；摄像机视角客户端	
 	c2s_tell_ready,												//客户端已准备好
 	c2s_req_seat_num,										//胶囊客户端请求座位号
@@ -70,7 +71,11 @@ enum
 	c2s_walk,														//玩家行走命令
 	c2s_present_flowers,										//玩家发起献花	
 	c2s_stop_present_flowers,								//玩家结束献花	
-	c2s_tell_user_id,											//
+	c2s_tell_user_id,											//*****即将废除*****
+
+
+	c2s_device_status,											//机器状态： free, used
+	c2s_tell_user_info,
 
 
 
@@ -192,5 +197,13 @@ struct FlvStreamReback
 	double		dCenterToClient;//从中心服务器到客户端的延迟
 	double		dShowTime;//OBS端显示时候的时间
 };
+
+
+struct DeviceStatus
+{
+	int seatNumber;
+	int status;
+};
+
 
 #pragma pack(pop)

@@ -45,8 +45,8 @@ namespace CapsuleClient
 
             //for debug
             string strUID = Encoding.UTF8.GetString(userInfo.UserID);
-            //Console.WriteLine("UserID:" + strUID);
-            //Console.WriteLine("SeatNumber:" + userInfo.SeatNumber.ToString());
+            Console.WriteLine("UserID:" + strUID);
+            Console.WriteLine("SeatNumber:" + userInfo.SeatNumber.ToString());
             if (strUID.CompareTo(userID) == 0 && userInfo.SeatNumber != -1)
             {
                 seatNumber = userInfo.SeatNumber;

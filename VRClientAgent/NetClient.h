@@ -15,7 +15,14 @@ public:
 	//void Run();
 	void OnConnectSceneController(int& msgID);
 	void HandleNetEventFromSceneController();
+	void HandleDeviceStatus();
 	void Disconn();
+
+	char* GetIniFilePath() {	return m_CfgFile; }
+	int GetSeatNumber() { return m_SeatNumber; }
+
+	NetEvtClient* GetConnectToSceneController() {	return SceneControllerClient; }
+
 public:
 	bool					bConnectedToSceneController;
 

@@ -229,6 +229,22 @@ void VRSceneServer::HandleNetEventFromClient()
 				bool bRet = playerMgr->BindUserIDToPlayer(cid, userid, userid_len);
 			}
 
+
+			if (c2s_tell_user_info == cmdID)
+			{
+				UserInfo *usrInfo = (UserInfo*)(pack->body());
+
+				//绑定座位号到一个玩家
+				//bool bRet = playerMgr->UpdatePlayerSeatNumber(cid, seatNum);
+				bool bRet = playerMgr->UpdateUserInfo(cid, usrInfo);
+				//if (bRet)
+				//{
+				//	//向其他VIP客户端广播当前用户的状态为初始状态
+				//	playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
+				//}
+			}
+
+
 			break;
 		}
 		case ID_User_Transform:		//玩家位置变换消息

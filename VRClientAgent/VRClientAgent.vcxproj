@@ -148,11 +148,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="VRClientAgent.cpp" />
-    <ClCompile Include="NetClient.cpp" />
+    <ClInclude Include="AgentTimer.h" />
+    <ClInclude Include="NetClient.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NetClient.h" />
+    <ClCompile Include="AgentTimer.cpp" />
+    <ClCompile Include="NetClient.cpp" />
+    <ClCompile Include="VRClientAgent.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

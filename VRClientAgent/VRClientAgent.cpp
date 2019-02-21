@@ -1,13 +1,25 @@
-#include <windows.h>
 #include <stdio.h>
 #pragma comment(lib, "Advapi32")
 
 #include "NetClient.h"
+#include "AgentTimer.h"
+#include <thread>
 
+#include <windows.h>
 
 #define SLEEP_TIME 1000
 
-NetClient* pNetClient = NULL;
+NetClient* g_pNetClient = NULL;
+
+//bool bStartScanDeviceStatus = false;
+
+void Timer_ScanDeviceStatus(NetClient *pNetClient)
+{
+	io_service io;
+	AgentTimer p(io, pNetClient);
+	io.run();
+}
+
 
 
 SERVICE_STATUS ServiceStatus;
@@ -82,18 +94,36 @@ void ServiceMain(int argc, char** argv)
 		//	return;
 		//}
 
-		if (!(pNetClient->bConnectedToSceneController))
+		if (!(g_pNetClient->bConnectedToSceneController))
 		{
-			pNetClient->Disconn();
-			delete pNetClient;
+			g_pNetClient->Disconn();
+			delete g_pNetClient;
 			Sleep(SLEEP_TIME);
-			pNetClient = new NetClient();
-			pNetClient->ReadIniFile();
-			pNetClient->ConnectSceneController();
+			g_pNetClient = new NetClient();
+			g_pNetClient->ReadIniFile();
+			g_pNetClient->ConnectSceneController();
+
+			//bStartScanDeviceStatus = false;
 		}
 		else
 		{
-			pNetClient->HandleNetEventFromSceneController();
+
+			//Sleep(10000);
+
+			g_pNetClient->HandleNetEventFromSceneController();
+
+			//*****启动定时器获取机器状态*****//
+			g_pNetClient->HandleDeviceStatus();
+
+
+			//todo: 需要增加向场景控制器发送机器状态的代码 
+			//if (!bStartScanDeviceStatus)
+			//{
+			//	std::thread tr(&Timer_ScanDeviceStatus, g_pNetClient);
+			//	tr.detach();
+
+			//	bStartScanDeviceStatus = true;
+			//}
 		}
 		Sleep(SLEEP_TIME);
 	}
@@ -135,19 +165,19 @@ bool InitService() {
 	//*****开启日志系统*****//
 	InitLogger("Log/VRClientAgent");
 
-	pNetClient = new NetClient();
-	if (!pNetClient)
+	g_pNetClient = new NetClient();
+	if (!g_pNetClient)
 	{
 		return false;
 	}
 
-	int ret = pNetClient->ReadIniFile();
+	int ret = g_pNetClient->ReadIniFile();
 	if (ret != SUCCESS)
 	{
 		return false;
 	}
 
-	pNetClient->ConnectSceneController();
+	g_pNetClient->ConnectSceneController();
 
 	LOG(info, "VR Client Agent Service start.");
 

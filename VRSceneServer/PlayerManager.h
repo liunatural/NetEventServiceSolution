@@ -46,6 +46,10 @@ public:
 	//绑定userID
 	bool BindUserIDToPlayer(int plyId, char* userid, int len);
 
+
+	bool UpdateUserInfo(int plyId, UserInfo *usrInfo);
+
+
 	//更新玩家类型
 	bool UpdateUserType(int plyId, UserType userType);
 

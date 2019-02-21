@@ -14,7 +14,7 @@ void Send_TransformPack(void *args);
 void Send_SeatNumber(void *args);
 void Send_Seen_External(void *args);
 void Send_Tell_UserID(void *args);
-
+void Send_UserInfo(void *args);
 
 std::thread send_thread;
 
@@ -91,15 +91,17 @@ void Message_handle(void *args)
 				//Send_SeatNumber(pNetEventClient);
 
 				
-				Send_Tell_UserID(pNetEventClient);
+				//Send_Tell_UserID(pNetEventClient);
+
+				Send_UserInfo(pNetEventClient);
 
 				//Sleep(10);
 				//Send_Seen_External(pNetEventClient);
 	
 				//send_thread = std::thread(&Send_testPack, pNetEventClient);
 	
-				Sleep(10);
-				send_thread = std::thread(&Send_TransformPack, pNetEventClient);
+				//Sleep(10);
+				//send_thread = std::thread(&Send_TransformPack, pNetEventClient);
 
 
 
@@ -336,6 +338,28 @@ void Send_Tell_UserID(void *args)
 
 	LOG(info, "向服务器发送userID:[%s]\n", userid);
 }
+
+
+
+void Send_UserInfo(void *args)
+{
+
+	time_t t;
+	srand((unsigned)time(&t));
+
+	NetEvtClient *pNetEventClient = (NetEvtClient *)args;
+
+	UserInfo userInfo;
+	userInfo.SeatNumber  = random(10) + 1;
+	memcpy(userInfo.UserID,  "wreewrewrew", sizeof("wreewrewrew"));
+	MessagePackage msgPackage;
+	msgPackage.WriteHeader(ID_User_Login, c2s_tell_user_info);
+	msgPackage.WriteBody(&userInfo, sizeof(UserInfo));
+	pNetEventClient->Send(msgPackage);
+
+	LOG(info, "向服务器发送用户信息");
+}
+
 
 
 

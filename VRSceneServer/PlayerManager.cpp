@@ -189,6 +189,25 @@ bool PlayerManager::BindUserIDToPlayer(int plyId, char* userid, int len)
 
 
 
+bool PlayerManager::UpdateUserInfo(int plyId, UserInfo *usrInfo)
+{
+	boost::mutex::scoped_lock lock(mMutex);
+
+	Player* ply = FindPlayer(plyId);
+	if (NULL == ply)
+	{
+		LOG(error, "[UpdatePlayerSeatNumber] 更新玩家信息出错：玩家ID[%d]在列表中不存在！", plyId);
+		return false;
+	}
+
+	ply->SetSeatNumber(usrInfo->SeatNumber);
+	ply->SetUserID(usrInfo->UserID, strlen(usrInfo->UserID));
+	return true;
+}
+
+
+
+
 bool PlayerManager::UpdateUserType(int plyId, UserType userType)
 {
 

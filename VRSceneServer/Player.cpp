@@ -26,9 +26,9 @@ void Player::SetUserID(char* userid, int len)
 	}
 
 	memset(mUserID, 0, sizeof(mUserID));
-	//memcpy(mUserID, userid, len);
+	memcpy(mUserID, userid, len);
 
-	sprintf(mUserID, "%04d", mPlyID);
+	//sprintf(mUserID, "%04d", mPlyID);
 
 }
 
