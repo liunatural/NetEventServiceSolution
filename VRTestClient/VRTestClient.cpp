@@ -157,18 +157,19 @@ void Message_handle(void *args)
 
 					if (s > 0)
 					{
-						int cout = s / sizeof(ProfileInfo);
+						int cout = s / sizeof(UserInfo);
 
 						int v = 0;
 						LOG(info, "///////////////////////////////////////////");
 						LOG(info, "当前在线用户：");
 						while (v < cout)
 						{
-							ProfileInfo* profileInfo = (ProfileInfo*)p;
+							UserInfo* userInfo = (UserInfo*)p;
 							
-							LOG(info, "座椅[%04d]", profileInfo->mSeatNumber);
+							LOG(info, "座椅[%04d]", userInfo->SeatNumber);
+							LOG(info, "userID[%s]", userInfo->UserID);
 
-							p += sizeof(ProfileInfo);
+							p += sizeof(UserInfo);
 
 							v++;
 						}

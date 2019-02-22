@@ -46,7 +46,7 @@ public:
 	//°ó¶¨userID
 	bool BindUserIDToPlayer(int plyId, char* userid, int len);
 
-
+	void SendUserInfoList(LinkID& linkID);
 	bool UpdateUserInfo(int plyId, UserInfo *usrInfo);
 
 

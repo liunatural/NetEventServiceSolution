@@ -98,6 +98,47 @@ void PlayerManager::SendClientListToCenterServer()
 
 
 
+void PlayerManager::SendUserInfoList(LinkID& linkID)
+{
+	//为了防止在发送数据包时有玩家退出引起程序崩溃， 从这个地方加锁
+	boost::mutex::scoped_lock lock(mMutex);
+
+	memset(user_list_buffer, 0, sizeof(user_list_buffer));
+	char*p = user_list_buffer;
+	int count = 0;
+
+	Player* ply = NULL;
+	for (iterator i = begin(); i != end(); i++)
+	{
+		if ((sizeof(user_list_buffer) - count * sizeof(UserInfo)) < sizeof(UserInfo))
+		{
+			break;
+		}
+
+		ply = (Player*)(*i);
+		if (NULL != ply && ply->GetUserType() == VIP && (ply->GetLinkID() != linkID))
+		{
+			
+			UserInfo usrInfo;
+			usrInfo.SeatNumber = ply->GetSeatNumber();
+			memcpy(usrInfo.UserID, ply->mUserID, strlen(ply->mUserID));
+			memcpy(p, (const void*)&usrInfo, sizeof(UserInfo));
+
+			p += sizeof(UserInfo);
+			count++;
+		}
+	}
+
+	if (count > 0)
+	{
+		SendCmd(linkID, ID_User_Notify, s2c_client_list, user_list_buffer, sizeof(UserInfo)* count);
+	}
+
+
+}
+
+
+
 bool PlayerManager::SendPlayerLeaveMsg(int& plyId)
 {
 	LinkID linkID;

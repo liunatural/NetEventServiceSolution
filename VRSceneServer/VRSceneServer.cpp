@@ -194,7 +194,7 @@ void VRSceneServer::HandleNetEventFromClient()
 
 			playerMgr->SendCmd(cid, link_connected, 0, NULL, 0);
 
-			playerMgr->SendClientList(cid);
+			playerMgr->SendUserInfoList(cid);
 
 			//playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
 
@@ -208,40 +208,38 @@ void VRSceneServer::HandleNetEventFromClient()
 		}
 		case ID_User_Login:
 		{
-			if (c2s_tell_seat_num == cmdID)		//接收从VIP客户端发来的座椅号消息
-			{
-				int seatNum = *(int*)pack->body();
+			//if (c2s_tell_seat_num == cmdID)		//接收从VIP客户端发来的座椅号消息
+			//{
+			//	int seatNum = *(int*)pack->body();
 
-				//绑定座位号到一个玩家
-				bool bRet = playerMgr->UpdatePlayerSeatNumber(cid, seatNum);
-				if (bRet)
-				{
-					//向其他VIP客户端广播当前用户的状态为初始状态
-					playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
-				}
-			}
-			else if (c2s_tell_user_id == cmdID)		//
-			{
-				char* userid = pack->body();
-				int userid_len = pack->GetBodyLength();
+			//	//绑定座位号到一个玩家
+			//	bool bRet = playerMgr->UpdatePlayerSeatNumber(cid, seatNum);
+			//	if (bRet)
+			//	{
+			//		//向其他VIP客户端广播当前用户的状态为初始状态
+			//		playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
+			//	}
+			//}
+			//else if (c2s_tell_user_id == cmdID)		//
+			//{
+			//	char* userid = pack->body();
+			//	int userid_len = pack->GetBodyLength();
 
-				//绑定userid号到一个玩家
-				bool bRet = playerMgr->BindUserIDToPlayer(cid, userid, userid_len);
-			}
-
+			//	//绑定userid号到一个玩家
+			//	bool bRet = playerMgr->BindUserIDToPlayer(cid, userid, userid_len);
+			//}
 
 			if (c2s_tell_user_info == cmdID)
 			{
 				UserInfo *usrInfo = (UserInfo*)(pack->body());
 
-				//绑定座位号到一个玩家
-				//bool bRet = playerMgr->UpdatePlayerSeatNumber(cid, seatNum);
+				//更新用户信息
 				bool bRet = playerMgr->UpdateUserInfo(cid, usrInfo);
-				//if (bRet)
-				//{
-				//	//向其他VIP客户端广播当前用户的状态为初始状态
-				//	playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
-				//}
+				if (bRet)
+				{
+					//向其他VIP客户端广播当前用户的状态为初始状态
+					playerMgr->BroadcastUserState(cid, ID_User_Login, state_initial);
+				}
 			}
 
 
