@@ -15,6 +15,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRSceneServer", "VRSceneSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapsuleClient", "CapsuleClient\CapsuleClient.csproj", "{509D0DDE-D601-4AFC-BD36-0A80A17DAE11}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CopyVRClientAgentPackage", "CopyVRClientAgentPackage\CopyVRClientAgentPackage.vcxproj", "{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRSceneController", "VRSceneController\VRSceneController.vcxproj", "{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,26 @@ Global
 		{509D0DDE-D601-4AFC-BD36-0A80A17DAE11}.Release|x64.Build.0 = Release|Any CPU
 		{509D0DDE-D601-4AFC-BD36-0A80A17DAE11}.Release|x86.ActiveCfg = Release|Any CPU
 		{509D0DDE-D601-4AFC-BD36-0A80A17DAE11}.Release|x86.Build.0 = Release|Any CPU
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Debug|x64.ActiveCfg = Debug|x64
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Debug|x64.Build.0 = Debug|x64
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Debug|x86.ActiveCfg = Debug|Win32
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Debug|x86.Build.0 = Debug|Win32
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Release|Any CPU.ActiveCfg = Release|Win32
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Release|x64.ActiveCfg = Release|x64
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Release|x64.Build.0 = Release|x64
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Release|x86.ActiveCfg = Release|Win32
+		{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}.Release|x86.Build.0 = Release|Win32
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Debug|x64.ActiveCfg = Debug|x64
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Debug|x64.Build.0 = Debug|x64
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Debug|x86.ActiveCfg = Debug|Win32
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Debug|x86.Build.0 = Debug|Win32
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|Any CPU.ActiveCfg = Release|Win32
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x64.ActiveCfg = Release|x64
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x64.Build.0 = Release|x64
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x86.ActiveCfg = Release|Win32
+		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

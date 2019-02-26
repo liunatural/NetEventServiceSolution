@@ -27,7 +27,7 @@ public:
 
 	int OpenFile();
 
-	int CreateUserSeatMap();
+	int ReadUserSeatMap();
 	int Write(int seatNumber, char* userID);
 	User_Seat_Map& GetUserSeatMap() { return m_UserSeatMap; }
 

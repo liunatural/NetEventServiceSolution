@@ -133,8 +133,12 @@ int VRSceneController::CreateUserSeatMap()
 	}
 
 	m_pCSVFile->OpenFile();
-	int ret =  m_pCSVFile->CreateUserSeatMap();
-	if (ret == 0)
+	int ret =  m_pCSVFile->ReadUserSeatMap();
+	if (ret != 0)
+	{
+		LOG(error, "读取user_seat_map失败！");
+	}
+	else
 	{
 		m_USM = m_pCSVFile->GetUserSeatMap();
 	}
@@ -174,94 +178,118 @@ void VRSceneController::HandleNetEventFromClient()
 
 		switch (msgID)
 		{
-		case link_connected:
-		{
-
-			VRClient*  pClient = new VRClient(cid);
-			clientMgr->AddVRClient(pClient);
-
-			clientMgr->SendCmd(cid, link_connected, 0, NULL, 0);
-
-			break;
-		}
-		case  link_disconnected:
-		{
-			clientMgr->DeleteVRClientFromList(cid);
-
-			break;
-		}
-		case ID_User_Login:
-		{
-			if (c2s_tell_seat_num == cmdID)		//接收从VRClientAgent发来的座椅号消息
+			case link_connected:
 			{
-				int seatNum = *(int*)pack->body();
 
-				bool bRet = clientMgr->UpdateSeatNumber(cid, seatNum);
+				VRClient*  pClient = new VRClient(cid);
+				clientMgr->AddVRClient(pClient);
 
+				clientMgr->SendCmd(cid, link_connected, 0, NULL, 0);
+
+				break;
 			}
-			else if (c2s_tell_user_id == cmdID)		//处理胶囊体发来的消息
+			case  link_disconnected:
 			{
+				clientMgr->DeleteVRClientFromList(cid);
 
-				//更新终端类型为胶囊体类型, 一定要先更新类型，后绑定
-				clientMgr->UpdateClientType(cid, Capsule);
+				break;
+			}
+			case ID_User_Login:
+			{
+				if (c2s_tell_seat_num == cmdID)		//接收从VRClientAgent发来的座椅号消息
+				{
+					int seatNum = *(int*)pack->body();
 
-				char* userid = pack->body();
-				int userid_len = pack->GetBodyLength();
+					bool bRet = clientMgr->UpdateSeatNumber(cid, seatNum);
 				
-				VRClient *client = NULL;
+					////如果场景控制器重启后，须还原终端代理上的配置文件的机器状态码
+					//User_Seat_Map::iterator it = m_USM.find(seatNum);
+					//if (it != m_USM.end())
+					//{
+					//	//向终端代理发送机器状态：used
+					//	MessagePackage package;
+					//	package.WriteHeader(ID_SceneCntrl_Notify, s2c_device_status_changed);
+					//	char stat = '1';
+					//	package.WriteBody(&stat, sizeof(char));
+					//	clientMgr->SendMsg(cid, package);
+					//}
 
-				//绑定userid号到一个VR终端
-				bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, &client);
-				if (bRet)
-				{
-					int seatNumber = client->GetSeatNumber();
-					UserInfo usrInfo;
-
-					memcpy(usrInfo.UserID, userid, userid_len);
-					usrInfo.SeatNumber = seatNumber;
-
-					MessagePackage package;
-					package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
-					package.WriteBody(&usrInfo, sizeof(UserInfo));
-
-					//返回座席号给胶囊体
-					clientMgr->SendMsg(cid, package);
-
-					//向终端代理发送绑定的userID
-					MessagePackage package1;
-					package1.WriteHeader(ID_SceneCntrl_Notify, s2c_tell_user_id);
-					package1.WriteBody(userid, userid_len);
-					clientMgr->SendMsg(client->GetLinkID(), package1);
-
-					//向csv文件写入SeatNumber-UserID映射关系
-					m_pCSVFile->Write(seatNumber, usrInfo.UserID);
 				}
-				else
+				else if (c2s_tell_user_id == cmdID)		//处理胶囊体发来的消息
 				{
 
-					UserInfo usrInfo;
+					//更新终端类型为胶囊体类型, 一定要先更新类型，后绑定
+					clientMgr->UpdateClientType(cid, Capsule);
 
-					memcpy(usrInfo.UserID, userid, userid_len);
-					usrInfo.SeatNumber = -1;
+					char* userid = pack->body();
+					int userid_len = pack->GetBodyLength();
+				
+					VRClient *client = NULL;
 
-					MessagePackage package;
-					package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
-					package.WriteBody(&usrInfo, sizeof(UserInfo));
+					//绑定userid号到一个VR终端
+					bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, &client);
+					if (bRet)
+					{
+						int seatNumber = client->GetSeatNumber();
+						UserInfo usrInfo;
+
+						memcpy(usrInfo.UserID, userid, userid_len);
+						usrInfo.SeatNumber = seatNumber;
+
+						MessagePackage package;
+						package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
+						package.WriteBody(&usrInfo, sizeof(UserInfo));
+
+						//返回座席号给胶囊体
+						clientMgr->SendMsg(cid, package);
+
+						//向终端代理发送绑定的userID
+						MessagePackage package1;
+						package1.WriteHeader(ID_SceneCntrl_Notify, s2c_tell_user_id);
+						package1.WriteBody(userid, userid_len);
+						clientMgr->SendMsg(client->GetLinkID(), package1);
+
+						//向csv文件写入SeatNumber-UserID映射关系
+						m_pCSVFile->Write(seatNumber, usrInfo.UserID);
+					}
+					else
+					{
+						UserInfo usrInfo;
+
+						memcpy(usrInfo.UserID, userid, userid_len);
+						usrInfo.SeatNumber = -1;
+
+						MessagePackage package;
+						package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
+						package.WriteBody(&usrInfo, sizeof(UserInfo));
 					
-					//返回座席号-1给胶囊体
-					clientMgr->SendMsg(cid, package);
+						//返回座席号-1给胶囊体
+						clientMgr->SendMsg(cid, package);
 
+					}
 				}
 
-
+				break;
 			}
+			case ID_VRClientAgent_Notify:
+			{
+				if (c2s_device_status_changed == cmdID)
+				{
+					DeviceStatus  *pDevStatus = (DeviceStatus*)pack->body();
+				
+					int seatNum = pDevStatus->seatNumber;
+					int stats = pDevStatus->status;
 
-			break;
-		}
-		default:
-		{
-			break;
-		}
+					if (1 == stats)
+					{
+						clientMgr->ResetVRClientAgent(cid, seatNum);
+					}
+				}
+			}
+			default:
+			{
+				break;
+			}
 
 		} //switch
 	}//for

@@ -23,7 +23,7 @@ CSVFile::~CSVFile()
 	m_UserSeatMapFile.close();
 }
 
-int CSVFile::CreateUserSeatMap()
+int CSVFile::ReadUserSeatMap()
 {
 	string lineStr;
 
@@ -48,15 +48,25 @@ int CSVFile::CreateUserSeatMap()
 		sscanf(lineStr.c_str(), "%d,%s", &seatNumber, userID);
 
 
-		pair<map<int, string>::iterator, bool> insert_Pair;
-		insert_Pair = m_UserSeatMap.insert(make_pair(seatNumber, userID));
+		User_Seat_Map::iterator it;
 
-		if (insert_Pair.second != true)
+		it = m_UserSeatMap.find(seatNumber);
+
+		if (it != m_UserSeatMap.end())
 		{
-			return -1;
+			it->second = userID;
 		}
+		else
+		{
+			pair<map<int, string>::iterator, bool> insert_Pair;
+			insert_Pair = m_UserSeatMap.insert(make_pair(seatNumber, userID));
 
+			if (insert_Pair.second != true)
+			{
+				return -1;
+			}
 
+		}
 	}
 
 	return 0;

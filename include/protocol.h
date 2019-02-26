@@ -74,7 +74,7 @@ enum
 	c2s_tell_user_id,											//*****即将废除*****
 
 
-	c2s_device_status,											//机器状态： free, used
+	c2s_device_status_changed,							//机器状态： free, used
 	c2s_tell_user_info,
 
 
@@ -94,6 +94,7 @@ enum
 	s2c_rsp_id_verify,
 	s2c_trans_ext_usr_profile,								//传递外部用户描述数据
 	s2c_tell_user_id,											//场景控制器告知用户ID
+	s2c_device_status_changed,							//机器状态： free, used
 
 	s2s_req_usr_list = 200,
 	//最大协议数值254，大了会出错
@@ -185,7 +186,7 @@ struct LeaveUserInfo
 struct  UserInfo
 {
 	char	UserID[USER_ID_LENGTH + 1] = { 0 };
-	int		SeatNumber;
+	int		SeatNumber = -1;
 };
 
 

@@ -37,7 +37,9 @@ public:
 	bool UpdateSeatNumber(int clientID, int seatNumber);
 
 	//根据UserSeatMap表设定userID和绑定状态
-	void CheckUserSeatMap(VRClient* pClient);
+	void RecreateUserSeatMap(VRClient* pClient);
+
+	bool ResetVRClientAgent(int clientID, int seatNumber);
 
 	//绑定userID, 同时返回座席号
 	bool BindUserIDToVRClient(char* userid, int len, VRClient** client);

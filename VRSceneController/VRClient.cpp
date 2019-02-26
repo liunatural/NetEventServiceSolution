@@ -31,7 +31,10 @@ void VRClient::SetUserID(char* userid, int len)
 	}
 
 	memset(m_userInfo.UserID, 0, sizeof(m_userInfo.UserID));
-	memcpy(m_userInfo.UserID, userid, len);
-
+	
+	if (len > 0)
+	{
+		memcpy(m_userInfo.UserID, userid, len);
+	}
 }
 

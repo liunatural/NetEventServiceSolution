@@ -134,6 +134,9 @@ void NetClient::HandleNetEventFromSceneController()
 					msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
 					msgPackage.WriteBody(&m_SeatNumber, sizeof(int));
 					SceneControllerClient->Send(msgPackage);
+
+					//重置物理机状态为不可回收状态
+					::WritePrivateProfileStringA("Device", "RecycleFlag", "0", m_CfgFile);
 				
 					break;
 				}
@@ -153,9 +156,28 @@ void NetClient::HandleNetEventFromSceneController()
 						memcpy(m_UserID, pack->body(), len);
 
 						::WritePrivateProfileStringA("VRAgentConfig", "UserID", m_UserID, m_CfgFile);
+						::WritePrivateProfileStringA("Device", "RecycleFlag", "0", m_CfgFile);
 
 						LOG(info, "成功绑定了用户ID: %s !", m_UserID);
 					}
+
+					else if (s2c_device_status_changed == cmdID)
+					{
+						
+						//char m_status[8] = { 0 };
+						//int len = pack->GetBodyLength();
+						//if (len > sizeof(m_status) - 1)
+						//{
+						//	len = sizeof(m_status) - 1;
+						//}
+
+						//memcpy(m_status, pack->body(), len);
+
+						//::WritePrivateProfileStringA("VRAgentConfig", "Status", m_status, m_CfgFile);
+
+						//LOG(info, "成功更新了机器状态: %s !", m_status);
+					}
+
 
 					break;
 				}
@@ -165,30 +187,25 @@ void NetClient::HandleNetEventFromSceneController()
 	}//if
 }
 
-
-
 void NetClient::HandleDeviceStatus()
 {
-	int m_Status = ::GetPrivateProfileIntA("VRAgentConfig", "Status", 0, m_CfgFile);
+	int recycleFlag = ::GetPrivateProfileIntA("Device", "RecycleFlag", 0, m_CfgFile);
 
-	if (m_Status == 0)
+	if (recycleFlag == 1)
 	{
-		//向场景控制器上报座位当前的状态是空闲
+		//向场景控制器上报当前机器的状态是可回收状态
 		MessagePackage msgPackage;
-		msgPackage.WriteHeader(ID_VRClientAgent_Notify, c2s_device_status);
+		msgPackage.WriteHeader(ID_VRClientAgent_Notify, c2s_device_status_changed);
 
 		DeviceStatus devStatus;
 		devStatus.seatNumber = m_SeatNumber;
-		devStatus.status = m_Status;
+		devStatus.status = recycleFlag;
 		msgPackage.WriteBody(&devStatus, sizeof(DeviceStatus));
 
 		SceneControllerClient->Send(msgPackage);
 	}
 
 }
-
-
-
 
 
 void NetClient::Disconn()

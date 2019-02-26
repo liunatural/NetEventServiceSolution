@@ -66,15 +66,21 @@ bool VRClientManager::UpdateSeatNumber(int clientID, int seatNumber)
 
 	client->SetSeatNumber(seatNumber);
 
-	CheckUserSeatMap(client);
+	RecreateUserSeatMap(client);
 
 	return true;
 }
 
 
-void VRClientManager::CheckUserSeatMap(VRClient* pClient)
+void VRClientManager::RecreateUserSeatMap(VRClient* pClient)
 {
 	int seatNumber = pClient->GetSeatNumber();
+
+	if (seatNumber == -1)
+	{
+		LOG(error, "绑定用户出粗：终端ID[%d]当前的座位号无效！", pClient->GetLinkID());
+		return;
+	}
 
 	User_Seat_Map userSeatMap = mpSceneCtrl->GetUserSeatMap();
 	User_Seat_Map::iterator it;
@@ -90,6 +96,27 @@ void VRClientManager::CheckUserSeatMap(VRClient* pClient)
 
 	}
 }
+
+
+
+bool VRClientManager::ResetVRClientAgent(int clientID, int seatNumber)
+{
+	boost::mutex::scoped_lock lock(mMutex);
+
+	VRClient* client = FindVRClient(clientID);
+	if (NULL == client || client->GetSeatNumber() != seatNumber)
+	{
+		LOG(error, "[UpdateSeatNumber] 回收座席号出错：终端ID[%d]，座席号[%d] 不存在！", clientID, seatNumber);
+		return false;
+	}
+
+	client->SetUserID(NULL, 0);
+	client->SetBoundUser(false);
+
+	return true;
+
+}
+
 
 bool VRClientManager::BindUserIDToVRClient( char* userid, int len, VRClient** client)
 {
