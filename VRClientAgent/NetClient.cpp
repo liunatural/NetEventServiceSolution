@@ -203,6 +203,8 @@ void NetClient::HandleDeviceStatus()
 		msgPackage.WriteBody(&devStatus, sizeof(DeviceStatus));
 
 		SceneControllerClient->Send(msgPackage);
+
+		::WritePrivateProfileStringA("Device", "RecycleFlag", "2", m_CfgFile);
 	}
 
 }
