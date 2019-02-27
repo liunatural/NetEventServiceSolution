@@ -1,20 +1,20 @@
 //**************************************************************************
-//  File......... : VRSceneController.cpp
+//  File......... : VRHostController.cpp
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-11 
-//  Description.. : Implementation file of the class VRSceneController used as business logics process
-//							of VR Scene Controller server.
+//  Description.. : Implementation file of the class VRHostController used as business logics process
+//							of VR Host Controller server.
 //  History...... : First created by Liu Zhi 2018-11
 //
 //***************************************************************************
 
-#include "VRSceneController.h"
-#include "VRClientManager.h"
+#include "VRHostController.h"
+#include "RemoteClientManager.h"
 #include <direct.h>
 #include <thread>
 
-VRSceneController::VRSceneController()
+VRHostController::VRHostController()
 {
 	confReader = NULL;
 	pNetEventServer = NULL;
@@ -24,7 +24,7 @@ VRSceneController::VRSceneController()
 
 }
 
-VRSceneController::~VRSceneController()
+VRHostController::~VRHostController()
 {
 	if (confReader)
 	{
@@ -52,7 +52,7 @@ VRSceneController::~VRSceneController()
 
 }
 
-int VRSceneController::ReadConfigFile()
+int VRHostController::ReadConfigFile()
 {
 	confReader = CreateConfigReader();
 	char path[MAX_PATH] = { 0 };
@@ -67,7 +67,7 @@ int VRSceneController::ReadConfigFile()
 
 }
 
-int VRSceneController::Start()
+int VRHostController::Start()
 {
 	
 	if (!confReader)
@@ -95,7 +95,7 @@ int VRSceneController::Start()
 
 }
 
-int VRSceneController::CreateVRClientManager()
+int VRHostController::CreateVRClientManager()
 {
 
 	if (!pNetEventServer || strlen(sceneControllerID) == 0)
@@ -104,7 +104,7 @@ int VRSceneController::CreateVRClientManager()
 		return FAIL;
 	}
 
-	clientMgr = new VRClientManager();
+	clientMgr = new RemoteClientManager();
 
 	clientMgr->SetNetworkService(pNetEventServer);
 	clientMgr->SetSceneController(this);
@@ -114,7 +114,7 @@ int VRSceneController::CreateVRClientManager()
 }
 
 
-void VRSceneController::Run()
+void VRHostController::Run()
 {
 	while (true)
 	{
@@ -125,7 +125,7 @@ void VRSceneController::Run()
 }
 
 
-int VRSceneController::CreateUserSeatMap()
+int VRHostController::CreateUserSeatMap()
 {
 	if (!m_pCSVFile)
 	{
@@ -162,7 +162,7 @@ int VRSceneController::CreateUserSeatMap()
 	return ret;
 }
 
-void VRSceneController::HandleNetEventFromClient()
+void VRHostController::HandleNetEventFromClient()
 {
 
 	MsgQueue& msgQ = pNetEventServer->GetMsgQueue();
@@ -180,9 +180,8 @@ void VRSceneController::HandleNetEventFromClient()
 		{
 			case link_connected:
 			{
-
-				VRClient*  pClient = new VRClient(cid);
-				clientMgr->AddVRClient(pClient);
+				RemoteClient*  pClient = new RemoteClient(cid);
+				clientMgr->AddRemoteClient(pClient);
 
 				clientMgr->SendCmd(cid, link_connected, 0, NULL, 0);
 
@@ -190,7 +189,7 @@ void VRSceneController::HandleNetEventFromClient()
 			}
 			case  link_disconnected:
 			{
-				clientMgr->DeleteVRClientFromList(cid);
+				clientMgr->DeleteRemoteClient(cid);
 
 				break;
 			}
@@ -200,20 +199,7 @@ void VRSceneController::HandleNetEventFromClient()
 				{
 					int seatNum = *(int*)pack->body();
 
-					bool bRet = clientMgr->UpdateSeatNumber(cid, seatNum);
-				
-					////如果场景控制器重启后，须还原终端代理上的配置文件的机器状态码
-					//User_Seat_Map::iterator it = m_USM.find(seatNum);
-					//if (it != m_USM.end())
-					//{
-					//	//向终端代理发送机器状态：used
-					//	MessagePackage package;
-					//	package.WriteHeader(ID_SceneCntrl_Notify, s2c_device_status_changed);
-					//	char stat = '1';
-					//	package.WriteBody(&stat, sizeof(char));
-					//	clientMgr->SendMsg(cid, package);
-					//}
-
+					bool bRet = clientMgr->AssignSeatNumberToClient(cid, seatNum);
 				}
 				else if (c2s_tell_user_id == cmdID)		//处理胶囊体发来的消息
 				{
@@ -224,10 +210,10 @@ void VRSceneController::HandleNetEventFromClient()
 					char* userid = pack->body();
 					int userid_len = pack->GetBodyLength();
 				
-					VRClient *client = NULL;
+					RemoteClient *client = NULL;
 
-					//绑定userid号到一个VR终端
-					bool bRet = clientMgr->BindUserIDToVRClient(userid, userid_len, &client);
+					//绑定userID号到一个远程终端对象上
+					bool bRet = clientMgr->BindUserIDToRemoteClient(userid, userid_len, &client);
 					if (bRet)
 					{
 						int seatNumber = client->GetSeatNumber();
@@ -280,9 +266,9 @@ void VRSceneController::HandleNetEventFromClient()
 					int seatNum = pDevStatus->seatNumber;
 					int stats = pDevStatus->status;
 
-					if (1 == stats)
+					if (DeviceState::RecycleEnable == stats)
 					{
-						clientMgr->ResetVRClientAgent(cid, seatNum);
+						clientMgr->ReclaimRemoteClient(cid, seatNum);
 					}
 				}
 			}

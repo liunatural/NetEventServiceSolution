@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapsuleClient", "CapsuleCli
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CopyVRClientAgentPackage", "CopyVRClientAgentPackage\CopyVRClientAgentPackage.vcxproj", "{18AED27F-BD75-4ADF-B5B8-7A88FAB5B67F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRSceneController", "VRSceneController\VRSceneController.vcxproj", "{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRHostController", "VRHostController\VRHostController.vcxproj", "{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

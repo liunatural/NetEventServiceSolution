@@ -18,16 +18,16 @@
     <ClCompile Include="VRSceneControllerMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VRSceneController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VRClient.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VRClientManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CSVFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoteClientManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VRHostController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,16 +44,16 @@
     <ClInclude Include="..\include\consts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="VRSceneController.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VRClient.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VRClientManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CSVFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteClient.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoteClientManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VRHostController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

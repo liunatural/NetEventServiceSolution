@@ -23,6 +23,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>VRSceneServer</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <ProjectName>VRHostController</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -159,10 +160,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CSVFile.cpp" />
-    <ClCompile Include="VRClient.cpp" />
-    <ClCompile Include="VRClientManager.cpp" />
+    <ClCompile Include="RemoteClient.cpp" />
+    <ClCompile Include="RemoteClientManager.cpp" />
+    <ClCompile Include="VRHostController.cpp" />
     <ClCompile Include="VRSceneControllerMain.cpp" />
-    <ClCompile Include="VRSceneController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\consts.h" />
@@ -170,9 +171,9 @@
     <ClInclude Include="..\include\NetEventService.h" />
     <ClInclude Include="..\include\protocol.h" />
     <ClInclude Include="CSVFile.h" />
-    <ClInclude Include="VRClient.h" />
-    <ClInclude Include="VRClientManager.h" />
-    <ClInclude Include="VRSceneController.h" />
+    <ClInclude Include="RemoteClient.h" />
+    <ClInclude Include="RemoteClientManager.h" />
+    <ClInclude Include="VRHostController.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

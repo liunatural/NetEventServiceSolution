@@ -9,7 +9,7 @@
 //***************************************************************************
 
 #include "NetEventService.h"
-#include "VRSceneController.h"
+#include "VRHostController.h"
 #include <thread>
 
 int main()
@@ -20,7 +20,7 @@ int main()
 	InitLogger("Log/SceneController");
 
 
-	VRSceneController vrSceneController;
+	VRHostController vrSceneController;
 
 
 	//*****∂¡»°≈‰÷√Œƒº˛*******//

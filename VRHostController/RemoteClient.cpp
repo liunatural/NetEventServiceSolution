@@ -1,28 +1,28 @@
 //**************************************************************************
-//  File......... : .cpp
+//  File......... : RemoteClient.cpp
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-11 
-//  Description.. : Implementation file of the class NetEventServer used as .
+//  Description.. : Implementation class file of the RemoteClient.
 //  History...... : First created by Liu Zhi 2018-11
 //
 //***************************************************************************
 
-#include "VRClient.h"
+#include "RemoteClient.h"
 
-VRClient::VRClient(LinkID linkID)
+RemoteClient::RemoteClient(LinkID linkID)
 {
-	m_UserType			= VRClientAgent;
+	m_ClientType			= VRClientAgent;
 	bBoundUser		= false;
 	m_LinkID			= linkID;
 }
 
 
-VRClient::~VRClient()
+RemoteClient::~RemoteClient()
 {
 }
 
-void VRClient::SetUserID(char* userid, int len)
+void RemoteClient::AssignUserID(char* userid, int len)
 {
 	
 	if (len > USER_ID_LENGTH)

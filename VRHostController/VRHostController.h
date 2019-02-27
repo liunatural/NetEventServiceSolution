@@ -1,10 +1,10 @@
 //**************************************************************************
-//  File......... : VRSceneController.h
+//  File......... : VRHostController.h
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-11 
-//  Description.. : Head file of the VRSceneController class used as business logics process
-//							of VR Scene Controller server.
+//  Description.. : Head file of the VRHostController class used as business logics process
+//							of VR Host Controller server.
 //  History...... : First created by Liu Zhi 2018-11
 //
 //***************************************************************************
@@ -14,12 +14,12 @@
 #include "protocol.h"
 #include "CSVFile.h"
 
-class VRClientManager;
-class VRSceneController
+class RemoteClientManager;
+class VRHostController
 {
 public:
-	VRSceneController();
-	virtual ~VRSceneController();
+	VRHostController();
+	virtual ~VRHostController();
 
 	int ReadConfigFile();
 	int Start();
@@ -36,7 +36,7 @@ private:
 private:
 	ConfigService			*confReader;
 	NetEvtServer			*pNetEventServer;		//net server
-	VRClientManager	*clientMgr;
+	RemoteClientManager	*clientMgr;
 	CSVFile					* m_pCSVFile;
 	User_Seat_Map		m_USM;
 

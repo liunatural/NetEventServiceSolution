@@ -57,3 +57,10 @@ enum UserState
 	state_stop_present_flowers,			//玩家献花	
 };
 
+//远程终端机的状态
+enum DeviceState
+{
+	RecycleDisable	= 0,					//不可回收
+	RecycleEnable	= 1,					//可回收
+	Recycling			= 2,					//正在回收中
+};
