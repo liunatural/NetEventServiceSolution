@@ -114,7 +114,8 @@
       <AdditionalDependencies>NetEventService.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName).exe ..\..\..\Projects\NetEventServiceSolution\Bin\</Command>
+      <Command>copy $(OutDir)$(TargetName).exe ..\..\..\Projects\NetEventServiceSolution\Bin\
+copy $(OutDir)$(TargetName).xml ..\..\..\Projects\NetEventServiceSolution\Bin\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -163,7 +164,7 @@
     <ClCompile Include="RemoteClient.cpp" />
     <ClCompile Include="RemoteClientManager.cpp" />
     <ClCompile Include="VRHostController.cpp" />
-    <ClCompile Include="VRSceneControllerMain.cpp" />
+    <ClCompile Include="VRHostControllerMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\consts.h" />

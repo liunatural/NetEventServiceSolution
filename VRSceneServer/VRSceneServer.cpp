@@ -53,7 +53,7 @@ int VRSceneServer::ReadConfigFile()
 	confReader = CreateConfigReader();
 	char path[MAX_PATH] = { 0 };
 	_getcwd(path, MAX_PATH);
-	strcat(path, "/SceneService.xml");
+	strcat(path, "/VRSceneServer.xml");
 	bool ret = confReader->OpenFile(path);
 	if (!ret)
 	{

@@ -74,7 +74,7 @@ enum
 	c2s_tell_user_id,											//*****即将废除*****
 
 
-	c2s_device_status_changed,							//机器状态： free, used
+	c2s_device_status_changed,							//设备状态 
 	c2s_tell_user_info,
 
 
@@ -161,7 +161,7 @@ struct  FaceModel
 //存储用户基本描述信息
 struct  ProfileInfo
 {
-	char SceneServerID[SCENE_SERVER_ID_LENGTH + 1] = {0};
+	char SceneServerID[SERVER_ID_LENGTH + 1] = {0};
 	char UserID[USER_ID_LENGTH + 1] = { 0 };
 	int mSeatNumber;
 	FaceModel mFaceModel;
@@ -169,7 +169,7 @@ struct  ProfileInfo
 
 struct UserStateInfo
 {
-	char SceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
+	char SceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
 	int seatNumber;
 	UserState userState;
 };
@@ -177,7 +177,7 @@ struct UserStateInfo
 
 struct LeaveUserInfo
 {
-	char SceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
+	char SceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
 	int mSeatNumber;
 };
 

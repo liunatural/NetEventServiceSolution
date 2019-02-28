@@ -14,10 +14,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NetClient.h">
+    <ClInclude Include="AgentTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AgentTimer.h">
+    <ClInclude Include="ClientAgent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -25,10 +25,10 @@
     <ClCompile Include="AgentTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="VRClientAgent.cpp">
+    <ClCompile Include="ClientAgent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetClient.cpp">
+    <ClCompile Include="ServiceMain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

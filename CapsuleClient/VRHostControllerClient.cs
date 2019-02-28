@@ -5,9 +5,9 @@ using System.Net.Sockets;
 
 namespace CapsuleClient
 {
-    public class SceneControllerClient
+    public class VRHostControllerClient
     {
-        //连接到场景控制服务器
+        //连接到VR主机控制服务器
         public void connectServer(string ip, string port)
         {
             m_client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -57,7 +57,7 @@ namespace CapsuleClient
 
         }
 
-        //处理场景控制器返回的座位号消息包
+        //处理VR主机控制器返回的座位号消息包
         public void GetSeatNumResponseMsg(ref UserInfo usrInfo)
         {
             int len = 0;
@@ -79,7 +79,7 @@ namespace CapsuleClient
                         int msgID = header.id1;
                         int cmdID = header.id2;
 
-                        //处理场景控制器返回的座位号消息包
+                        //处理主机控制器返回的座位号消息包
                         if (msgID == Protocol.ID_SceneCntrl_Notify && cmdID == Protocol.s2c_rsp_seat_num)
                         {
                             //弹出header

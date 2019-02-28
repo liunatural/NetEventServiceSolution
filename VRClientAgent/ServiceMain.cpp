@@ -1,7 +1,7 @@
 #include <stdio.h>
 #pragma comment(lib, "Advapi32")
 
-#include "NetClient.h"
+#include "ClientAgent.h"
 #include "AgentTimer.h"
 #include <thread>
 
@@ -9,17 +9,16 @@
 
 #define SLEEP_TIME 1000
 
-NetClient* g_pNetClient = NULL;
+ClientAgent* g_pClientAgent = NULL;
 
 //bool bStartScanDeviceStatus = false;
 
-void Timer_ScanDeviceStatus(NetClient *pNetClient)
-{
-	io_service io;
-	AgentTimer p(io, pNetClient);
-	io.run();
-}
-
+//void Timer_ScanDeviceStatus(ClientAgent *pNetClient)
+//{
+//	io_service io;
+//	AgentTimer p(io, pNetClient);
+//	io.run();
+//}
 
 
 SERVICE_STATUS ServiceStatus;
@@ -94,14 +93,14 @@ void ServiceMain(int argc, char** argv)
 		//	return;
 		//}
 
-		if (!(g_pNetClient->bConnectedToSceneController))
+		if (!(g_pClientAgent->m_bConnToHostCtlr))
 		{
-			g_pNetClient->Disconn();
-			delete g_pNetClient;
+			g_pClientAgent->Disconn();
+			delete g_pClientAgent;
 			Sleep(SLEEP_TIME);
-			g_pNetClient = new NetClient();
-			g_pNetClient->ReadIniFile();
-			g_pNetClient->ConnectSceneController();
+			g_pClientAgent = new ClientAgent();
+			g_pClientAgent->ReadIniFile();
+			g_pClientAgent->ConnectHostController();
 
 			//bStartScanDeviceStatus = false;
 		}
@@ -110,10 +109,10 @@ void ServiceMain(int argc, char** argv)
 
 			//Sleep(10000);
 
-			g_pNetClient->HandleNetEventFromSceneController();
+			g_pClientAgent->HandleMessage();
 
 			//*****启动定时器获取机器状态*****//
-			g_pNetClient->HandleDeviceStatus();
+			g_pClientAgent->HandleDeviceStatus();
 
 
 			//todo: 需要增加向场景控制器发送机器状态的代码 
@@ -165,19 +164,19 @@ bool InitService() {
 	//*****开启日志系统*****//
 	InitLogger("Log/VRClientAgent");
 
-	g_pNetClient = new NetClient();
-	if (!g_pNetClient)
+	g_pClientAgent = new ClientAgent();
+	if (!g_pClientAgent)
 	{
 		return false;
 	}
 
-	int ret = g_pNetClient->ReadIniFile();
+	int ret = g_pClientAgent->ReadIniFile();
 	if (ret != SUCCESS)
 	{
 		return false;
 	}
 
-	g_pNetClient->ConnectSceneController();
+	g_pClientAgent->ConnectHostController();
 
 	LOG(info, "VR Client Agent Service start.");
 

@@ -6,7 +6,7 @@
 //  Description.. : Implementation file of the class CSVFile used as read/write .csv file and create
 //							user_seat map data.
 //  History...... : First created by Liu Zhi 2018-11
-//
+//								update by Liu Zhi 2019-02
 //***************************************************************************
 
 #include "CSVFile.h"

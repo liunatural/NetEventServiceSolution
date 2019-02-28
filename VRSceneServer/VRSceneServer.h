@@ -30,6 +30,6 @@ private:
 	NetEvtClient		*centerSvrClient;					//中心服务器 net client
 	bool					bConnectCenterSvr;
 	PlayerManager	*playerMgr;
-	char sceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
+	char sceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
 };
 

@@ -6,7 +6,7 @@
 //  Description.. : Head file of the Remote Client class. 
 //
 //  History...... : First created by Liu Zhi 2018-11
-//
+//								update by Liu Zhi 2019-02
 //***************************************************************************
 #pragma once
 #include "protocol.h"

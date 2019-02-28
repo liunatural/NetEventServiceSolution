@@ -12,7 +12,7 @@ public:
 
 	//³¡¾°·þÎñÆ÷ID
 	char* GetSceneServerID() { return mProfileInfo.SceneServerID; }
-	void SetSceneServerID(char* pSceneSvrID) { memcpy(mProfileInfo.SceneServerID, pSceneSvrID, SCENE_SERVER_ID_LENGTH); }
+	void SetSceneServerID(char* pSceneSvrID) { memcpy(mProfileInfo.SceneServerID, pSceneSvrID, SERVER_ID_LENGTH); }
 
 	//bool GetFlvSeqHeaderFlag() { return mFlvSeqHeaderFlag == true; }
 	//void SetFlvSeqHeaderFlag(bool flag) { mFlvSeqHeaderFlag = flag; }

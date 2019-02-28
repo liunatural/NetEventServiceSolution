@@ -1,11 +1,11 @@
 //**************************************************************************
-//  File......... : VRSceneControllerMain.cpp
+//  File......... : VRHostControllerMain.cpp
 //  Project...... : VR                            
 //  Author....... : Liu Zhi                                                 
 //  Date......... : 2018-11 
-//  Description.. : main file of VR Scene Controller server.
-//  History...... : First created by Liu Zhi 2018-11
-//
+//  Description.. : main file of VR Host Controller server.
+//  History...... :	 First created by Liu Zhi 2018-11
+//								update by Liu Zhi 2019-02
 //***************************************************************************
 
 #include "NetEventService.h"
@@ -17,28 +17,28 @@ int main()
 	int ret = 0;
 
 	//*****开启日志系统文件*****//
-	InitLogger("Log/SceneController");
+	InitLogger("Log/HostController");
 
 
-	VRHostController vrSceneController;
+	VRHostController vrHostController;
 
 
 	//*****读取配置文件*******//
-	ret  = vrSceneController.ReadConfigFile();
+	ret  = vrHostController.ReadConfigFile();
 	if (ret == FAIL)
 	{
 		return ret;
 	}
 
 
-	ret = vrSceneController.CreateUserSeatMap();
+	ret = vrHostController.CreateUserSeatMap();
 	if (ret == FAIL)
 	{
 		return ret;
 	}
 
-	//*****启动场景服务器*****//
-	ret = vrSceneController.Start();
+	//*****启动VR主机控制器*****//
+	ret = vrHostController.Start();
 	if (ret == FAIL)
 	{
 		return ret;
@@ -48,7 +48,7 @@ int main()
 
 
 	//*****创建用户管理器*****//
-	ret= vrSceneController.CreateVRClientManager();
+	ret= vrHostController.CreateVRClientManager();
 	if (ret == FAIL)
 	{
 		return ret;
@@ -57,7 +57,7 @@ int main()
 
 
 	//*****进行消息处理*****//
-	vrSceneController.Run();
+	vrHostController.Run();
 
     return SUCCESS;
 }

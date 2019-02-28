@@ -5,7 +5,7 @@
 //  Date......... : 2018-11 
 //  Description.. : Implementation class file of the RemoteClient.
 //  History...... : First created by Liu Zhi 2018-11
-//
+//								update by Liu Zhi 2019-02
 //***************************************************************************
 
 #include "RemoteClient.h"

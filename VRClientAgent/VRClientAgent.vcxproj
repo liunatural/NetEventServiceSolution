@@ -149,12 +149,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AgentTimer.h" />
-    <ClInclude Include="NetClient.h" />
+    <ClInclude Include="ClientAgent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AgentTimer.cpp" />
-    <ClCompile Include="NetClient.cpp" />
-    <ClCompile Include="VRClientAgent.cpp" />
+    <ClCompile Include="ClientAgent.cpp" />
+    <ClCompile Include="ServiceMain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

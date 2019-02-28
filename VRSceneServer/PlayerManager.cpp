@@ -372,7 +372,7 @@ void PlayerManager::BroadcastUserState(int plyId, int msgID, UserState userState
 	}
 
 	UserStateInfo usrStatInfo;
-	memcpy(usrStatInfo.SceneServerID, mSceneServerID, SCENE_SERVER_ID_LENGTH);
+	memcpy(usrStatInfo.SceneServerID, mSceneServerID, SERVER_ID_LENGTH);
 	usrStatInfo.seatNumber = ply->GetSeatNumber();
 	usrStatInfo.userState = userState;
 

@@ -6,17 +6,13 @@
 //  Description.. : Implementation file of the class RemoteClientManager used as the remote client  
 //							management of VR host controller.
 //  History...... : First created by Liu Zhi 2018-11
-//
+//								update by Liu Zhi 2019-02
 //***************************************************************************
-
-
 #include "RemoteClientManager.h"
 #include "VRHostController.h"
 
-
 RemoteClientManager::RemoteClientManager()
 {
-
 }
 
 
@@ -58,8 +54,6 @@ bool RemoteClientManager::DeleteRemoteClient(int& clientID)
 }
 
 
-
-
 //bool VRClientManager::DeleteRemoteClient(int& clientID)
 //{
 //	VRClient* client = NULL;
@@ -84,7 +78,7 @@ bool RemoteClientManager::AssignSeatNumberToClient(int clientID, int seatNumber)
 	RemoteClient* client = FindClient(clientID);
 	if (NULL == client)
 	{
-		LOG(error, "[AssignSeatNumberToClient] 指定座位号给远程终端对象出错：终端ID[%d]不存在！", clientID);
+		LOG(error, "[AssignSeatNumberToClient] 指定座位号给VR终端对象出错：终端ID[%d]不存在！", clientID);
 		return false;
 	}
 
@@ -102,7 +96,7 @@ void RemoteClientManager::RecreateUserSeatMap(RemoteClient* pClient)
 
 	if (seatNumber == -1)
 	{
-		LOG(error, "绑定用户出粗：终端ID[%d]当前的座位号无效！", pClient->GetLinkID());
+		LOG(error, "绑定用户ID出错: VR终端当前的座位号[%d]无效！", seatNumber);
 		return;
 	}
 
@@ -129,7 +123,7 @@ bool RemoteClientManager::ReclaimRemoteClient(int clientID, int seatNumber)
 	RemoteClient* client = FindClient(clientID);
 	if (NULL == client || client->GetSeatNumber() != seatNumber)
 	{
-		LOG(error, "[ReclaimRemoteClient] 回收远程终端出错：终端ID[%d]或座席号[%d] 不存在！", clientID, seatNumber);
+		LOG(error, "[ReclaimRemoteClient] 回收VR主机出错：终端ID[%d]或座席号[%d] 不存在！", clientID, seatNumber);
 		return false;
 	}
 
@@ -148,7 +142,7 @@ bool RemoteClientManager::BindUserIDToRemoteClient( char* userid, int len, Remot
 	*ppClient = GetFreeRemoteClient();
 	if (NULL == *ppClient)
 	{
-		LOG(error, "[BindUserIDToRemoteClient] 绑定用户ID出错：没有发现可用的远程终端对象！");
+		LOG(error, "[BindUserIDToRemoteClient] 绑定用户ID出错：没有空闲的VR主机提供给用户[%s]使用！", userid);
 		return false;
 	}
 
@@ -157,7 +151,6 @@ bool RemoteClientManager::BindUserIDToRemoteClient( char* userid, int len, Remot
 
 	return true;
 }
-
 
 
 bool RemoteClientManager::UpdateClientType(int clientID, UserType userType)
@@ -175,7 +168,6 @@ bool RemoteClientManager::UpdateClientType(int clientID, UserType userType)
 
 	return true;
 }
-
 
 
 bool RemoteClientManager::SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len)
@@ -199,10 +191,6 @@ bool RemoteClientManager::SendMsg(LinkID& linkID, const MessagePackage& msgPacka
 {
 		return mpService->Send(linkID, (MessagePackage)msgPackage);
 }
-
-
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,46 +1,46 @@
-#include "NetClient.h"
+#include "ClientAgent.h"
 #include <thread>
 #include <windows.h>
 
-NetClient* g_pSceneController = NULL;
+ClientAgent* g_pSceneController = NULL;
 
-void __stdcall  OnConnectEvent(int& msgID)
+void __stdcall  ConnEveCallback(int& msgID)
 {
 	if (g_pSceneController)
 	{
-		return g_pSceneController->OnConnectSceneController(msgID);
+		return g_pSceneController->OnConnectHostController(msgID);
 	}
 }
 
-NetClient::NetClient()
+ClientAgent::ClientAgent()
 {
-	SceneControllerClient = CreateNetEvtClient();
-	SceneControllerClient->SetEventCallback(OnConnectEvent);
+	m_pHostCtlrNetClient = CreateNetEvtClient();
+	m_pHostCtlrNetClient->SetEventCallback(ConnEveCallback);
 
-	bConnectedToSceneController = false;
+	m_bConnToHostCtlr = false;
 
 	g_pSceneController = this;
 }
 
-NetClient::~NetClient()
+ClientAgent::~ClientAgent()
 {
-	if (SceneControllerClient)
+	if (m_pHostCtlrNetClient)
 	{
-		delete SceneControllerClient;
-		SceneControllerClient = NULL;
+		delete m_pHostCtlrNetClient;
+		m_pHostCtlrNetClient = NULL;
 	}
 }
 
 
-int NetClient::ReadIniFile()
+int ClientAgent::ReadIniFile()
 {
 
 	GetModuleFileNameA(NULL, m_CfgFile, MAX_PATH);
 	(strrchr(m_CfgFile, '\\'))[0] = 0; 
 	strcat(m_CfgFile, "\\VRAgentConfig.ini");
 
-	::GetPrivateProfileStringA("SceneController", "IP", "Error", m_SceneControllerIP, 16, m_CfgFile);
-	::GetPrivateProfileStringA("SceneController", "port", "-1", m_SceneControllerPort, 6, m_CfgFile);
+	::GetPrivateProfileStringA("VRHostController", "IP", "Error", m_HostControllerIP, IP_ADDR_LENGTH, m_CfgFile);
+	::GetPrivateProfileStringA("VRHostController", "port", "-1", m_HostControllerPort, IP_PORT_LENGTH, m_CfgFile);
 
 	m_SeatNumber = ::GetPrivateProfileIntA("VRAgentConfig", "SeatNmber", -1, m_CfgFile);
 
@@ -49,22 +49,22 @@ int NetClient::ReadIniFile()
 }
 
 
-int NetClient::ConnectSceneController()
+int ClientAgent::ConnectHostController()
 {
 
-	if (SceneControllerClient->Connect(m_SceneControllerIP, m_SceneControllerPort) != 0)
+	if (m_pHostCtlrNetClient->Connect(m_HostControllerIP, m_HostControllerPort) != 0)
 	{
-		LOG(error, "初始化与场景控制服务器的连接时出现错误!");
+		LOG(error, "初始化与VR主机控制服务器的连接时出现错误!");
 		return ERR_CONNECT_CENTER_SERVER;
 	}
 
 
-	LOG(info, "******正在开始与场景控制服务器连接......");
-	SceneControllerClient->Start();
+	LOG(info, "******正在开始与VR主机控制服务器连接......");
+	m_pHostCtlrNetClient->Start();
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	if (bConnectedToSceneController)
+	if (m_bConnToHostCtlr)
 	{
 		return SUCCESS;
 	}
@@ -75,45 +75,32 @@ int NetClient::ConnectSceneController()
 
 }
 
-
-//void NetClient::Run()
-//{
-//	while (true)
-//	{
-//
-//		HandleNetEventFromSceneController();
-//
-//		std::this_thread::sleep_for(std::chrono::milliseconds(1));
-//	}
-//}
-
-
-void NetClient::OnConnectSceneController(int& msgID)
+void ClientAgent::OnConnectHostController(int& msgID)
 {
 	if (link_connected == msgID)
 	{
-		LOG(info, "连接场景控制服务器成功！");
-		bConnectedToSceneController = true;
+		LOG(info, "连接VR主机控制服务器成功！");
+		m_bConnToHostCtlr = true;
 	}
 	else if (link_server_closed == msgID)
 	{
-		LOG(error, "场景控制服务器端断开了连接！");
-		bConnectedToSceneController = false;
+		LOG(error, "VR主机控制服务器端断开了连接！");
+		m_bConnToHostCtlr = false;
 	}
 	else if (link_server_failed == msgID)
 	{
-		LOG(info, "连接场景控制服务器失败！");
-		bConnectedToSceneController = false;
+		LOG(info, "连接VR主机控制服务器失败！");
+		m_bConnToHostCtlr = false;
 	}
 }
 
 
 
-void NetClient::HandleNetEventFromSceneController()
+void ClientAgent::HandleMessage()
 {
-	if (bConnectedToSceneController)
+	if (m_bConnToHostCtlr)
 	{
-		MsgQueue& msgQ = SceneControllerClient->GetMsgQueue();
+		MsgQueue& msgQ = m_pHostCtlrNetClient->GetMsgQueue();
 		int msgAmount = msgQ.GetCount();
 
 		for (int i = 0; i < msgAmount; i++)
@@ -127,13 +114,13 @@ void NetClient::HandleNetEventFromSceneController()
 			{
 				case link_connected:
 				{
-					LOG(info, "*****场景控制器返回连接成功消息！");
+					LOG(info, "*****VR主机控制器返回连接成功消息！");
 
-					//向场景控制器上报座位号
+					//向VR主机控制器上报座位号
 					MessagePackage msgPackage;
 					msgPackage.WriteHeader(ID_User_Login, c2s_tell_seat_num);
 					msgPackage.WriteBody(&m_SeatNumber, sizeof(int));
-					SceneControllerClient->Send(msgPackage);
+					m_pHostCtlrNetClient->Send(msgPackage);
 
 					//重置物理机状态为不可回收状态
 					::WritePrivateProfileStringA("Device", "RecycleFlag", "0", m_CfgFile);
@@ -187,13 +174,13 @@ void NetClient::HandleNetEventFromSceneController()
 	}//if
 }
 
-void NetClient::HandleDeviceStatus()
+void ClientAgent::HandleDeviceStatus()
 {
 	int recycleFlag = ::GetPrivateProfileIntA("Device", "RecycleFlag", 0, m_CfgFile);
 
 	if (recycleFlag == 1)
 	{
-		//向场景控制器上报当前机器的状态是可回收状态
+		//向VR主机控制器上报当前机器的状态是可回收状态
 		MessagePackage msgPackage;
 		msgPackage.WriteHeader(ID_VRClientAgent_Notify, c2s_device_status_changed);
 
@@ -202,7 +189,7 @@ void NetClient::HandleDeviceStatus()
 		devStatus.status = recycleFlag;
 		msgPackage.WriteBody(&devStatus, sizeof(DeviceStatus));
 
-		SceneControllerClient->Send(msgPackage);
+		m_pHostCtlrNetClient->Send(msgPackage);
 
 		::WritePrivateProfileStringA("Device", "RecycleFlag", "2", m_CfgFile);
 	}
@@ -210,8 +197,8 @@ void NetClient::HandleDeviceStatus()
 }
 
 
-void NetClient::Disconn()
+void ClientAgent::Disconn()
 {
-	SceneControllerClient->Disconnect();
+	m_pHostCtlrNetClient->Disconnect();
 }
 

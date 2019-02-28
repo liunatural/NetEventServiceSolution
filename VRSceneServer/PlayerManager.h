@@ -17,7 +17,7 @@ public:
 	bool GetUserVisibilityExternal() { return user_visible_flag; }
 	void SetUserVisibilityExternal(bool flag) {	user_visible_flag = flag; 	}
 
-	void SetSceneServerID(char* pSceneSvrID) { memcpy(mSceneServerID, pSceneSvrID, SCENE_SERVER_ID_LENGTH); }
+	void SetSceneServerID(char* pSceneSvrID) { memcpy(mSceneServerID, pSceneSvrID, SERVER_ID_LENGTH); }
 
 	//设置或者获取与中心服务器的网络连接服务
 	NetEvtClient*& GetCenterSvrConnection() { return mpConnToCenterSvr; };
@@ -102,6 +102,6 @@ private:
 	NetEvtClient* mpConnToCenterSvr;
 	bool user_visible_flag;						 //用户是否能够跨场景服务器可见的标志
 	char user_list_buffer[MessagePackage::max_body_length] = { 0 };
-	char mSceneServerID[SCENE_SERVER_ID_LENGTH + 1] = { 0 };
+	char mSceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
 };
 

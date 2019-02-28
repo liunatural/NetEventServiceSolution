@@ -113,7 +113,8 @@
       <AdditionalDependencies>NetEventService.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutDir)$(TargetName).exe ..\..\..\Projects\NetEventServiceSolution\Bin\</Command>
+      <Command>copy $(OutDir)$(TargetName).exe ..\..\..\Projects\NetEventServiceSolution\Bin\
+copy $(OutDir)$(TargetName).xml ..\..\..\Projects\NetEventServiceSolution\Bin\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

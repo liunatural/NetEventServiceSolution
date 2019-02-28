@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
     <Server>
-      <port>10001</port>
+      <port>10002</port>
 	  <maxlinks>100</maxlinks>
-      <name>SceneCntl-Beijing-01</name>
+      <name>VRHostCntl-Beijing-01</name>
     </Server>
 </root>
