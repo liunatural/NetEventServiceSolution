@@ -32,7 +32,7 @@ Channel::~Channel()
 	if (m_fd != -1)
 	{
 		evutil_closesocket(m_fd);
-		bufferevent_free(m_bev);
+		//bufferevent_free(m_bev);
 	}
 
 	if (m_readBuffer)

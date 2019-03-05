@@ -8,11 +8,17 @@
 //  History...... : First created by Liu Zhi 2018-11
 //								update by Liu Zhi 2019-02
 //***************************************************************************
+#include <direct.h>
+#include <thread>
+
+#ifdef _WINDOWS
+#include  "../VRHostControllerUI/VRHostControllerUIDlg.h"
+#endif
 
 #include "VRHostController.h"
 #include "RemoteClientManager.h"
-#include <direct.h>
-#include <thread>
+#include "RemoteClient.h"
+#include "Util.h"
 
 VRHostController::VRHostController()
 {
@@ -22,6 +28,21 @@ VRHostController::VRHostController()
 
 	m_pCSVFile = NULL;
 
+	bStopFlag = false;
+
+}
+
+VRHostController::VRHostController(CVRHostControllerUIDlg *pUIDlg)
+{
+	m_pVRHostControllerUIDlg = pUIDlg;
+	
+	m_pConfReader = NULL;
+	m_pNetEventServer = NULL;
+	m_pClientMgr = NULL;
+
+	m_pCSVFile = NULL;
+
+	bStopFlag = false;
 }
 
 VRHostController::~VRHostController()
@@ -76,13 +97,13 @@ int VRHostController::Start()
 		return FAIL;
 	}
 	
-	int port = m_pConfReader->GetInt("root.Server.port");
-	int maxlinks = m_pConfReader->GetInt("root.Server.maxlinks");
+	m_port = m_pConfReader->GetInt("root.Server.port");
+	m_maxLinks = m_pConfReader->GetInt("root.Server.maxlinks");
 	m_pConfReader->GetStr("root.Server.name", m_HostCtlrID);
 
 	m_pNetEventServer = CreateNetEvtServer();
 
-	bool bRet = m_pNetEventServer->Start(port, maxlinks);
+	bool bRet = m_pNetEventServer->Start(m_port, m_maxLinks);
 	if (bRet == false)
 	{
 		return FAIL;
@@ -107,7 +128,7 @@ int VRHostController::CreateVRClientManager()
 	m_pClientMgr = new RemoteClientManager();
 
 	m_pClientMgr->SetNetworkService(m_pNetEventServer);
-	m_pClientMgr->SetSceneController(this);
+	m_pClientMgr->SetHostController(this);
 
 	return SUCCESS;
 
@@ -118,12 +139,22 @@ void VRHostController::Run()
 {
 	while (true)
 	{
+		if (bStopFlag == true)
+		{
+			break;
+		}
+		
 		HandleNetEventFromClient();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
 
+
+bool VRHostController::Stop()
+{
+	return m_pNetEventServer->Stop();
+}
 
 int VRHostController::CreateUserSeatMap()
 {
@@ -181,10 +212,13 @@ void VRHostController::HandleNetEventFromClient()
 			case link_connected:
 			{
 				RemoteClient*  pClient = new RemoteClient(cid);
-				m_pClientMgr->AddRemoteClient(pClient);
+				pClient->SaveIP(pack->body(), pack->GetBodyLength());
 
+				m_pClientMgr->AddRemoteClient(pClient);
 				m_pClientMgr->SendCmd(cid, link_connected, 0, NULL, 0);
 
+				SendLogMsg(m_pClientMgr->GetOutputLog());
+				
 				break;
 			}
 			case  link_disconnected:
@@ -199,7 +233,7 @@ void VRHostController::HandleNetEventFromClient()
 				{
 					int seatNum = *(int*)pack->body();
 
-					bool bRet = m_pClientMgr->AssignSeatNumberToClient(cid, seatNum);
+					bool bRet = m_pClientMgr->AssignSeatNumToVRHost(cid, seatNum);
 				}
 				else if (c2s_tell_user_id == cmdID)		//处理胶囊体发来的消息
 				{
@@ -210,9 +244,8 @@ void VRHostController::HandleNetEventFromClient()
 					int len_userID = pack->GetBodyLength();
 					CopyData(m_UserID, pack->body(), len_userID, USER_ID_LENGTH);
 
-					//绑定userID号到一个远程终端对象上
 					RemoteClient *client = NULL;
-					bool bRet = m_pClientMgr->BindUserIDToRemoteClient(m_UserID, len_userID, &client);
+					bool bRet = m_pClientMgr->AllocateVRHostForUser(m_UserID, len_userID, &client);
 					if (bRet)
 					{
 						int seatNumber = client->GetSeatNumber();
@@ -235,7 +268,7 @@ void VRHostController::HandleNetEventFromClient()
 						m_pClientMgr->SendMsg(client->GetLinkID(), package1);
 
 						//向csv文件写入SeatNumber-UserID映射关系
-						m_pCSVFile->Write(seatNumber, usrInfo.UserID);
+						m_pCSVFile->Write(seatNumber, usrInfo.UserID, client->GetIP());
 					}
 					else
 					{
@@ -267,7 +300,7 @@ void VRHostController::HandleNetEventFromClient()
 
 					if (DeviceState::RecycleEnable == stats)
 					{
-						m_pClientMgr->ReclaimRemoteClient(cid, seatNum);
+						m_pClientMgr->ReclaimVRHost(cid, seatNum);
 					}
 				}
 			}
@@ -282,25 +315,15 @@ void VRHostController::HandleNetEventFromClient()
 }
 
 
-bool VRHostController::CopyData(char* dest, char* source, int len, int max_len)
+void VRHostController::SendLogMsg(Output_Log& outLog)
 {
 
-	if (dest == NULL || source == NULL || len <= 0 || max_len <= 0)
-	{
-		return false;
-	}
+	LOG(outLog.m_logType, outLog.m_logStr.c_str());
 
-	if (len > max_len)
-	{
-		len = max_len;
-	}
-
-	memset(dest, 0, max_len);
-
-	if (len > 0)
-	{
-		memcpy(dest, source, len);
-	}
-
-	return true;
+#ifdef _WINDOWS
+	m_pVRHostControllerUIDlg->SendUserConnectMsg(&outLog);
+#endif
 }
+
+
+

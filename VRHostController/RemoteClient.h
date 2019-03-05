@@ -9,9 +9,9 @@
 //								update by Liu Zhi 2019-02
 //***************************************************************************
 #pragma once
-#include "protocol.h"
 #include  "Message.h"
-#include "string.h"
+#include "Util.h"
+
 
 class RemoteClient
 {
@@ -29,13 +29,19 @@ public:
 
 	void AssignUserID(char* userid, int len);
 
+	UserInfo* GetUserInfo() { return &m_userInfo; }
 
 	bool IsBoundUser() { return bBoundUser; }
 	void SetUserBindFlag(bool flag) { bBoundUser = flag; }
+
+	void SaveIP(char* ipAddr, int len);
+	char* GetIP() { return m_IP; }
 
 private:
 	LinkID		m_LinkID;
 	UserInfo	m_userInfo;
 	bool			bBoundUser;
 	int				m_ClientType;			//7: VR终端代理， 2: 胶囊客户端
+
+	char			m_IP[IP_ADDR_LENGTH] = { 0 };
 };

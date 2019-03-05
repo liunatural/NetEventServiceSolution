@@ -15,27 +15,26 @@ RemoteClientManager::RemoteClientManager()
 {
 }
 
-
 RemoteClientManager::~RemoteClientManager()
 {
 }
 
-
 void RemoteClientManager::AddRemoteClient(RemoteClient* client)
 {
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(m_RCMgrMutex);
 	push_back(client);
 
-	LOG(info, "终端ID[%d]加入！", client->GetLinkID());
-
+	memset(msgBuf, 0, sizeof(msgBuf));
+	sprintf(msgBuf, "[%s]成功连接VR主机控制器！！！", client->GetIP());
+	m_outLog.m_logType = LOG_TYPE::info;
+	m_outLog.m_logStr = msgBuf;
 }
-
 
 bool RemoteClientManager::DeleteRemoteClient(int& clientID)
 {
 	bool ret = false;
 	RemoteClient* client = NULL;
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(m_RCMgrMutex);
 	for (iterator i = begin(); i != end(); i++)
 	{
 		client = (RemoteClient*)(*i);
@@ -53,32 +52,15 @@ bool RemoteClientManager::DeleteRemoteClient(int& clientID)
 	return ret;
 }
 
-
-//bool VRClientManager::DeleteRemoteClient(int& clientID)
-//{
-//	VRClient* client = NULL;
-//	client = FindClient(clientID);
-//	if (NULL == client)
-//	{
-//		LOG(error, "[DeleteRemoteClient] 出错：终端ID[%d]不存在！", clientID);
-//		return false;
-//	}
-//
-//
-//	DeleteVRClient(clientID);
-//
-//	return true;
-//
-//}
-
-bool RemoteClientManager::AssignSeatNumberToClient(int clientID, int seatNumber)
+bool RemoteClientManager::AssignSeatNumToVRHost(int clientID, int seatNumber)
 {
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(m_RCMgrMutex);
 
 	RemoteClient* client = FindClient(clientID);
 	if (NULL == client)
 	{
-		LOG(error, "[AssignSeatNumberToClient] 指定座位号给VR终端对象出错：终端ID[%d]不存在！", clientID);
+		LOG(error, "[AssignSeatNumberToClient] 出错：VR主机[%d]不存在！", clientID);
+
 		return false;
 	}
 
@@ -89,18 +71,17 @@ bool RemoteClientManager::AssignSeatNumberToClient(int clientID, int seatNumber)
 	return true;
 }
 
-
-void RemoteClientManager::RecreateUserSeatMap(RemoteClient* pClient)
+void RemoteClientManager::RecreateUserSeatMap(RemoteClient* pVRHost)
 {
-	int seatNumber = pClient->GetSeatNumber();
+	int seatNumber = pVRHost->GetSeatNumber();
 
 	if (seatNumber == -1)
 	{
-		LOG(error, "绑定用户ID出错: VR终端当前的座位号[%d]无效！", seatNumber);
+		LOG(error, "[RecreateUserSeatMap]出错: VR主机当前的座位号[%d]无效！", seatNumber);
 		return;
 	}
 
-	User_Seat_Map userSeatMap = mpSceneCtrl->GetUserSeatMap();
+	User_Seat_Map userSeatMap = m_pHostCtlr->GetUserSeatMap();
 	User_Seat_Map::iterator it;
 
 	it = userSeatMap.find(seatNumber);
@@ -108,59 +89,55 @@ void RemoteClientManager::RecreateUserSeatMap(RemoteClient* pClient)
 	if (it != userSeatMap.end())
 	{
 		string userID = it->second;
-		pClient->AssignUserID((char*)userID.c_str(), userID.size());
+		pVRHost->AssignUserID((char*)userID.c_str(), userID.size());
 
-		pClient->SetUserBindFlag(true);
-
+		pVRHost->SetUserBindFlag(true);
 	}
 }
 
-
-bool RemoteClientManager::ReclaimRemoteClient(int clientID, int seatNumber)
+bool RemoteClientManager::ReclaimVRHost(int clientID, int seatNumber)
 {
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(m_RCMgrMutex);
 
-	RemoteClient* client = FindClient(clientID);
-	if (NULL == client || client->GetSeatNumber() != seatNumber)
+	RemoteClient* pVRHostObj = FindClient(clientID);
+	if (NULL == pVRHostObj || pVRHostObj->GetSeatNumber() != seatNumber)
 	{
-		LOG(error, "[ReclaimRemoteClient] 回收VR主机出错：终端ID[%d]或座席号[%d] 不存在！", clientID, seatNumber);
+		LOG(error, "[ReclaimRemoteClient] 出错：VR主机ID[%d]或座席号[%d] 不存在！", clientID, seatNumber);
 		return false;
 	}
 
-	client->AssignUserID(NULL, 0);
-	client->SetUserBindFlag(false);
+	pVRHostObj->AssignUserID(NULL, 0);
+	pVRHostObj->SetUserBindFlag(false);
 
 	return true;
 
 }
 
-
-bool RemoteClientManager::BindUserIDToRemoteClient( char* userid, int len, RemoteClient** ppClient)
+bool RemoteClientManager::AllocateVRHostForUser( char* userid, int len, RemoteClient** ppVRHostObj)
 {
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(m_RCMgrMutex);
 
-	*ppClient = GetFreeRemoteClient();
-	if (NULL == *ppClient)
+	*ppVRHostObj = GetFreeRemoteClient();
+	if (NULL == *ppVRHostObj)
 	{
-		LOG(error, "[BindUserIDToRemoteClient] 绑定用户ID出错：没有空闲的VR主机提供给用户[%s]使用！", userid);
+		LOG(error, "[AllocateVRHostForUser]出错： 没有空闲的VR主机提供给用户[%s]使用！", userid);
 		return false;
 	}
 
-	(*ppClient)->AssignUserID(userid, len);
-	(*ppClient)->SetUserBindFlag(true);
+	(*ppVRHostObj)->AssignUserID(userid, len);
+	(*ppVRHostObj)->SetUserBindFlag(true);
 
 	return true;
 }
-
 
 bool RemoteClientManager::UpdateClientType(int clientID, UserType userType)
 {
 
-	boost::mutex::scoped_lock lock(mMutex);
+	boost::mutex::scoped_lock lock(m_RCMgrMutex);
 	RemoteClient* ply = FindClient(clientID);
 	if (NULL == ply)
 	{
-		LOG(error, "[UpdateClientType] 更新客户端类型出错：终端ID[%d]不存在！", clientID);
+		LOG(error, "[UpdateClientType]出错：客户端[%d]不存在！", clientID);
 		return false;
 	}
 
@@ -168,7 +145,6 @@ bool RemoteClientManager::UpdateClientType(int clientID, UserType userType)
 
 	return true;
 }
-
 
 bool RemoteClientManager::SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len)
 {
@@ -186,14 +162,11 @@ bool RemoteClientManager::SendCmd(LinkID& linkID, int msgID, int cmdID, void* da
 	return SendMsg(linkID, msgPackage);
 }
 
-
 bool RemoteClientManager::SendMsg(LinkID& linkID, const MessagePackage& msgPackage)
 {
-		return mpService->Send(linkID, (MessagePackage)msgPackage);
+		return m_pNetEvSvc->Send(linkID, (MessagePackage)msgPackage);
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////
 RemoteClient* RemoteClientManager::FindClient(int clientID)
 {
 	RemoteClient* client = NULL;
@@ -211,7 +184,6 @@ RemoteClient* RemoteClientManager::FindClient(int clientID)
 
 	return client;
 }
-
 
 RemoteClient*  RemoteClientManager::GetFreeRemoteClient()
 {

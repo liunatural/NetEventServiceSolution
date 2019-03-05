@@ -163,6 +163,7 @@ copy $(OutDir)$(TargetName).xml ..\..\..\Projects\NetEventServiceSolution\Bin\</
     <ClCompile Include="CSVFile.cpp" />
     <ClCompile Include="RemoteClient.cpp" />
     <ClCompile Include="RemoteClientManager.cpp" />
+    <ClCompile Include="Util.cpp" />
     <ClCompile Include="VRHostController.cpp" />
     <ClCompile Include="VRHostControllerMain.cpp" />
   </ItemGroup>
@@ -174,6 +175,7 @@ copy $(OutDir)$(TargetName).xml ..\..\..\Projects\NetEventServiceSolution\Bin\</
     <ClInclude Include="CSVFile.h" />
     <ClInclude Include="RemoteClient.h" />
     <ClInclude Include="RemoteClientManager.h" />
+    <ClInclude Include="Util.h" />
     <ClInclude Include="VRHostController.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -12,11 +12,11 @@
 #include "CSVFile.h"
 #include <windows.h>
 #include <time.h>
+#include "protocol.h"
 
 CSVFile::CSVFile()
 {
 }
-
 
 CSVFile::~CSVFile()
 {
@@ -33,8 +33,9 @@ int CSVFile::ReadUserSeatMap()
 	}
 
 	int seatNumber;
-	char userID[32] = { 0 };
-
+	char userID[USER_ID_LENGTH + 1] = { 0 };
+	char ip[IP_ADDR_LENGTH+ 1] = { 0 };
+	char timeStr[9] = { 0 };
 	while (getline(m_UserSeatMapFile, lineStr))
 	{
 		//stringstream ss(lineStr);
@@ -45,7 +46,7 @@ int CSVFile::ReadUserSeatMap()
 		//while (getline(ss, str, ','))
 		//	lineArray.push_back(str);
 		
-		sscanf(lineStr.c_str(), "%d,%s", &seatNumber, userID);
+		sscanf(lineStr.c_str(), "%d,%[^,],%[^,],%s", &seatNumber, userID, ip, timeStr);
 
 
 		User_Seat_Map::iterator it;
@@ -81,7 +82,7 @@ int CSVFile::OpenFile()
 	(strrchr(modulePath, '\\'))[0] = 0;
 
 	char dateStr[11] = { 0 };
-	GetCurrentSystemTime(dateStr);
+	GetCurrentSystemDate(dateStr);
 
 	sprintf(m_csvFilePath, "%s\\user_seat_map_%s.csv", modulePath, dateStr);
 
@@ -92,21 +93,24 @@ int CSVFile::OpenFile()
 
 }
 
-int CSVFile::Write(int seatNumber, char* userID)
+int CSVFile::Write(int seatNumber, char *userID, char *ip)
 {
 	if (!m_UserSeatMapFile.is_open())
 	{
 		return -1;
 	}
-	
+
+	char timeStr[9] = { 0 };
+	GetCurrentSystemTime(timeStr);
+
 	m_UserSeatMapFile.clear();
 	m_UserSeatMapFile.seekp(0, ios::end);
-	m_UserSeatMapFile << seatNumber  << ',' << userID  << endl;
+	m_UserSeatMapFile << seatNumber  << ',' << userID << ',' << ip << ',' << timeStr << endl;
 	m_UserSeatMapFile.flush();
 	return 0;
 }
 
-void CSVFile::GetCurrentSystemTime(char* dateStr)
+void CSVFile::GetCurrentSystemDate(char* dateStr)
 {
 	struct tm* p_tm;
 	time_t timep;
@@ -115,4 +119,17 @@ void CSVFile::GetCurrentSystemTime(char* dateStr)
 	p_tm = localtime(&timep);
 
 	sprintf(dateStr, "%d-%02d-%02d", (int)p_tm->tm_year + 1900, (int)p_tm->tm_mon + 1, (int)p_tm->tm_mday);
+}
+
+
+
+void CSVFile::GetCurrentSystemTime(char* timeStr)
+{
+	struct tm* p_tm;
+	time_t timep;
+
+	time(&timep);
+	p_tm = localtime(&timep);
+
+	sprintf(timeStr, "%02d:%02d:%02d", p_tm->tm_hour , p_tm->tm_min, p_tm->tm_sec);
 }

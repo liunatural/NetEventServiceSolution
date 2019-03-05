@@ -250,7 +250,7 @@ void NetEventServer::sender_thread_task(NetEventServer *pNetEvtSvr)
 		}
 	}
 
-	LOG(error, "发送线程结束并退出.");
+	LOG(info, "发送线程结束并退出.");
 
 }
 
@@ -427,14 +427,19 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	if (NULL != c)
 	{
 		c->SetIPAddr(item.ip); //保存IP
-		LOG(info, "[%s]登录服务器！当前在线人数: [%d]", item.ip.c_str(), plt->that->GetOnlineAmount());
+
+		char* strIP = (char*)item.ip.c_str();
+		int len = strlen(strIP);
+
+		LOG(info, "[%s]登录服务器！当前在线人数: [%d]", strIP, plt->that->GetOnlineAmount());
 
 		MessagePackage msgPack;
 		msgPack.WriteHeader(link_connected, 0);
+		msgPack.WriteBody(strIP, len);
 		msgPack.SetLinkID(c->GetChannelID());
 
 		plt->that->GetMessageQueueAB()->Push(msgPack);						//返回消息包给应用层，进行用户管理
-		//send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);		//同时向用户发送连接成功的消息
+		//send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);	//同时向用户发送连接成功的消息
 
 		bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c);
 		bufferevent_enable(bev, EV_READ | EV_WRITE);

@@ -11,15 +11,19 @@
 
 #pragma once
 #include "NetEventService.h"
-#include "protocol.h"
 #include "CSVFile.h"
+#include "Util.h"
 
+class CVRHostControllerUIDlg;
 class RemoteClientManager;
+class RemoteClient;
 
 class VRHostController
 {
 public:
+	VRHostController(CVRHostControllerUIDlg *pUIDlg);
 	VRHostController();
+
 	virtual ~VRHostController();
 
 	int ReadConfigFile();
@@ -28,12 +32,18 @@ public:
 	int CreateUserSeatMap();
 	void Run();
 
+	bool  Stop();
+	void SetStopFlag(bool flag) { bStopFlag = flag; }
+
 	User_Seat_Map& GetUserSeatMap() { return m_USM; }
-	bool CopyData(char* dest, char* source, int len, int max_len);
+	RemoteClientManager* GetClientCollection() { 	return m_pClientMgr;	}
+
+	int GetPort() { return m_port; }
+	int GetMaxLinks() { return m_maxLinks; }
 
 private:
 	void HandleNetEventFromClient();
-
+	void SendLogMsg(Output_Log& outLog);
 
 private:
 
@@ -44,7 +54,13 @@ private:
 	NetEvtServer					*m_pNetEventServer;	
 	RemoteClientManager		*m_pClientMgr;
 	CSVFile							*m_pCSVFile;
+
 	User_Seat_Map				m_USM;
+	int									m_port;
+	int									m_maxLinks;
+	volatile bool					bStopFlag;
+
+	CVRHostControllerUIDlg *m_pVRHostControllerUIDlg;
 
 
 };

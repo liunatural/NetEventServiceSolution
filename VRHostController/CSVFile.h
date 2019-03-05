@@ -28,16 +28,17 @@ public:
 	int OpenFile();
 
 	int ReadUserSeatMap();
-	int Write(int seatNumber, char* userID);
+	int Write(int seatNumber, char *userID, char *ip);
 	User_Seat_Map& GetUserSeatMap() { return m_UserSeatMap; }
 
 private:
-	void GetCurrentSystemTime(char* dateStr);
+
+	void GetCurrentSystemDate(char* dateStr);
+	void GetCurrentSystemTime(char* timeStr);
 
 private:
-	char m_csvFilePath[260] = { 0 };
-	fstream m_UserSeatMapFile;
-
+	char					m_csvFilePath[260]	= { 0 };
+	fstream				m_UserSeatMapFile;
 	User_Seat_Map  m_UserSeatMap;
 };
 

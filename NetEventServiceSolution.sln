@@ -17,6 +17,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CopyVRClientAgentPackage", 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRHostController", "VRHostController\VRHostController.vcxproj", "{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VRHostControllerUI", "VRHostControllerUI\VRHostControllerUI.vcxproj", "{67BC2DFC-2259-44AD-88B0-AB03F28F8486}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NetEventSvcTestClientDlg", "NetEventSvcTestClientDlg\NetEventSvcTestClientDlg.vcxproj", "{AFB1E782-F367-4EBB-AFCB-669345314994}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +103,26 @@ Global
 		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x64.Build.0 = Release|x64
 		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x86.ActiveCfg = Release|Win32
 		{C701F6C1-3E40-4F2D-A70B-B754731BD6F3}.Release|x86.Build.0 = Release|Win32
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Debug|x64.ActiveCfg = Debug|x64
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Debug|x64.Build.0 = Debug|x64
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Debug|x86.ActiveCfg = Debug|Win32
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Debug|x86.Build.0 = Debug|Win32
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Release|Any CPU.ActiveCfg = Release|Win32
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Release|x64.ActiveCfg = Release|x64
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Release|x64.Build.0 = Release|x64
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Release|x86.ActiveCfg = Release|Win32
+		{67BC2DFC-2259-44AD-88B0-AB03F28F8486}.Release|x86.Build.0 = Release|Win32
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Debug|x64.ActiveCfg = Debug|x64
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Debug|x64.Build.0 = Debug|x64
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Debug|x86.ActiveCfg = Debug|Win32
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Debug|x86.Build.0 = Debug|Win32
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Release|Any CPU.ActiveCfg = Release|Win32
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Release|x64.ActiveCfg = Release|x64
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Release|x64.Build.0 = Release|x64
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Release|x86.ActiveCfg = Release|Win32
+		{AFB1E782-F367-4EBB-AFCB-669345314994}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

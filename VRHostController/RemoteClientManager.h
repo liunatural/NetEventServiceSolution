@@ -18,54 +18,49 @@ using namespace std;
 
 class VRHostController;
 
-//管理类
 class RemoteClientManager : public std::vector<RemoteClient*>
 {
 public:
 	RemoteClientManager();
 	virtual ~RemoteClientManager();
 
-	void SetNetworkService(NetEvtServer* pService) { mpService = pService; }
-	void SetSceneController(VRHostController* pSceneCtrl) { mpSceneCtrl = pSceneCtrl; }
+	void SetNetworkService(NetEvtServer* pService) { m_pNetEvSvc = pService; }
+	void SetHostController(VRHostController* pHostCtlr) { m_pHostCtlr = pHostCtlr; }
 
 	void AddRemoteClient(RemoteClient* client);
 	bool DeleteRemoteClient(int& clientID);
 
-	//将座位号指定给远程终端
-	bool AssignSeatNumberToClient(int clientID, int seatNumber);
+	//将座位号指定给VR主机对象
+	bool AssignSeatNumToVRHost(int clientID, int seatNumber);
 
-	//根据UserSeatMap表重建客户端的SeatNumber和UserID的映射关系
-	void RecreateUserSeatMap(RemoteClient* pClient);
+	//根据UserSeatMap表重建VR主机对象里的SeatNumber和UserID的映射关系
+	void RecreateUserSeatMap(RemoteClient* pVRHost);
 
-	bool ReclaimRemoteClient(int clientID, int seatNumber);
+	//为用户分配VR主机，并返回VR主机对象实例
+	bool AllocateVRHostForUser(char* userid, int len, RemoteClient** ppVRHostObj);
 
-	//绑定userID到客户端对象上
-	bool BindUserIDToRemoteClient(char* userid, int len, RemoteClient** ppClient);
+	//回收VR主机
+	bool ReclaimVRHost(int clientID, int seatNumber);
 
 	//更新客户端类型
 	bool UpdateClientType(int clientID, UserType userType);
 
 	bool SendCmd(LinkID& linkID, int msgID, int cmdID, void* data, int len);
-
 	bool SendMsg(LinkID& linkID, const MessagePackage& msgPackage);
-
-private:
-	//查找一个用户
 	RemoteClient* FindClient(int clientID);
-
-	////删除一个用户
-	//bool DeleteVRClient(int clientID);
-
-	//获取一个未绑定用户的远程客户端对象
 	RemoteClient*  GetFreeRemoteClient();
 
-public:
-	boost::mutex			mMutex;
-
+	boost::mutex&	GetMutex() {	return m_RCMgrMutex;	}
+	Output_Log&		GetOutputLog() { return m_outLog; }
 private:
-	NetEvtServer *mpService;
-	
-	VRHostController *mpSceneCtrl;
+	boost::mutex			m_RCMgrMutex;
+	NetEvtServer			*m_pNetEvSvc;
+	VRHostController	*m_pHostCtlr;
+	Output_Log			m_outLog;
+
+	char msgBuf[1024] = { 0 };
+
+
 
 };
 
