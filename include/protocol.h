@@ -93,8 +93,11 @@ enum
 	s2c_walk,														//玩家行走命令
 	s2c_rsp_id_verify,
 	s2c_trans_ext_usr_profile,								//传递外部用户描述数据
+	
 	s2c_tell_user_id,											//场景控制器告知用户ID
 	s2c_device_status_changed,							//机器状态： free, used
+	s2c_new_user_online,										//新用户上线
+
 
 	s2s_req_usr_list = 200,
 	//最大协议数值254，大了会出错

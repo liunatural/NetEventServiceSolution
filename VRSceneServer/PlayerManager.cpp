@@ -400,6 +400,51 @@ void PlayerManager::BroadcastUserState(int plyId, int msgID, UserState userState
 }
 
 
+
+
+void PlayerManager::BroadcastNewUserOnline(int plyId)
+{
+	LinkID linkID;
+	Player* ply = NULL;
+	Player* ply1 = NULL;
+
+	ply = FindPlayer(plyId);
+	if (NULL == ply)
+	{
+		LOG(error, "[BroadcastNewUserOnline] error：玩家ID在列表中不存在！");
+		return;
+	}
+
+	if (ply->GetUserType() != VIP) //只广播VIP类型用户的状态
+	{
+		return;
+	}
+
+	UserInfo usrInfo;
+	usrInfo.SeatNumber = ply->GetSeatNumber();
+	memcpy(usrInfo.UserID, ply->mUserID, strlen(ply->mUserID));
+
+	for (iterator i = begin(); i != end(); i++)
+	{
+		ply1 = (Player*)(*i);
+		if (NULL != ply1)
+		{
+			linkID = ply1->GetLinkID();
+			if (linkID == plyId)
+			{
+				continue;
+			}
+
+			SendCmd(linkID, ID_User_Login, s2c_new_user_online, &usrInfo, sizeof(UserInfo));
+		}
+	}
+
+}
+
+
+
+
+
 void PlayerManager::BroadcastExternalUserState(const MessagePackage* pack)
 {
 	SendMsg(*pack);

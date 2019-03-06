@@ -139,10 +139,10 @@ void Message_handle(void *args)
 			case ID_User_Login:
 			{
 
-				if (s2c_upd_user_state == cmd_id)
+				if (s2c_new_user_online == cmd_id)
 				{
-					UserStateInfo usrStatInfo = *(UserStateInfo*)(pack->body());
-					LOG(info, "新用户上线： 座椅号[%d]，当前状态:%d", usrStatInfo.seatNumber, usrStatInfo.userState);
+					UserInfo usrInfo = *(UserInfo*)(pack->body());
+					LOG(info, "新用户上线： 座椅号[%d]，用户ID:%s", usrInfo.SeatNumber, usrInfo.UserID);
 				}
 
 				break;

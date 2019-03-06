@@ -67,6 +67,9 @@ public:
 	//广播用户控制命令
 	void BroadcastControlCmd(int msgID, int cmdID);
 
+	void BroadcastNewUserOnline(int plyId);
+
+
 	//更新玩家位置
 	void UpdatePlayerTransform(int plyId, TransformInfo& transInfo);
 
