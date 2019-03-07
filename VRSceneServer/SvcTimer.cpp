@@ -64,7 +64,7 @@ SvcTimer::~SvcTimer()
 void SvcTimer::handler()
 {
 		//为了防止在发送数据包时有玩家退出引起程序崩溃， 从这个地方加锁
-		boost::mutex::scoped_lock lock(mPlayMgr->mMutex);	
+		boost::mutex::scoped_lock lock(mPlayMgr->GetMutex());	
 
 		SendTransformDataByUserType(VIP);
 		SendTransformDataByUserType(ExternalVIP);
@@ -88,10 +88,10 @@ void SvcTimer::SendTransformDataByUserType(UserType usrType)
 			break;
 		}
 		Player* ply = (Player*)(*i);
-		if (NULL != ply && ply->transInfo.update && (ply->GetUserType() == usrType))
+		if (NULL != ply && ply->GetTransformInfo().update && (ply->GetUserType() == usrType))
 		{
-			memcpy(p, (const void*)&ply->transInfo, sizeof(TransformInfo));
-			ply->transInfo.update = false;
+			memcpy(p, (const void*)&ply->GetTransformInfo(), sizeof(TransformInfo));
+			ply->GetTransformInfo().update = false;
 
 			p += sizeof(TransformInfo);
 			count++;

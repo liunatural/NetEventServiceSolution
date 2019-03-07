@@ -1,6 +1,5 @@
 #include "VRSceneServer.h"
 #include "PlayerManager.h"
-#include <vector>
 #include <direct.h>
 #include <thread>
 
@@ -17,68 +16,65 @@ void __stdcall  OnConnectEvent(int& msgID)
 
 VRSceneServer::VRSceneServer()
 {
-	confReader = NULL;
-	pNetEventServer = NULL;
-	playerMgr = NULL;
+	m_pConfReader = NULL;
+	m_pNetEventServer = NULL;
+	m_pPlayerMgr = NULL;
 
-	bConnectCenterSvr = false;
-	centerSvrClient = NULL;
+	m_bConnectCenterSvr = false;
+	m_pCenterSvrClient = NULL;
 }
 
 VRSceneServer::~VRSceneServer()
 {
-	if (confReader)
+	if (m_pConfReader)
 	{
-		delete confReader;
-		confReader = NULL;
+		delete m_pConfReader;
+		m_pConfReader = NULL;
 	}
 
-	if (pNetEventServer)
+	if (m_pNetEventServer)
 	{
-		delete pNetEventServer;
-		pNetEventServer = NULL;
+		delete m_pNetEventServer;
+		m_pNetEventServer = NULL;
 	}
 
-	if (playerMgr)
+	if (m_pPlayerMgr)
 	{
-		delete playerMgr;
-		playerMgr = NULL;
+		delete m_pPlayerMgr;
+		m_pPlayerMgr = NULL;
 	}
-
-
 }
 
 int VRSceneServer::ReadConfigFile()
 {
-	confReader = CreateConfigReader();
-	char path[MAX_PATH] = { 0 };
-	_getcwd(path, MAX_PATH);
+	m_pConfReader = CreateConfigReader();
+	char path[MAX_PATH_LEN] = { 0 };
+	_getcwd(path, MAX_PATH_LEN);
 	strcat(path, "/VRSceneServer.xml");
-	bool ret = confReader->OpenFile(path);
+	bool ret = m_pConfReader->OpenFile(path);
 	if (!ret)
 	{
 		LOG(error, "配置文件读取失败\n");
 		return FAIL;
 	}
-
 }
 
 int VRSceneServer::Start()
 {
 	
-	if (!confReader)
+	if (!m_pConfReader)
 	{
 		LOG(error, "配置文件对象confReader为NULL！");
 		return FAIL;
 	}
 	
-	int port = confReader->GetInt("root.Server.port");
-	int maxlinks = confReader->GetInt("root.Server.maxlinks");
-	confReader->GetStr("root.Server.name", sceneServerID);
+	int port = m_pConfReader->GetInt("root.Server.port");
+	int maxlinks = m_pConfReader->GetInt("root.Server.maxlinks");
+	m_pConfReader->GetStr("root.Server.name", m_SceneServerID);
 
-	pNetEventServer = CreateNetEvtServer();
+	m_pNetEventServer = CreateNetEvtServer();
 
-	bool bRet = pNetEventServer->Start(port, maxlinks);
+	bool bRet = m_pNetEventServer->Start(port, maxlinks);
 	if (bRet == false)
 	{
 		return FAIL;
@@ -87,7 +83,6 @@ int VRSceneServer::Start()
 	LOG(info, "场景服务器启动成功！");
 
 	return SUCCESS;
-
 }
 
 
@@ -95,18 +90,18 @@ int VRSceneServer::ConnectCenterSvr()
 {
 	char centerServerIP[50] = { 0 };
 	char centerServerPort[50] = { 0 };
-	confReader->GetStr("root.CenterServer.ip", centerServerIP);
-	confReader->GetStr("root.CenterServer.port", centerServerPort);
-	centerSvrClient = CreateNetEvtClient();
-	centerSvrClient->SetEventCallback(OnConnectEvent);
-	if (centerSvrClient->Connect(centerServerIP, centerServerPort) != 0)
+	m_pConfReader->GetStr("root.CenterServer.ip", centerServerIP);
+	m_pConfReader->GetStr("root.CenterServer.port", centerServerPort);
+	m_pCenterSvrClient = CreateNetEvtClient();
+	m_pCenterSvrClient->SetEventCallback(OnConnectEvent);
+	if (m_pCenterSvrClient->Connect(centerServerIP, centerServerPort) != 0)
 	{
 		LOG(error, "初始化中心服务器连接时出现错误!");
 		return ERR_CONNECT_CENTER_SERVER;
 	}
 
 	LOG(info, "正在开始与中心服务器连接......");
-	centerSvrClient->Start();
+	m_pCenterSvrClient->Start();
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
@@ -117,19 +112,18 @@ int VRSceneServer::ConnectCenterSvr()
 int VRSceneServer::CreatePlayerManager()
 {
 
-	if (!pNetEventServer || strlen(sceneServerID) == 0)
+	if (!m_pNetEventServer || strlen(m_SceneServerID) == 0)
 	{
 		LOG(error, "创建用户管理器失败！");
 		return FAIL;
 	}
 
-	playerMgr = new PlayerManager();
+	m_pPlayerMgr = new PlayerManager();
 
-	playerMgr->SetNetworkService(pNetEventServer);
-	playerMgr->SetSceneServerID(sceneServerID);
+	m_pPlayerMgr->SetNetworkService(m_pNetEventServer);
+	m_pPlayerMgr->SetSceneServerID(m_SceneServerID);
 
 	return SUCCESS;
-
 }
 
 
@@ -151,8 +145,8 @@ void VRSceneServer::OnConnectCenterServer(int& msgID)
 	if (link_connected == msgID)
 	{
 		LOG(info, "连接中心服务器成功！");
-		bConnectCenterSvr = true;
-		playerMgr->SetCenterSvrClient(centerSvrClient);
+		m_bConnectCenterSvr = true;
+		m_pPlayerMgr->SetCenterSvrClient(m_pCenterSvrClient);
 	}
 	else if (link_server_closed == msgID)
 	{
@@ -168,7 +162,7 @@ void VRSceneServer::OnConnectCenterServer(int& msgID)
 void VRSceneServer::HandleNetEventFromClient()
 {
 
-	MsgQueue& msgQ = pNetEventServer->GetMsgQueue();
+	MsgQueue& msgQ = m_pNetEventServer->GetMsgQueue();
 	int msgAmount = msgQ.GetCount();
 
 	for (int i = 0; i < msgAmount; i++)
@@ -185,19 +179,17 @@ void VRSceneServer::HandleNetEventFromClient()
 		{
 
 			Player*  ply = new Player(cid);
-			ply->SetSceneServerID(sceneServerID);
-			playerMgr->AddPlayer(ply);
+			ply->SetSceneServerID(m_SceneServerID);
+			m_pPlayerMgr->AddPlayer(ply);
 
-			playerMgr->SendCmd(cid, link_connected, 0, NULL, 0);
-
-			playerMgr->SendUserInfoList(cid);
+			m_pPlayerMgr->SendCmd(cid, link_connected, 0, NULL, 0);
+			m_pPlayerMgr->SendUserInfoList(cid);
 
 			break;
 		}
 		case  link_disconnected:
 		{
-			playerMgr->SendPlayerLeaveMsg(cid);
-
+			m_pPlayerMgr->SendPlayerLeaveMsg(cid);
 			break;
 		}
 		case ID_User_Login:
@@ -207,15 +199,13 @@ void VRSceneServer::HandleNetEventFromClient()
 				UserInfo *usrInfo = (UserInfo*)(pack->body());
 
 				//更新用户信息
-				bool bRet = playerMgr->UpdateUserInfo(cid, usrInfo);
+				bool bRet = m_pPlayerMgr->UpdateUserInfo(cid, usrInfo);
 				if (bRet)
 				{
 					//向其他VIP客户端广播用户登录
-					playerMgr->BroadcastNewUserOnline(cid);
+					m_pPlayerMgr->BroadcastNewUserOnline(cid);
 				}
 			}
-
-
 			break;
 		}
 		case ID_User_Transform:		//玩家位置变换消息
@@ -223,7 +213,7 @@ void VRSceneServer::HandleNetEventFromClient()
 			TransformInfo* transInfo = (TransformInfo*)pack->body();
 			transInfo->plyId = cid;
 
-			playerMgr->UpdatePlayerTransform(cid, *transInfo);
+			m_pPlayerMgr->UpdatePlayerTransform(cid, *transInfo);
 
 			break;
 		}
@@ -236,10 +226,10 @@ void VRSceneServer::HandleNetEventFromClient()
 				char* userid = pack->body();
 				int userid_len = pack->GetBodyLength();
 				
-				bool bRet = playerMgr->UpdateUserTypeByUserID(userid, userid_len, ExternalVIP);
+				bool bRet = m_pPlayerMgr->UpdateUserTypeByUserID(userid, userid_len, ExternalVIP);
 				if (bRet)
 				{
-					centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
+					m_pCenterSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
 				}
 			}
 			else if(cmdID == c2s_stop_seen_external)
@@ -248,17 +238,17 @@ void VRSceneServer::HandleNetEventFromClient()
 				char* userid = pack->body();
 				int userid_len = pack->GetBodyLength();
 
-				bool bRet = playerMgr->UpdateUserTypeByUserID(userid, userid_len, VIP);
+				bool bRet = m_pPlayerMgr->UpdateUserTypeByUserID(userid, userid_len, VIP);
 				if (bRet)
 				{
-					centerSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
+					m_pCenterSvrClient->Send(ID_Global_Notify, s2c_trans_ext_usr_profile, (const char*)pack->body(), pack->GetBodyLength());
 				}
 			}
 			break;
 		}
 		case ID_Global_Transform:
 		{
-			playerMgr->SendMsg(*pack);
+			m_pPlayerMgr->SendMsg(*pack);
 			break;
 		}
 		default:
@@ -268,15 +258,14 @@ void VRSceneServer::HandleNetEventFromClient()
 
 		} //switch
 	}//for
-
 }
 
 
 void VRSceneServer::HandleNetEventFromCenterSvr()
 {
-	if (bConnectCenterSvr)
+	if (m_bConnectCenterSvr)
 	{
-		MsgQueue& msgQ = centerSvrClient->GetMsgQueue();
+		MsgQueue& msgQ = m_pCenterSvrClient->GetMsgQueue();
 		int msgAmount = msgQ.GetCount();
 
 		for (int i = 0; i < msgAmount; i++)
@@ -294,7 +283,7 @@ void VRSceneServer::HandleNetEventFromCenterSvr()
 				if (s2c_trans_ext_usr_profile == cmdID)
 				{
 					//向所有VIP客户端发送其他场景服务器用户描述信息
-					playerMgr->SendMsg(*pack);
+					m_pPlayerMgr->SendMsg(*pack);
 				}
 				//	else if (s2c_begin_flying == cmdID)
 				//	{
@@ -348,17 +337,16 @@ void VRSceneServer::HandleNetEventFromCenterSvr()
 			case ID_Global_Transform:
 			{
 				//
-				playerMgr->SendMsg(*pack);
+				m_pPlayerMgr->SendMsg(*pack);
 				break;
 			}
 			} //switch end
 		} // for end
 	}// if end 	
-
 }
 
 
 PlayerManager*& VRSceneServer::GetPlayerManager()
 {
-	return playerMgr;
+	return m_pPlayerMgr;
 }

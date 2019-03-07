@@ -3,16 +3,10 @@
 
 Player::Player(LinkID linkID)
 {
-	mUserType		= VIP;		//新建玩家实例默认指定为VIP客户端玩家类型
-	bBoundUser		= false;
-	mLinkID			= linkID;
-	mPlyID				= linkID;
-
-	mSeatNumber = mProfileInfo.mSeatNumber = 0;
-	SetUserState(state_initial);
-
+	m_UserType				= VIP;		//默认为VIP类型
+	m_LinkID				= linkID;
+	m_SeatNumber		=  -1;
 }
-
 
 Player::~Player()
 {
@@ -25,10 +19,11 @@ void Player::SetUserID(char* userid, int len)
 		len = USER_ID_LENGTH;
 	}
 
-	memset(mUserID, 0, sizeof(mUserID));
-	memcpy(mUserID, userid, len);
-
-	//sprintf(mUserID, "%04d", mPlyID);
-
+	memset(m_UserID, 0, sizeof(m_UserID));
+	
+	if (len > 0)
+	{
+		memcpy(m_UserID, userid, len);
+	}
 }
 

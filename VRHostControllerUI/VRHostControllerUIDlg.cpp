@@ -135,7 +135,7 @@ BOOL CVRHostControllerUIDlg::OnInitDialog()
 	GetDlgItem(IDC_BTN_STOP)->EnableWindow(FALSE);
 
 	//*****开启日志系统文件*****//
-	InitLogger("Log/HostController");
+	InitLogger("Log/VRHostControllerUI");
 	SetTimer(1, 2000, NULL);
 
 

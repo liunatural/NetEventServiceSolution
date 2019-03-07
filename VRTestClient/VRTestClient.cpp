@@ -31,8 +31,8 @@ int main()
 	}
 
 	ConfigService* confReader = CreateConfigReader();
-	char path[MAX_PATH] = { 0 };
-	_getcwd(path, MAX_PATH);
+	char path[MAX_PATH_LEN] = { 0 };
+	_getcwd(path, MAX_PATH_LEN);
 	strcat(path, "/ClientConfig.xml");
 	bool ret = confReader->OpenFile(path);
 	if (!ret)
@@ -186,13 +186,13 @@ void Message_handle(void *args)
 			}
 			case ID_Global_Notify:
 			{
-				int cmdID = pack->header()->id2;
-				if (s2c_trans_ext_usr_profile == cmdID)
-				{
-					ProfileInfo *pProfInfo = (ProfileInfo*)pack->body();
-					LOG(info, "外部用户座椅号：%d", pProfInfo->mSeatNumber);
-				}
-				break;
+				//int cmdID = pack->header()->id2;
+				//if (s2c_trans_ext_usr_profile == cmdID)
+				//{
+				//	ProfileInfo *pProfInfo = (ProfileInfo*)pack->body();
+				//	LOG(info, "外部用户座椅号：%d", pProfInfo->mSeatNumber);
+				//}
+				//break;
 			}
 			case ID_Global_Transform:
 			{

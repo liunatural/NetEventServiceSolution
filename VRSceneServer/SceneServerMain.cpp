@@ -19,7 +19,7 @@ int main()
 	int ret = 0;
 
 	//*****开启日志系统文件*****//
-	InitLogger("Log/SceneServer");
+	InitLogger("Log/VRSceneServer");
 
 
 	VRSceneServer vrSceneServer;

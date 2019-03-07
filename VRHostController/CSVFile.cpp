@@ -77,8 +77,8 @@ int CSVFile::ReadUserSeatMap()
 int CSVFile::OpenFile()
 {
 
-	char modulePath[MAX_PATH] = { 0 };
-	GetModuleFileNameA(NULL, modulePath, MAX_PATH);
+	char modulePath[MAX_PATH_LEN] = { 0 };
+	GetModuleFileNameA(NULL, modulePath, MAX_PATH_LEN);
 	(strrchr(modulePath, '\\'))[0] = 0;
 
 	char dateStr[11] = { 0 };

@@ -25,11 +25,10 @@ private:
 
 
 private:
-	ConfigService		*confReader;
-	NetEvtServer		*pNetEventServer;					//场景服务器 net server
-	NetEvtClient		*centerSvrClient;					//中心服务器 net client
-	bool					bConnectCenterSvr;
-	PlayerManager	*playerMgr;
-	char sceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
+	ConfigService		*m_pConfReader;
+	NetEvtServer		*m_pNetEventServer;					//场景服务器 net server
+	NetEvtClient		*m_pCenterSvrClient;					//中心服务器 net client
+	PlayerManager	*m_pPlayerMgr;
+	bool					m_bConnectCenterSvr;
+	char					m_SceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
 };
-

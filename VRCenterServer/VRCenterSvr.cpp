@@ -38,8 +38,8 @@ VRCenterSvr::~VRCenterSvr()
 int VRCenterSvr::ReadConfigFile()
 {
 	confReader = CreateConfigReader();
-	char path[MAX_PATH] = { 0 };
-	_getcwd(path, MAX_PATH);
+	char path[MAX_PATH_LEN] = { 0 };
+	_getcwd(path, MAX_PATH_LEN);
 	strcat(path, "/VRCenterServer.xml");
 	bool ret = confReader->OpenFile(path);
 	if (!ret)

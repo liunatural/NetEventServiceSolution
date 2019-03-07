@@ -80,7 +80,7 @@ namespace CapsuleClient
                         int cmdID = header.id2;
 
                         //处理主机控制器返回的座位号消息包
-                        if (msgID == Protocol.ID_SceneCntrl_Notify && cmdID == Protocol.s2c_rsp_seat_num)
+                        if (msgID == Protocol.ID_HostCtlr_Notify && cmdID == Protocol.s2c_rsp_seat_num)
                         {
                             //弹出header
                             m_buffer.Pop(CSMsgPackage.header_length);

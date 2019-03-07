@@ -76,8 +76,8 @@ VRHostController::~VRHostController()
 int VRHostController::ReadConfigFile()
 {
 	m_pConfReader = CreateConfigReader();
-	char path[MAX_PATH] = { 0 };
-	_getcwd(path, MAX_PATH);
+	char path[MAX_PATH_LEN] = { 0 };
+	_getcwd(path, MAX_PATH_LEN);
 	strcat(path, "/VRHostController.xml");
 	bool ret = m_pConfReader->OpenFile(path);
 	if (!ret)
@@ -255,7 +255,7 @@ void VRHostController::HandleNetEventFromClient()
 						usrInfo.SeatNumber = seatNumber;
 
 						MessagePackage package;
-						package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
+						package.WriteHeader(ID_HostCtlr_Notify, s2c_rsp_seat_num);
 						package.WriteBody(&usrInfo, sizeof(UserInfo));
 
 						//返回座席号给胶囊体
@@ -263,7 +263,7 @@ void VRHostController::HandleNetEventFromClient()
 
 						//向终端代理发送绑定的userID
 						MessagePackage package1;
-						package1.WriteHeader(ID_SceneCntrl_Notify, s2c_tell_user_id);
+						package1.WriteHeader(ID_HostCtlr_Notify, s2c_tell_user_id);
 						package1.WriteBody(m_UserID, len_userID);
 						m_pClientMgr->SendMsg(client->GetLinkID(), package1);
 
@@ -278,7 +278,7 @@ void VRHostController::HandleNetEventFromClient()
 						usrInfo.SeatNumber = -1;
 
 						MessagePackage package;
-						package.WriteHeader(ID_SceneCntrl_Notify, s2c_rsp_seat_num);
+						package.WriteHeader(ID_HostCtlr_Notify, s2c_rsp_seat_num);
 						package.WriteBody(&usrInfo, sizeof(UserInfo));
 					
 						//返回座席号-1给胶囊体

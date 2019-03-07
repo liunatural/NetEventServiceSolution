@@ -8,46 +8,32 @@ class Player
 public:
 	Player(LinkID linkID);
 	virtual ~Player();
-	LinkID& GetLinkID() { return mLinkID; };
+
+	LinkID& GetLinkID() { return m_LinkID; };
 
 	//场景服务器ID
-	char* GetSceneServerID() { return mProfileInfo.SceneServerID; }
-	void SetSceneServerID(char* pSceneSvrID) { memcpy(mProfileInfo.SceneServerID, pSceneSvrID, SERVER_ID_LENGTH); }
+	char* GetSceneServerID() { return m_SceneServerID; }
+	void SetSceneServerID(char* pSceneSvrID) { memcpy(m_SceneServerID, pSceneSvrID, SERVER_ID_LENGTH); }
 
-	//bool GetFlvSeqHeaderFlag() { return mFlvSeqHeaderFlag == true; }
-	//void SetFlvSeqHeaderFlag(bool flag) { mFlvSeqHeaderFlag = flag; }
-
-	void SetSeatNumber(int seatNum) { mSeatNumber = mProfileInfo.mSeatNumber = seatNum; }
-	int GetSeatNumber() { return mSeatNumber; }
+	void SetSeatNumber(int seatNum) { m_SeatNumber = seatNum; }
+	int GetSeatNumber() { return m_SeatNumber; }
 
 	void SetUserID(char* userid, int len);
+	char* GetUserID() { return m_UserID; }
 
+	void SetUserType(int userType) {	m_UserType = userType;}
+	int GetUserType() { return m_UserType; }
 
-	void UpdateProfileInfo(ProfileInfo* profileInfo) { mProfileInfo = *profileInfo; }
-
-	void SetUserType(int userType) {	mUserType = userType;}
-	int GetUserType() { return mUserType; }
-
-
-	void SetUserState(UserState userState) { mUserState = userState; }
-	UserState GetUserState() { return mUserState; }
-
-public:
-	int		mPlyID;
-	bool	bBoundUser;
-	char mUserID[USER_ID_LENGTH + 1];
-
-	UserState mUserState;
-	ProfileInfo mProfileInfo;
-	TransformInfo transInfo;
-
+	TransformInfo& GetTransformInfo() { return m_TransInfo; }
+	void SetTransformInfo(TransformInfo& transInfo) { m_TransInfo = transInfo; }
+		
 private:
-	int mSeatNumber;
-	LinkID mLinkID;
-	bool		mFlvSeqHeaderFlag;
-	int		mUserType;			//1: VIP客户端， 2: 胶囊客户端
+	int							m_SeatNumber;
+	int							m_UserType;			//1: VIP客户端， 2: 胶囊客户端
 
-
-
+	char						m_UserID[USER_ID_LENGTH + 1]					= { 0 };
+	char						m_SceneServerID[SERVER_ID_LENGTH + 1]	= { 0 };
+	LinkID					m_LinkID;
+	TransformInfo		m_TransInfo;
 
 };

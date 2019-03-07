@@ -29,7 +29,7 @@ private:
 	NetEvtClient		*m_pHostCtlrNetClient;				
 	char m_HostControllerIP[IP_ADDR_LENGTH + 1]		= { 0 };
 	char m_HostControllerPort[IP_PORT_LENGTH +1]		= { 0 };
-	char m_CfgFile[MAX_PATH + 1]								= { 0 };
+	char m_CfgFile[MAX_PATH_LEN + 1]								= { 0 };
 	char m_UserID[USER_ID_LENGTH + 1]					= { 0 };
 
 	int m_SeatNumber													= -1;

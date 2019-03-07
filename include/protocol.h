@@ -39,20 +39,16 @@ enum
 //用户消息ID （业务层消息ID，从1000以后开始）
 enum
 {
-	ID_User_Login							=1001,			//用户登录消息ID
+	ID_User_Login							=1001,			//*********************用户登录消息ID
 	ID_User_Notify,												//用户通知消息ID
 	ID_User_Transform,										//用户数据变换消息ID
-	ID_User_Verify,												//用户验证消息ID
 	ID_User_control,											//用户控制消息
-	ID_FLV_Header,												//FLV头信息
-	ID_FLV_Sequence_Header,								//FLV序列头信息
-	ID_FLV_Stream,												//FLV数据流
 	ID_Global_Notify,											//跨场景服务器的通知消息
 	ID_Global_Transform,										//跨场景服务器的运动变换消息
-	ID_ERROR,													//运行错误消息ID
-	ID_FLV_StreamReback,									//数据流获取反馈消息
-	ID_SceneCntrl_Notify,										//场景控制器通知消息
+	ID_HostCtlr_Notify						= 1013,			//**********************VR主机控制器通知消息
 	ID_VRClientAgent_Notify,								//VR终端代理通知消息
+
+	ID_ERROR,													//运行错误消息ID
 };
 
 //用户命令ID（业务层命令ID）
@@ -60,46 +56,34 @@ enum
 {
 	c2s_tell_seat_num						= 1,				//VIP客户端连接后发送座位号给场景服务器				****即将废除****
 	c2s_tell_user_type,										//客户端类型：胶囊体客户端；VIP客户端；摄像机视角客户端	
-	c2s_tell_ready,												//客户端已准备好
 	c2s_req_seat_num,										//胶囊客户端请求座位号
-	c2s_tell_user_profile,										//胶囊客户端登录后发送用户基本描述信息给场景服务器
-	c2s_begin_flying,											//起飞命令
 	c2s_seen_external,											//
 	c2s_stop_seen_external,									//
-	c2s_play_video,												//播放视频命令
-	c2s_stand_up,												//玩家站起命令	
-	c2s_walk,														//玩家行走命令
 	c2s_present_flowers,										//玩家发起献花	
 	c2s_stop_present_flowers,								//玩家结束献花	
-	c2s_tell_user_id,											//*****即将废除*****
 
 
+	c2s_tell_user_id							=14,				//*********************胶囊体告诉用户ID给VR主机控制器
 	c2s_device_status_changed,							//设备状态 
 	c2s_tell_user_info,
 
 
 
-	s2c_ply_ready							= 101,			//服务器返回用户已准备好命令ID
-	s2c_ply_leave,												//服务器返回用农离开命令ID
+	s2c_ply_leave							= 102,			//服务器返回用户离开命令ID
 	s2c_begin_flying,											//用户起飞命令
-	s2c_rsp_seat_num,										//下发座位号给胶囊体
-	s2c_upd_user_profile,										//通知VIP客户端更新用户基本描述信息命令ID
+	s2c_rsp_seat_num						= 104,			//*********************VR主机控制器返回座位号给胶囊体
 	s2c_upd_user_state,
 	s2c_client_list,
 	s2c_client_list_external,									//其它场景服务器的用户列表
 	s2c_user_leave_external,								//外部用户离开
-	s2c_play_video,												//播放视频命令
-	s2c_stand_up,												//玩家站起命令
-	s2c_walk,														//玩家行走命令
-	s2c_rsp_id_verify,
 	s2c_trans_ext_usr_profile,								//传递外部用户描述数据
 	
-	s2c_tell_user_id,											//场景控制器告知用户ID
+	s2c_tell_user_id,											//VR主机控制器告知用户ID
 	s2c_device_status_changed,							//机器状态： free, used
 	s2c_new_user_online,										//新用户上线
 
 
-	s2s_req_usr_list = 200,
+	s2s_req_usr_list							= 200,
 	//最大协议数值254，大了会出错
 };
 
@@ -154,30 +138,6 @@ struct TransformInfo
 	}
 };
 
-//存储用户ID和用户头像模型文件名字
-struct  FaceModel
-{
-	char userID[USER_ID_LENGTH + 1] = {0};
-	char faceModelFile[FILE_NAME_LENGTH + 1] = {0};
-};
-
-//存储用户基本描述信息
-struct  ProfileInfo
-{
-	char SceneServerID[SERVER_ID_LENGTH + 1] = {0};
-	char UserID[USER_ID_LENGTH + 1] = { 0 };
-	int mSeatNumber;
-	FaceModel mFaceModel;
-};
-
-struct UserStateInfo
-{
-	char SceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
-	int seatNumber;
-	UserState userState;
-};
-
-
 struct LeaveUserInfo
 {
 	char SceneServerID[SERVER_ID_LENGTH + 1] = { 0 };
@@ -190,16 +150,6 @@ struct  UserInfo
 {
 	char	UserID[USER_ID_LENGTH + 1] = { 0 };
 	int		SeatNumber = -1;
-};
-
-
-struct FlvStreamReback
-{
-	double		dTimer;//当前时间
-	double		dEncodeTimer;//压缩延迟时间
-	double		dOBStoCenter;//OBS到Center的发送延迟
-	double		dCenterToClient;//从中心服务器到客户端的延迟
-	double		dShowTime;//OBS端显示时候的时间
 };
 
 

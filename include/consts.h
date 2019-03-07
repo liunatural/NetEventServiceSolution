@@ -11,13 +11,10 @@
 #pragma  once
 
 #define USER_ID_LENGTH						32
-#define FILE_NAME_LENGTH					60
 #define SERVER_ID_LENGTH					32
-#define MIN_SEAT_NUMBER					1
-#define MAX_SEAT_NUMBER					100
 #define MAX_DATA_BUFFER_LEN				(1024 * 1024)
 #define	MAX_LOG_TEXT_LENGTH			8192					//最大LOG输出的一行文本为8192字节
-#define MAX_PATH									250
+#define MAX_PATH_LEN							250
 #define MAX_SEND_MSGQ_LEN				8192
 #define IP_ADDR_LENGTH						15
 #define IP_PORT_LENGTH						6
@@ -43,21 +40,10 @@ enum UserType
 	Capsule				= 2,
 	VideoCamera,
 	SceneServer,
-	OBSServer,
 	ExternalVIP,
 	VRClientAgent,
 };
 
-//用户状态
-enum UserState
-{
-	state_initial = 0,
-	state_entering,
-	state_ready,
-	state_left,
-	state_present_flowers,					//玩家献花
-	state_stop_present_flowers,			//玩家献花	
-};
 
 //远程终端机的状态
 enum DeviceState

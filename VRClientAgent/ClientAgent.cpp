@@ -35,7 +35,7 @@ ClientAgent::~ClientAgent()
 int ClientAgent::ReadIniFile()
 {
 
-	GetModuleFileNameA(NULL, m_CfgFile, MAX_PATH);
+	GetModuleFileNameA(NULL, m_CfgFile, MAX_PATH_LEN);
 	(strrchr(m_CfgFile, '\\'))[0] = 0; 
 	strcat(m_CfgFile, "\\VRAgentConfig.ini");
 
@@ -127,7 +127,7 @@ void ClientAgent::HandleMessage()
 				
 					break;
 				}
-				case ID_SceneCntrl_Notify:
+				case ID_HostCtlr_Notify:
 				{
 					int cmdID = pack->header()->id2;
 

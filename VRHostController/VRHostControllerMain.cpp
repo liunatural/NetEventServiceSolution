@@ -17,7 +17,7 @@ int main()
 	int ret = 0;
 
 	//*****开启日志系统文件*****//
-	InitLogger("Log/HostController");
+	InitLogger("Log/VRHostController");
 
 
 	VRHostController vrHostController;
