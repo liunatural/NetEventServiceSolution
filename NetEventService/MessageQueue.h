@@ -20,7 +20,7 @@ public:
 	~MessageQueue();
 	std::deque<MessagePackage> m_queue;
 
-	//·µ»ØÒ»¸öÏûÏ¢
+	//è¿”å›ä¸€ä¸ªæ¶ˆæ¯
 	const MessagePackage*	GetMsg(unsigned int index);
 	MessagePackage*	 GetLastMsg();
 	int		GetCount();
@@ -31,7 +31,7 @@ public:
 };
 
 
-//¶àÏß³ÌÍ¬²½¶ÓÁĞ
+//å¤šçº¿ç¨‹åŒæ­¥é˜Ÿåˆ—
 class MessageQueueAB
 {
 public:

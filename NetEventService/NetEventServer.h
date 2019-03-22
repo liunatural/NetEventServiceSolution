@@ -39,17 +39,17 @@ typedef struct
 	std::string ip;
 }conn_queue_item;
 
-//¹¤×÷Ïß³Ì½á¹¹Ìå
+//å·¥ä½œçº¿ç¨‹ç»“æ„ä½“
 typedef struct 
 {
-	NetEventServer* that;									//ÓÃ×÷´«²Î
-	std::shared_ptr<std::thread>   spThread;		// Ïß³Ì
-	struct event_base * thread_base;					// ÊÂ¼ş»ù
+	NetEventServer* that;									//ç”¨ä½œä¼ å‚
+	std::shared_ptr<std::thread>   spThread;		// çº¿ç¨‹
+	struct event_base * thread_base;					// äº‹ä»¶åŸº
 	struct event   notify_event;
-	evutil_socket_t  notfiy_recv_fd;						// socketpair ½ÓÊÕ¶Ëfd£¨¹¤×÷Ïß³Ì½ÓÊÕÍ¨Öª£©
-	evutil_socket_t  notfiy_send_fd;						// socketpair ·¢ËÍ¶Ëfd£¨¼àÌıÏß³Ì·¢ËÍÍ¨Öª£©
-	std::mutex conn_mtx;									 //Î¬»¤Á¬½Ó¶ÓÁĞµÄËø
-	std::queue<conn_queue_item>  conn_queue;  //¹ÜÀíconn_queue_itemµÄ¶ÓÁĞ
+	evutil_socket_t  notfiy_recv_fd;						// socketpair æ¥æ”¶ç«¯fdï¼ˆå·¥ä½œçº¿ç¨‹æ¥æ”¶é€šçŸ¥ï¼‰
+	evutil_socket_t  notfiy_send_fd;						// socketpair å‘é€ç«¯fdï¼ˆç›‘å¬çº¿ç¨‹å‘é€é€šçŸ¥ï¼‰
+	std::mutex conn_mtx;									 //ç»´æŠ¤è¿æ¥é˜Ÿåˆ—çš„é”
+	std::queue<conn_queue_item>  conn_queue;  //ç®¡ç†conn_queue_itemçš„é˜Ÿåˆ—
 
 	bool m_bStop;
 }ReceiverThread;
@@ -99,7 +99,7 @@ private:
 	std::mutex							m_channel_mtx;
 	struct event_base					*m_base;
 	struct evconnlistener				*m_listener;
-	ChannelManager						*m_channelMgr;		//ÓÃ»§Á¬½ÓID¹ÜÀíÆ÷
+	ChannelManager						*m_channelMgr;		//ç”¨æˆ·è¿æ¥IDç®¡ç†å™¨
 	MessageQueueAB					*m_pMsgQueueAB;
 	CommonMsgQueue<MessagePackage>  *m_pSendMsgQueue;
 	vector<Channel*>					m_Channels;
@@ -109,7 +109,7 @@ private:
 	int											m_thread_num;
 	MessagePackage						m_msgPack;
 
-	std::shared_ptr<std::thread> m_dispatchThread;// ÏûÏ¢ÅÉ·¢Ïß³Ì
+	std::shared_ptr<std::thread> m_dispatchThread;// æ¶ˆæ¯æ´¾å‘çº¿ç¨‹
 
 
 	struct event_config					*m_ec ;

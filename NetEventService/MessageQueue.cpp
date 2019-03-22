@@ -36,7 +36,7 @@ MessagePackage*	MessageQueue::GetLastMsg()
 }
 
 
-//·µ»ØÏûÏ¢°üÊıÁ¿
+//è¿”å›æ¶ˆæ¯åŒ…æ•°é‡
 int		MessageQueue::GetCount() 
 {
 	return (int)m_queue.size();

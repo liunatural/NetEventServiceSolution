@@ -43,7 +43,7 @@ NetEventServer::~NetEventServer()
 
 bool NetEventServer::Start(int port, int maxConnects)
 {
-	//²¢·¢Ïß³ÌÊı
+	//å¹¶å‘çº¿ç¨‹æ•°
 	m_thread_num = std::thread::hardware_concurrency() / 2;
 
 	bool bRet = Init(0, maxConnects);
@@ -52,14 +52,14 @@ bool NetEventServer::Start(int port, int maxConnects)
 		return false;
 	}
 	
-	//Æô¶¯½ÓÊÕÏß³Ì
+	//å¯åŠ¨æ¥æ”¶çº¿ç¨‹
 	bRet = StartReceiverThreads(m_thread_num);
 	if (!bRet)
 	{
 		return false;
 	}
 
-	//Æô¶¯·¢ËÍÏß³Ì
+	//å¯åŠ¨å‘é€çº¿ç¨‹
 	StartSenderThreads(m_thread_num);
 
 	struct sockaddr_in sin;
@@ -75,13 +75,13 @@ bool NetEventServer::Start(int port, int maxConnects)
 		sin.sin_port = htons(port);
 	}
 
-	//´´½¨¼àÌı¶ÔÏó£¬¿ªÊ¼½ÓÊÜÁ¬½Ó
+	//åˆ›å»ºç›‘å¬å¯¹è±¡ï¼Œå¼€å§‹æ¥å—è¿æ¥
 	m_listener = evconnlistener_new_bind(m_base, listener_cb, (void*)this,
 		LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE, -1, (struct sockaddr*)&sin, sizeof(sin));
 
 	if (!m_listener)
 	{
-		LOG(error, "²»ÄÜ½¨Á¢¼àÌı£¡");
+		LOG(error, "ä¸èƒ½å»ºç«‹ç›‘å¬ï¼");
 		return false;
 	}
 
@@ -97,12 +97,12 @@ bool NetEventServer::Start(int port, int maxConnects)
 
 		if (WSAENOTSOCK == WSAGetLastError())
 		{
-			LOG(error, "ÎŞĞ§Ì×½Ó×Ö£¡");
+			LOG(error, "æ— æ•ˆå¥—æ¥å­—ï¼");
 			return false;
 		}
 	}));
 
-	LOG(info, "·şÎñ¿ªÊ¼ÔËĞĞ! ¶Ë¿ÚºÅ:[%d]; Ïß³ÌÊı:[%d]; ×î´óÁ¬½ÓÊı[%d]", port, m_thread_num, maxConnects);
+	LOG(info, "æœåŠ¡å¼€å§‹è¿è¡Œ! ç«¯å£å·:[%d]; çº¿ç¨‹æ•°:[%d]; æœ€å¤§è¿æ¥æ•°[%d]", port, m_thread_num, maxConnects);
 
 	return true;
 }
@@ -110,7 +110,7 @@ bool NetEventServer::Start(int port, int maxConnects)
 
 bool NetEventServer::Stop()
 {
-	//½áÊøÏûÏ¢ÅÉ·¢Ïß³Ì
+	//ç»“æŸæ¶ˆæ¯æ´¾å‘çº¿ç¨‹
 	event_base_loopbreak(m_base);
 	m_dispatchThread->join();
 
@@ -126,7 +126,7 @@ bool NetEventServer::Stop()
 		m_base = NULL;
 	}
 
-	//Ïú»ÙÏûÏ¢½ÓÊÕ¶ÓÁĞ
+	//é”€æ¯æ¶ˆæ¯æ¥æ”¶é˜Ÿåˆ—
 	if (m_pMsgQueueAB)
 	{
 		delete m_pMsgQueueAB;
@@ -140,7 +140,7 @@ bool NetEventServer::Stop()
 		m_channelMgr = nullptr;
 	}
 
-	//½áÊø½ÓÊÕÏß³Ì
+	//ç»“æŸæ¥æ”¶çº¿ç¨‹
 	for (int i = 0; i < m_libevent_threads.size(); ++i)
 	{
 		if (m_libevent_threads[i] != NULL)
@@ -154,7 +154,7 @@ bool NetEventServer::Stop()
 	m_libevent_threads.clear();
 
 
-	//½áÊø·¢ËÍÏß³Ì
+	//ç»“æŸå‘é€çº¿ç¨‹
 	m_bStopThread = true;
 	for (int i = 0; i < m_send_threads.size(); ++i)
 	{
@@ -162,7 +162,7 @@ bool NetEventServer::Stop()
 	}
 
 
-	//Ïú»ÙÓÃ»§Á¬½ÓÁĞ±í
+	//é”€æ¯ç”¨æˆ·è¿æ¥åˆ—è¡¨
 	for (int i = 0; i < m_Channels.size(); ++i)
 	{
 		if (m_Channels[i] != NULL)
@@ -172,7 +172,7 @@ bool NetEventServer::Stop()
 	}
 	m_Channels.clear();
 
-	LOG(info, "·şÎñÆ÷¹Ø±Õ.");
+	LOG(info, "æœåŠ¡å™¨å…³é—­.");
 
 	return true;
 }
@@ -250,7 +250,7 @@ void NetEventServer::sender_thread_task(NetEventServer *pNetEvtSvr)
 		}
 	}
 
-	LOG(info, "·¢ËÍÏß³Ì½áÊø²¢ÍË³ö.");
+	LOG(info, "å‘é€çº¿ç¨‹ç»“æŸå¹¶é€€å‡º.");
 
 }
 
@@ -297,7 +297,7 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 
 	if ((ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
 	{
-		LOG(error, "WSAStartupÊ§°Ü£¡´íÎóID:%d", ret);
+		LOG(error, "WSAStartupå¤±è´¥ï¼é”™è¯¯ID:%d", ret);
 		return false;
 	}
 
@@ -306,13 +306,13 @@ bool NetEventServer::Init(int id_begin, int id_counts)
 
 	m_Channels.resize(m_channelMgr->TotalIDs());
 
-	//eventÖ§³ÖwindowsÏÂÏß³ÌµÄº¯Êı
+	//eventæ”¯æŒwindowsä¸‹çº¿ç¨‹çš„å‡½æ•°
 	int hr = evthread_use_windows_threads();
 
 	m_base = event_base_new();
 	if (NULL == m_base)
 	{
-		LOG(error, "³õÊ¼»¯event_baseÊ§°Ü.");
+		LOG(error, "åˆå§‹åŒ–event_baseå¤±è´¥.");
 		return false;
 	}
 
@@ -333,14 +333,14 @@ bool NetEventServer::StartReceiverThreads(int thread_numb)
 
 		ReceiverThread* plt = new ReceiverThread();
 
-		//´´½¨»¥ÏàÍ¨ĞÅµÄÁ½¸ösocket
+		//åˆ›å»ºäº’ç›¸é€šä¿¡çš„ä¸¤ä¸ªsocket
 		evutil_socket_t fds[2];
 		if (evutil_socketpair(AF_INET, SOCK_STREAM, 0, fds) < 0)
 		{
-			LOG(error, "´´½¨socketpairÊ§°Ü£¡");
+			LOG(error, "åˆ›å»ºsocketpairå¤±è´¥ï¼");
 			return false;
 		}
-		//ÉèÖÃ³ÉÎŞ×èÈüµÄsocket
+		//è®¾ç½®æˆæ— é˜»èµ›çš„socket
 		evutil_make_socket_nonblocking(fds[0]);
 		evutil_make_socket_nonblocking(fds[1]);
 
@@ -351,14 +351,14 @@ bool NetEventServer::StartReceiverThreads(int thread_numb)
 		bool bRet = SetupReceiverThread(plt);
 		if (!bRet)
 		{
-			LOG(error, "SetupReceiverThread:×¢²áÍ¨ÖªÊÂ¼şÊ§°Ü.");
+			LOG(error, "SetupReceiverThread:æ³¨å†Œé€šçŸ¥äº‹ä»¶å¤±è´¥.");
 			return false;
 		}
 
 		m_libevent_threads[i] = plt;
 	}
 
-	//´´½¨²¢Æô¶¯¹¤×÷Ïß³Ì
+	//åˆ›å»ºå¹¶å¯åŠ¨å·¥ä½œçº¿ç¨‹
 	for (int i = 0; i < thread_numb; ++i)
 	{
 		m_libevent_threads[i]->spThread.reset(new std::thread([]
@@ -372,12 +372,12 @@ bool NetEventServer::StartReceiverThreads(int thread_numb)
 	return true;
 }
 
-//×¢²áÍ¨ÖªÊÂ¼ş¼°Æä»Øµ÷º¯Êı
+//æ³¨å†Œé€šçŸ¥äº‹ä»¶åŠå…¶å›è°ƒå‡½æ•°
 bool NetEventServer::SetupReceiverThread(ReceiverThread * pLibeventThread)
 {
 	auto plt = pLibeventThread;
 	
-	//´´½¨ÊôÓÚÃ¿¸öÏß³ÌµÄevent_base£¬
+	//åˆ›å»ºå±äºæ¯ä¸ªçº¿ç¨‹çš„event_baseï¼Œ
 	plt->thread_base = event_base_new_with_config(m_ec);
 	//plt->thread_base = event_base_new(); 
 	plt->that = this;
@@ -394,14 +394,14 @@ bool NetEventServer::SetupReceiverThread(ReceiverThread * pLibeventThread)
 }
 
 
-//¹ÜµÀÍ¨ÖªÊÂ¼ş»Øµ÷º¯Êı
+//ç®¡é“é€šçŸ¥äº‹ä»¶å›è°ƒå‡½æ•°
 void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 {
 
 	ReceiverThread * pLibeventThread = (ReceiverThread *)args;
 
-	//Ê×ÏÈ½«socketpairµÄ1¸ö×Ö½ÚÍ¨ÖªĞÅºÅ¶Á³ö
-	//ÔÚË®Æ½´¥·¢Ä£Ê½ÏÂÈç¹û²»´¦Àí¸ÃÊÂ¼ş£¬Ôò»áÑ­»·Í¨Öª£¬Ö±µ½ÊÂ¼ş±»´¦Àí
+	//é¦–å…ˆå°†socketpairçš„1ä¸ªå­—èŠ‚é€šçŸ¥ä¿¡å·è¯»å‡º
+	//åœ¨æ°´å¹³è§¦å‘æ¨¡å¼ä¸‹å¦‚æœä¸å¤„ç†è¯¥äº‹ä»¶ï¼Œåˆ™ä¼šå¾ªç¯é€šçŸ¥ï¼Œç›´åˆ°äº‹ä»¶è¢«å¤„ç†
 	char  buf[1];
 	recv(fd, buf, 1, 0);
 
@@ -409,37 +409,37 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 
 	conn_queue_item  item;
 
-	//´Ó×Ô¼ºµÄÁ¬½Ó¶ÓÁĞÖĞÈ¡³öÒ»¸öÁ¬½Ó
+	//ä»è‡ªå·±çš„è¿æ¥é˜Ÿåˆ—ä¸­å–å‡ºä¸€ä¸ªè¿æ¥
 	std::lock_guard<std::mutex>  lck(plt->conn_mtx);
 	item = plt->conn_queue.front();
 	plt->conn_queue.pop();
 
 
-	//´´½¨Ã¿¸öÁ¬½ÓsocketµÄbufferevent
+	//åˆ›å»ºæ¯ä¸ªè¿æ¥socketçš„bufferevent
 	auto bev = bufferevent_socket_new(plt->thread_base, item.fd, BEV_OPT_THREADSAFE | BEV_OPT_CLOSE_ON_FREE);
 	if (!bev) 
 	{
-		LOG(error, "´´½¨socket³ö´í£¡");
+		LOG(error, "åˆ›å»ºsocketå‡ºé”™ï¼");
 		return;
 	}
 
 	Channel* c = pLibeventThread->that->CreateChannel(bev, item);
 	if (NULL != c)
 	{
-		c->SetIPAddr(item.ip); //±£´æIP
+		c->SetIPAddr(item.ip); //ä¿å­˜IP
 
 		char* strIP = (char*)item.ip.c_str();
 		int len = strlen(strIP);
 
-		LOG(info, "[%s]µÇÂ¼·şÎñÆ÷£¡µ±Ç°ÔÚÏßÈËÊı: [%d]", strIP, plt->that->GetOnlineAmount());
+		LOG(info, "[%s]ç™»å½•æœåŠ¡å™¨ï¼å½“å‰åœ¨çº¿äººæ•°: [%d]", strIP, plt->that->GetOnlineAmount());
 
 		MessagePackage msgPack;
 		msgPack.WriteHeader(link_connected, 0);
 		msgPack.WriteBody(strIP, len);
 		msgPack.SetLinkID(c->GetChannelID());
 
-		plt->that->GetMessageQueueAB()->Push(msgPack);						//·µ»ØÏûÏ¢°ü¸øÓ¦ÓÃ²ã£¬½øĞĞÓÃ»§¹ÜÀí
-		//send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);	//Í¬Ê±ÏòÓÃ»§·¢ËÍÁ¬½Ó³É¹¦µÄÏûÏ¢
+		plt->that->GetMessageQueueAB()->Push(msgPack);						//è¿”å›æ¶ˆæ¯åŒ…ç»™åº”ç”¨å±‚ï¼Œè¿›è¡Œç”¨æˆ·ç®¡ç†
+		//send(item.fd, msgPack.data(), msgPack.GetPackageLength(), 0);	//åŒæ—¶å‘ç”¨æˆ·å‘é€è¿æ¥æˆåŠŸçš„æ¶ˆæ¯
 
 		bufferevent_setcb(bev, conn_readcb, NULL, conn_eventcb, c);
 		bufferevent_enable(bev, EV_READ | EV_WRITE);
@@ -453,7 +453,7 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 
 	NetEventServer * pEventServer = (NetEventServer *)user_data;
 
-	// ÂÖÑ­,Ñ¡Ôñ¹¤×÷Ïß³Ì
+	// è½®å¾ª,é€‰æ‹©å·¥ä½œçº¿ç¨‹
 	int cur_thread = (pEventServer->m_last_thread + 1) % pEventServer->m_thread_num;
 	pEventServer->m_last_thread = cur_thread;
 
@@ -469,12 +469,12 @@ void NetEventServer::listener_cb(struct evconnlistener *listener, evutil_socket_
 
 	auto  plt = pEventServer->m_libevent_threads[cur_thread];
 	{
-		//ÏòÏß³ÌµÄ¶ÓÁĞÖĞ·ÅÈëÒ»¸öÁ¬½ÓµÄsocketfd
+		//å‘çº¿ç¨‹çš„é˜Ÿåˆ—ä¸­æ”¾å…¥ä¸€ä¸ªè¿æ¥çš„socketfd
 		std::lock_guard<std::mutex> lock(plt->conn_mtx);
 		plt->conn_queue.push(item);
 	}
 
-	//¼¤»îËùÑ¡Ïß³ÌµÄÍ¨ÖªÊÂ¼ş»Øµ÷º¯Êınotify_cb
+	//æ¿€æ´»æ‰€é€‰çº¿ç¨‹çš„é€šçŸ¥äº‹ä»¶å›è°ƒå‡½æ•°notify_cb
 	send(plt->notfiy_send_fd, "c", 1, 0);
 }
 
@@ -486,27 +486,28 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 
 	if (cid == -1)
 	{
-		LOG(info, "[%s]³¢ÊÔÁ¬½Ó·şÎñÆ÷Ê§°Ü£¡³¬¹ı·şÎñÆ÷×î´óÁ¬½ÓÊı£¡", connItem.ip.c_str());
+		LOG(info, "[%s]å°è¯•è¿æ¥æœåŠ¡å™¨å¤±è´¥ï¼è¶…è¿‡æœåŠ¡å™¨æœ€å¤§è¿æ¥æ•°ï¼", connItem.ip.c_str());
 		msgPack.WriteHeader(link_error_exceed_max_connects, 0);
 
 		send(connItem.fd, msgPack.data(), msgPack.GetPackageLength(), 0);
 
-		Sleep(10);
+		//Sleep(10);
+		this_thread::sleep_for(chrono::milliseconds(10));
 		evutil_closesocket(connItem.fd);
 
 		return NULL;
 	}
 
-	//ÕâÖÖÇé¿öÓ¦¸Ã²»»á·¢Éú£¬m_channelMgr->GetFreeID()ÒÑ¾­¼ÓËø
+	//è¿™ç§æƒ…å†µåº”è¯¥ä¸ä¼šå‘ç”Ÿï¼Œm_channelMgr->GetFreeID()å·²ç»åŠ é”
 	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed()) 
 	{
-		LOG(error, "·şÎñÆ÷·ÖÅäÁËÒ»¸öÕıÔÚÊ¹ÓÃÖĞµÄÁ¬½ÓID[%d]£¡", cid);
+		LOG(error, "æœåŠ¡å™¨åˆ†é…äº†ä¸€ä¸ªæ­£åœ¨ä½¿ç”¨ä¸­çš„è¿æ¥ID[%d]ï¼", cid);
 		
-		//±¨¸æ¸øÉÏ²ãÓ¦ÓÃ
+		//æŠ¥å‘Šç»™ä¸Šå±‚åº”ç”¨
 		msgPack.WriteHeader(link_error_channel_is_exist, 0);
 		m_pMsgQueueAB->Push(msgPack);
 
-		//¶Ï¿ª¸ÃÁ¬½Ó
+		//æ–­å¼€è¯¥è¿æ¥
 		evutil_closesocket(connItem.fd);
 
 		return NULL;
@@ -549,7 +550,7 @@ void NetEventServer::conn_readcb(struct bufferevent *bev, void *arg)
 	Channel* c = (Channel*)arg;
 	c->SetBufferEvent(bev);
 
-	c->DoRead();			//Êı¾İÁ÷µ½channelÖĞ
+	c->DoRead();			//æ•°æ®æµåˆ°channelä¸­
 }
 
 void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg)
@@ -559,15 +560,15 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 
 	if (what & BEV_EVENT_TIMEOUT)
 	{
-		LOG(info,"Á¬½Ó³¬Ê±£¡");  //if bufferevent_set_timeouts() called.
+		LOG(info,"è¿æ¥è¶…æ—¶ï¼");  //if bufferevent_set_timeouts() called.
 	}
 	else if (what & BEV_EVENT_EOF)
 	{
-		LOG(info, "¿Í»§¶Ë¹Ø±ÕÁ¬½Ó£¡Ê£ÓàÏûÏ¢Êı£º %d", remain);
+		LOG(info, "å®¢æˆ·ç«¯å…³é—­è¿æ¥ï¼å‰©ä½™æ¶ˆæ¯æ•°ï¼š %d", remain);
 	}
 	else if (what & BEV_EVENT_ERROR)
 	{
-		LOG(info, "¿Í»§¶ËÍË³ö£¡ Ê£ÓàÏûÏ¢Êı£º %d", remain);
+		LOG(info, "å®¢æˆ·ç«¯é€€å‡ºï¼ å‰©ä½™æ¶ˆæ¯æ•°ï¼š %d", remain);
 	}
 
 	Channel* c = (Channel*)arg;
@@ -579,7 +580,7 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 
 		pNetEventSvr->Close(cid);
 
-		LOG(info, "[%s]ÓÃ»§ÍË³ö£¡ Ê£ÓàÔÚÏßÈËÊı: [%d]", userIP.c_str(), pNetEventSvr->GetOnlineAmount());
+		LOG(info, "[%s]ç”¨æˆ·é€€å‡ºï¼ å‰©ä½™åœ¨çº¿äººæ•°: [%d]", userIP.c_str(), pNetEventSvr->GetOnlineAmount());
 	}
 
 }

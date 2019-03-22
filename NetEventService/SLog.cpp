@@ -88,8 +88,8 @@ void SLog::Init(const char* dir)
 		)
 	);
 
-	pSink->locked_backend()->auto_flush(true);//Ê¹ÈÕÖ¾ÊµÊ±¸üÐÂ  
-	//pSink->imbue(std::locale("zh_CN.UTF-8")); // ±¾µØ»¯   
+	pSink->locked_backend()->auto_flush(true);//ä½¿æ—¥å¿—å®žæ—¶æ›´æ–°  
+	//pSink->imbue(std::locale("zh_CN.UTF-8")); // æœ¬åœ°åŒ–   
 	logging::add_common_attributes();
 }
 

@@ -90,7 +90,7 @@ void Channel::ReadPackage()
 		char* data = m_readBuffer->Peek();
 		MessagePackage msgPack;
 		memcpy(msgPack.data(), data, len + MessagePackage::header_length);
-		msgPack.SetLinkID(m_channelID);//½«Êı¾İ°ü¼ÓÉÏÁ¬½ÓID
+		msgPack.SetLinkID(m_channelID);//å°†æ•°æ®åŒ…åŠ ä¸Šè¿æ¥ID
 
 		m_pMsgQAB->Push(msgPack);
 
@@ -113,11 +113,11 @@ void Channel::CloseSocket()
 		m_bUsedFlag = false;
 
 		int  cid = GetChannelID();
-		m_pNetEvtSvr->GetChannelManager()->ReleaseID(cid); //¹é»¹ChannelID
+		m_pNetEvtSvr->GetChannelManager()->ReleaseID(cid); //å½’è¿˜ChannelID
 
 		int dataLen = strlen(m_ip.c_str());
 
-		//½«ÓÃ»§¶Ï¿ªÁ¬½ÓĞÅÏ¢·µ»Ø¸øÉÏ²ãÓ¦ÓÃ
+		//å°†ç”¨æˆ·æ–­å¼€è¿æ¥ä¿¡æ¯è¿”å›ç»™ä¸Šå±‚åº”ç”¨
 		MessagePackage msgPack;
 		msgPack.WriteHeader(link_disconnected, 0);
 		msgPack.WriteBody((void*)m_ip.c_str(), dataLen);
@@ -135,7 +135,7 @@ int Channel::SendData(void* data, int len)
 		return send_disconnected;
 	}
 
-	//µ±ÓÃ»§¶Ï¿ªÁ¬½ÓÊ±£¬ bufferevent_writeº¯Êı»áËÀËøÔÚm_bevÀï²»·µ»Ø
+	//å½“ç”¨æˆ·æ–­å¼€è¿æ¥æ—¶ï¼Œ bufferevent_writeå‡½æ•°ä¼šæ­»é”åœ¨m_bevé‡Œä¸è¿”å›
 	//if (0 != bufferevent_write(m_bev, data, len))
 	//{
 	//	printf("bufferevent_write  error\n");

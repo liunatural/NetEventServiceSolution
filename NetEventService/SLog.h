@@ -23,7 +23,7 @@ public:
 	SLog();
 	~SLog(void);
 
-	// ÔÚÊ¹ÓÃÖ®Ç°±ØĞëÏÈµ÷ÓÃ´Ëº¯Êı  
+	// åœ¨ä½¿ç”¨ä¹‹å‰å¿…é¡»å…ˆè°ƒç”¨æ­¤å‡½æ•°  
 	static void Init(const char* dir);
 	static void Log(int slv, const char* format);
 

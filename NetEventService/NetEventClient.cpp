@@ -32,7 +32,7 @@ int NetEventClient::Connect(const char* ip, const char* port)
 	DWORD Ret;
 	if ((Ret = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
 	{
-		LOG(error, "WSAStartup´íÎó£º %d\n", Ret);
+		LOG(error, "WSAStartupé”™è¯¯ï¼š %d\n", Ret);
 		return -1;
 	}
 
@@ -191,12 +191,12 @@ void NetEventClient::eventcb(struct bufferevent *bev, short event, void *arg)
 
 	if (event & BEV_EVENT_EOF)
 	{
-		//LOG(info, "·şÎñÆ÷¶Ë¹Ø±ÕÁ¬½Ó£¡");
+		//LOG(info, "æœåŠ¡å™¨ç«¯å…³é—­è¿æ¥ï¼");
 		msgID = link_server_closed;
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		//LOG(error, "Á¬½Ó·şÎñÆ÷Ê§°Ü£¡");
+		//LOG(error, "è¿æ¥æœåŠ¡å™¨å¤±è´¥ï¼");
 		msgID = link_server_failed;
 	}
 	else if (event & BEV_EVENT_CONNECTED)
