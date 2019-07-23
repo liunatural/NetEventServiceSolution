@@ -27,7 +27,7 @@ public:
 
 public:
 	enum { header_length = sizeof(Header) };
-	enum { max_body_length = 8 * 1024 };
+	enum { max_body_length = 32 * 1024 };
 
 	Header* header() { return (Header*)m_buffer; }
 	char* body() { return m_buffer + header_length; }

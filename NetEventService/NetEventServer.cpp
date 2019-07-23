@@ -81,7 +81,7 @@ bool NetEventServer::Start(int port, int maxConnects)
 
 	if (!m_listener)
 	{
-		LOG(error, "不能建立监听！");
+		LOG(error, "不能建立监听");
 		return false;
 	}
 
@@ -337,7 +337,7 @@ bool NetEventServer::StartReceiverThreads(int thread_numb)
 		evutil_socket_t fds[2];
 		if (evutil_socketpair(AF_INET, SOCK_STREAM, 0, fds) < 0)
 		{
-			LOG(error, "创建socketpair失败！");
+			LOG(error, "创建socketpair失败");
 			return false;
 		}
 		//设置成无阻赛的socket
@@ -419,7 +419,7 @@ void NetEventServer::notify_cb(evutil_socket_t fd, short which, void *args)
 	auto bev = bufferevent_socket_new(plt->thread_base, item.fd, BEV_OPT_THREADSAFE | BEV_OPT_CLOSE_ON_FREE);
 	if (!bev) 
 	{
-		LOG(error, "创建socket出错！");
+		LOG(error, "创建socket出错!");
 		return;
 	}
 
@@ -486,7 +486,7 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 
 	if (cid == -1)
 	{
-		LOG(info, "[%s]尝试连接服务器失败！超过服务器最大连接数！", connItem.ip.c_str());
+		LOG(info, "[%s]尝试连接服务器失败！超过服务器最大连接数!", connItem.ip.c_str());
 		msgPack.WriteHeader(link_error_exceed_max_connects, 0);
 
 		send(connItem.fd, msgPack.data(), msgPack.GetPackageLength(), 0);
@@ -501,7 +501,7 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 	//这种情况应该不会发生，m_channelMgr->GetFreeID()已经加锁
 	if ((NULL != m_Channels[cid]) && m_Channels[cid]->IsUsed()) 
 	{
-		LOG(error, "服务器分配了一个正在使用中的连接ID[%d]！", cid);
+		LOG(error, "服务器分配了一个正在使用中的连接ID[%d]!", cid);
 		
 		//报告给上层应用
 		msgPack.WriteHeader(link_error_channel_is_exist, 0);
@@ -560,7 +560,7 @@ void NetEventServer::conn_eventcb(struct bufferevent *bev, short what, void *arg
 
 	if (what & BEV_EVENT_TIMEOUT)
 	{
-		LOG(info,"连接超时！");  //if bufferevent_set_timeouts() called.
+		LOG(info,"连接超时!");  //if bufferevent_set_timeouts() called.
 	}
 	else if (what & BEV_EVENT_EOF)
 	{

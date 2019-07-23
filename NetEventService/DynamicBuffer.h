@@ -10,7 +10,7 @@ public:
 		m_buff_len = MAX_DATA_BUFFER_LEN;
 
 		m_StreamBuffer.reserve(m_buff_len);
-		m_head_size = 0;
+		m_offset = 0;
 	}
 
 	void Push(const void * pBuf, int nLen)
@@ -22,11 +22,11 @@ public:
 
 	void Pop(int nLen)
 	{
-		m_head_size += nLen;
-		if (m_head_size > m_buff_len)
+		m_offset += nLen;
+		if (m_offset > m_buff_len)
 		{
-			m_StreamBuffer.erase(m_StreamBuffer.begin(), m_StreamBuffer.begin() + m_head_size);
-			m_head_size = 0;
+			m_StreamBuffer.erase(m_StreamBuffer.begin(), m_StreamBuffer.begin() + m_offset);
+			m_offset = 0;
 			m_StreamBuffer.reserve(m_buff_len);
 		}
 	}
@@ -38,12 +38,12 @@ public:
 			return NULL;
 		}
 
-		return &m_StreamBuffer[0] + m_head_size;
+		return &m_StreamBuffer[0] + m_offset;
 	}
 
 	int Size()
 	{
-		return (int)m_StreamBuffer.size() - m_head_size;
+		return (int)m_StreamBuffer.size() - m_offset;
 	}
 
 	void Clear()
@@ -53,7 +53,7 @@ public:
 
 private:
 	std::vector<char> m_StreamBuffer;
-	int m_head_size;
+	int m_offset;
 	int m_buff_len;
 };
 

@@ -165,6 +165,9 @@ void VRSceneServer::HandleNetEventFromClient()
 	MsgQueue& msgQ = m_pNetEventServer->GetMsgQueue();
 	int msgAmount = msgQ.GetCount();
 
+	char json[200] = {0};
+	int bodyLen = 0;
+
 	for (int i = 0; i < msgAmount; i++)
 	{
 		MessagePackage* pack = (MessagePackage*)msgQ.GetMsg(i);
@@ -205,6 +208,12 @@ void VRSceneServer::HandleNetEventFromClient()
 					//向其他VIP客户端广播用户登录
 					m_pPlayerMgr->BroadcastNewUserOnline(cid);
 				}
+			}
+			else
+			{
+				bodyLen = pack->GetBodyLength();
+				memset(json, 0, sizeof(json));
+				memcpy(json, pack->body(), bodyLen);
 			}
 			break;
 		}

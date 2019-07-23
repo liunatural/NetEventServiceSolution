@@ -12,6 +12,7 @@
 #include "MessageQueue.h"
 #include "protocol.h"
 #include <signal.h>
+#include <event2\thread.h>
 
 NetEventClient::NetEventClient() 
 {
@@ -36,6 +37,8 @@ int NetEventClient::Connect(const char* ip, const char* port)
 		return -1;
 	}
 
+
+	evthread_use_windows_threads();
 
 	m_pBase = event_base_new();
 	if (!m_pBase)
@@ -83,7 +86,15 @@ void NetEventClient::Start()
 {
 	m_thread.reset(new std::thread([this]
 	{
-		event_base_dispatch(m_pBase);
+		int ret = event_base_dispatch(m_pBase);
+		if (ret == -1)
+		{
+			LOG(error, "error when call event_base_dispatch.\n");
+		}
+		else if(ret == 1)
+		{
+			LOG(error, "exited because no events were pending or active.\n");
+		}
 
 	}));
 }
@@ -137,7 +148,7 @@ void NetEventClient::readcb(struct bufferevent* bev, void* arg)
 
 	NetEventClient* pNetEventClient = (NetEventClient*)arg;
 
-	char data[1024 * 4] = { 0 };
+	char data[MessagePackage::max_body_length] = { 0 };
 	int nbytes = 0;
 	int TotalBytes = 0;
 
@@ -147,10 +158,18 @@ void NetEventClient::readcb(struct bufferevent* bev, void* arg)
 	}
 
 	int len = (int)bufferevent_read(bev, data, sizeof(data));
-	pNetEventClient->GetDataStream().Push(data, len);
 
-	pNetEventClient->read_pack();
+	if (len > 0)
+	{
+		pNetEventClient->GetDataStream().Push(data, len);
 
+		pNetEventClient->read_pack();
+	}
+	else
+	{
+		//应该走不到这里
+		LOG(info, "Invalid read data length: [%d]  in function readcb\n", len);
+	}
 }
 
 
