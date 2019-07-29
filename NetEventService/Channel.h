@@ -34,7 +34,7 @@ public:
 	void  SetTID(int tid) { m_tid = tid; };
 
 	MessageQueueAB* GetMsgQueueAB();
-	void  SeMsgQueueAB(MessageQueueAB* pMsgQAB);
+	void  SetMsgQueueAB(MessageQueueAB* pMsgQAB);
 
 	void SetNetEventServer(NetEventServer* evtServer) { m_pNetEvtSvr = evtServer; };
 	NetEventServer* GetNetEventServer();

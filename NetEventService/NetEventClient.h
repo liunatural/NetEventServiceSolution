@@ -40,7 +40,7 @@ private:
 	static void readcb(struct bufferevent* bev, void* arg);
 	static void eventcb(struct bufferevent *bev, short event, void *arg);
 	void read_pack();
-
+	void clear();
 	static void signal_cb(evutil_socket_t sig, short events, void *arg);
 
 

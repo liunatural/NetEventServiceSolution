@@ -520,7 +520,7 @@ Channel* NetEventServer::CreateChannel(bufferevent *bev, conn_queue_item& connIt
 	c->SetChannelID(cid);
 	c->SetTID(connItem.tid);
 	c->SetFD(fd);
-	c->SeMsgQueueAB(this->GetMessageQueueAB());
+	c->SetMsgQueueAB(this->GetMessageQueueAB());
 	m_Channels[cid]  =  c;
 
 	return c;

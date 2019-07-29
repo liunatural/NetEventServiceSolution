@@ -19,12 +19,16 @@ NetEventClient::NetEventClient()
 	m_pMsgQueueAB = new MessageQueueAB();
 
 	m_fncb = NULL;
+	m_bev = NULL;
+	m_pBase = NULL;
 }
 
 
 NetEventClient::~NetEventClient()
 {
 	m_thread->join();
+
+	clear();
 }
 
 int NetEventClient::Connect(const char* ip, const char* port)
@@ -86,33 +90,32 @@ void NetEventClient::Start()
 {
 	m_thread.reset(new std::thread([this]
 	{
-		int ret = event_base_dispatch(m_pBase);
-		if (ret == -1)
+		
+		if (m_pBase == NULL)
 		{
-			LOG(error, "error when call event_base_dispatch.\n");
+			LOG(error, "Invalid input event_base parameter when calling event_base_dispatch.\n");
+			return;
 		}
-		else if(ret == 1)
+
+		try
 		{
-			LOG(error, "exited because no events were pending or active.\n");
+			event_base_dispatch(m_pBase);
+		}
+		catch (...)
+		{
+			LOG(error, "exception happened when calling event_base_dispatch.\n");
+			return;
 		}
 
 	}));
 }
-
+ 
 void NetEventClient::Disconnect()
 {
 	event_base_loopexit(m_pBase, NULL);
 	//event_base_loopbreak(m_pBase);
 
-	if (NULL != m_bev)
-	{
-		bufferevent_free(m_bev);
-	}
-
-	if (NULL != m_pBase)
-	{
-		event_base_free(m_pBase);
-	}
+	clear();
 
 }
 
@@ -191,6 +194,28 @@ void NetEventClient::read_pack()
 		m_readStream.Pop(len + 8);
 	}
 
+}
+
+void NetEventClient::clear()
+{
+	if (NULL != m_bev)
+	{
+		bufferevent_free(m_bev);
+		m_bev = NULL;
+	}
+
+	if (NULL != m_pBase)
+	{
+		event_base_free(m_pBase);
+		m_pBase = NULL;
+	}
+
+
+	if (NULL != m_pMsgQueueAB )
+	{
+		delete m_pMsgQueueAB;
+		m_pMsgQueueAB = NULL;
+	}
 }
 
 void NetEventClient::signal_cb(evutil_socket_t sig, short events, void * arg)

@@ -48,7 +48,7 @@ MessageQueueAB* Channel::GetMsgQueueAB()
 }
 
 
-void   Channel::SeMsgQueueAB(MessageQueueAB* pMsgQAB)
+void   Channel::SetMsgQueueAB(MessageQueueAB* pMsgQAB)
 {
 	m_pMsgQAB = pMsgQAB;
 }
